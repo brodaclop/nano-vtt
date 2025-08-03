@@ -1,0 +1,32 @@
+{
+  "name": "vtt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:client": "tsc --project tsconfig-client.json",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+    "lint": "eslint 'src/**/*.ts'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-ws": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/express-ws": "^3.0.5",
+    "@types/node": "^24.1.0",
+    "eslint": "^9.32.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
