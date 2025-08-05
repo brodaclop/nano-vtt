@@ -4,12 +4,23 @@
 <head>
     <meta charset="UTF-8" />
     <title>micro-vtt</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "/script/websocket": "/script/websocket.js",
+                "/script/drag": "/script/drag.js",
+                "/script/screen": "/script/screen.js"
+            }
+        }
+    </script>
     <script type="module" src="./script/script.js" defer></script>
 </head>
 
 <body>
-    <div id="canvas" style="height: 800px; width: 800px; background-color: black">
+    <div id="container" style="height: 800px; width: 800px; overflow: hidden">
+        <div id="canvas" style="position: absolute; top: 0; left: 0">
 
+        </div>
     </div>
 </body>
 

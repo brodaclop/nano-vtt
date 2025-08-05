@@ -1,14 +1,9 @@
-export interface MapObjectBase {
-    id: string;
+export interface MapObject {
+    id: number;
     x: number;
     y: number;
     zoom: number;
     angle: number;
+    data: Blob;
 }
 
-export interface Bitmap extends MapObjectBase {
-    type: 'bitmap';
-    url: string;
-}
-
-export type MapObject = Bitmap;
