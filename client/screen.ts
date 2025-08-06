@@ -1,6 +1,6 @@
 import { isDragging } from "./drag";
 import { MapObject } from "./types/map-objects";
-import { send } from "./websocket";
+import { sendDelete, sendObject } from "./websocket";
 
 interface ScreenElement {
     node: HTMLImageElement;
@@ -21,6 +21,7 @@ const init = async () => {
         data: map,
         x: 0,
         y: 0,
+        layer: 1,
         zoom: 1000,
         angle: 0
     })
@@ -44,13 +45,18 @@ const ensureElement = (id: number): ScreenElement => {
 
 export const draw = () => {
     objects.forEach((ob) => {
-        const { id, x, y, zoom, angle } = ob;
+        const { id, x, y, zoom, layer, angle } = ob;
         const element = ensureElement(id);
         const node = element.node;
         // TODO: revoke the url when node is released?
         if (!node.src) {
             node.src = URL.createObjectURL(ob.data);
             node.style.position = 'absolute';
+        }
+
+        if (layer === 0) {
+            node.style.display = 'none'
+        } else {
             node.style.display = 'inline-block';
         }
 
@@ -91,11 +97,44 @@ export const addObject = (data: Blob) => {
         angle: 0,
         x: 0,
         y: 0,
+        layer: 1,
         zoom: 1000,
         data
     };
     objects.push(ob);
     draw();
-    send(ob, ['id', 'x', 'y', 'angle', 'zoom', 'data']);
+    sendObject(ob);
     return ob;
 };
+
+export const deleteObject = (id: number) => {
+    objects = objects.filter(ob => ob.id !== id);
+    const elem = screenObjects[id];
+    if (elem) {
+        canvas.removeChild(elem.node);
+        delete screenObjects[id];
+    }
+    if (selected === id) {
+        selected = undefined;
+    }
+    draw();
+}
+
+export const zoomSelected = (zoom: number) => {
+    const selected = getSelectedObject();
+    if (selected) {
+        selected.zoom *= zoom;
+        draw();
+        sendObject(selected, ['zoom']);
+    }
+}
+
+export const rotateSelected = (angle: number) => {
+    const selected = getSelectedObject();
+    if (selected) {
+        selected.angle += angle;
+        draw();
+        sendObject(selected, ['angle']);
+    }
+
+}

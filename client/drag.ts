@@ -1,5 +1,5 @@
 import { addObject, draw, getSelectedObject } from "./screen";
-import { send } from "./websocket";
+import { sendObject } from "./websocket";
 
 let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;
@@ -10,7 +10,7 @@ const container = document.getElementById('container');
 const afterDrag = () => {
     const selected = getSelectedObject();
     if (selected) {
-        send(selected, ['id', 'x', 'y']);
+        sendObject(selected, ['id', 'x', 'y']);
 
     }
 }

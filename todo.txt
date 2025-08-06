@@ -1,0 +1,25 @@
+Networking:
+  - reconnect
+  - rooms
+  - auth
+  - versioning / sync
+
+Map:
+  - opacity
+  - show/hide image
+  - drop location
+  - zindex
+
+
+Chat:
+  - set name
+  - receive message
+  - broadcast message
+  - private message
+  - dice roller
+
+  Other:
+
+  - reorganise operations
+
+
