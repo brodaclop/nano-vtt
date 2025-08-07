@@ -1,31 +1,33 @@
-import { deleteObject, draw, getSelectedObject, rotateSelected, zoomSelected } from "./screen";
-import { sendDelete } from "./websocket";
-
-
-
+import { draw, MapObjects, Operations } from "./screen";
 
 console.log('Script loaded');
 
 document.onkeydown = e => {
-    const selected = getSelectedObject();
-    console.log('key', e.key, selected);
-    if (selected) {
-        if (e.key === 'Delete') {
-            deleteObject(selected.id);
-            sendDelete(selected.id);
+    console.log('key', e.key, MapObjects.selected());
+    if (e.key === 'Delete') {
+        Operations.remove();
+    } else if (e.key === '+') {
+        Operations.zoom(1.1);
+    } else if (e.key === '-') {
+        Operations.zoom(0.9);
+    } else if (e.key === 'ArrowLeft') {
+        Operations.rotate(-5);
+    } else if (e.key === 'ArrowRight') {
+        Operations.rotate(5);
+    } else if (e.key === 'ArrowUp') {
+        Operations.sendToTop();
+    } else if (e.key === 'ArrowDown') {
+        Operations.sendToBottom();
+    } else if (e.key === 'Tab') {
+        if (e.shiftKey) {
+            Operations.selectPrevious();
+        } else {
+            Operations.selectNext();
         }
-        if (e.key === '+') {
-            zoomSelected(1.1);
-        }
-        if (e.key === '-') {
-            zoomSelected(0.9);
-        }
-        if (e.key === 'ArrowLeft') {
-            rotateSelected(-5);
-        }
-        if (e.key === 'ArrowRight') {
-            rotateSelected(5);
-        }
+    } else if (e.key === 'Escape') {
+        Operations.unselect();
+    } else {
+        return;
     }
     e.preventDefault();
 }

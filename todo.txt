@@ -5,10 +5,9 @@ Networking:
   - versioning / sync
 
 Map:
-  - opacity
   - show/hide image
   - drop location
-  - zindex
+  - don't select hidden images
 
 
 Chat:

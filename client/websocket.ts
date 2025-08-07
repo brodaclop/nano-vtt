@@ -1,4 +1,4 @@
-import { deleteObject, updateObject } from "./screen";
+import { MapObjects } from "./screen";
 import { MapObject } from "./types/map-objects";
 
 const HOST_PORT = new URL(window.location.href);
@@ -21,9 +21,9 @@ socket.addEventListener("message", async (event) => {
     console.log("Message from server ", event.data);
     const decoded = await fromMessage(event.data);
     if ('deletedId' in decoded) {
-        deleteObject(decoded.deletedId);
+        MapObjects.remove(decoded.deletedId);
     } else {
-        updateObject(decoded);
+        MapObjects.update(decoded);
     }
 });
 
