@@ -9,16 +9,27 @@
             "imports": {
                 "/script/websocket": "/script/websocket.js",
                 "/script/drag": "/script/drag.js",
-                "/script/screen": "/script/screen.js"
+                "/script/screen": "/script/screen.js",
+                "/script/chat": "/script/chat.js",
+                "/script/random": "/script/random.js",
+                "/script/room": "/script/room.js"
             }
         }
     </script>
     <script type="module" src="./script/script.js" defer></script>
+    <link rel="stylesheet" href="./styles.css" />
 </head>
 
-<body style="background-color: black; color: white">
-    <div id="canvas" style="position: absolute; top: 0; left: 0;">
+<body>
+    <div id="canvas">
 
+    </div>
+    <div id="chat">
+        <ul id="chat-messages"></ul>
+        <div>
+            <input type="text" id="message-input">
+            <button id="send-message">Send</button>
+        </div>
     </div>
 </body>
 

@@ -3,6 +3,7 @@ Networking:
   - rooms
   - auth
   - versioning / sync
+  - debounce
 
 Map:
   - show/hide image
@@ -12,13 +13,13 @@ Map:
 
 Chat:
   - set name
-  - receive message
-  - broadcast message
   - private message
   - dice roller
+  - delete message
+
 
   Other:
+  - enforce max lengths for strings/blobs
 
-  - reorganise operations
 
 

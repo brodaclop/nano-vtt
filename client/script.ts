@@ -1,3 +1,4 @@
+import { initChat } from "./chat";
 import { draw, MapObjects, Operations } from "./screen";
 
 console.log('Script loaded');
@@ -32,6 +33,7 @@ document.onkeydown = e => {
     e.preventDefault();
 }
 
+initChat();
 draw();
 
 
