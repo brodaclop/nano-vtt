@@ -1,10 +1,10 @@
 import { initChat } from "./chat";
-import { draw, MapObjects, Operations } from "./screen";
+import { initLobby } from "./lobby";
+import { draw, Operations } from "./screen";
 
 console.log('Script loaded');
 
 document.onkeydown = e => {
-    console.log('key', e.key, MapObjects.selected());
     if (e.key === 'Delete') {
         Operations.remove();
     } else if (e.key === '+') {
@@ -35,5 +35,5 @@ document.onkeydown = e => {
 
 initChat();
 draw();
-
+initLobby();
 

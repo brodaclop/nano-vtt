@@ -7,12 +7,15 @@
     <script type="importmap">
         {
             "imports": {
+                "/script/messages": "/script/messages.js",
                 "/script/websocket": "/script/websocket.js",
                 "/script/drag": "/script/drag.js",
                 "/script/screen": "/script/screen.js",
                 "/script/chat": "/script/chat.js",
                 "/script/random": "/script/random.js",
-                "/script/room": "/script/room.js"
+                "/script/room": "/script/room.js",
+                "/script/lobby": "/script/lobby.js",
+                "/script/dom": "/script/dom.js"
             }
         }
     </script>
@@ -31,6 +34,18 @@
             <button id="send-message">Send</button>
         </div>
     </div>
+    <dialog id="join-dialog">
+        <label>
+            Room:
+            <input type="text" id="join-room" />
+        </label>
+        <label>
+            Name:
+            <input type="text" id="join-name" />
+        </label>
+        <button>Join</button>
+    </dialog>
+    <div id="connection"></div>
 </body>
 
 </html>

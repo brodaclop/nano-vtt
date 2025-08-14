@@ -7,7 +7,8 @@
     "build:client": "tsc --project tsconfig-client.json",
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+    "start:all": "npm run build:client && npm run build && npm start",
+    "dev": "nodemon --watch src --watch static --watch client -e ts,html,css --exec npm run start:all",
     "lint": "eslint 'src/**/*.ts'"
   },
   "keywords": [],

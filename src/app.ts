@@ -20,11 +20,11 @@ inst.app.ws('/api', (ws, req) => {
         // TODO: there must be a better way to share constants, this is MessageType.JOIN_ROOM
         if (mType === 3) {
             const blob = new Blob([buffer as any]);
-            const room = await blob.slice(5).text();
+            const room = (await blob.slice(5).text()).split(' | ')[0];
             (ws as any).context = { room: room };
         }
         [...clients].filter(c => {
-            const sameRoom = c.context.room === (ws as any).context.room;
+            const sameRoom = (ws as any).context?.room && c.context?.room === (ws as any).context.room;
             return sameRoom && c !== ws;
         }).forEach(c => c.send(msg));
     });

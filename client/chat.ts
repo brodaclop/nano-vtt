@@ -1,12 +1,7 @@
+import { UI } from "./dom";
 import { random } from "./random";
-import { CHAT_USER_ID, USERS } from "./room";
-import { sendChatMessage } from "./websocket";
-
-const messageBox = document.getElementById('chat-messages')!;
-const input = document.getElementById('message-input')! as HTMLInputElement;
-const sendButton = document.getElementById('send-message')! as HTMLButtonElement;
-
-
+import { MY_USER_ID, USERS } from "./room";
+import { sendChatMessage } from "./messages";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 
@@ -17,23 +12,23 @@ export interface ChatMessage {
 }
 
 export const initChat = () => {
-    input.oninput = () => {
-        sendButton.disabled = !input.value;
+    UI.chat.input.oninput = () => {
+        UI.chat.sendButton.disabled = !UI.chat.input.value;
     }
 
-    sendButton.disabled = !input.value;
+    UI.chat.sendButton.disabled = !UI.chat.input.value;
 
-    input.onkeydown = e => {
+    UI.chat.input.onkeydown = e => {
         e.stopPropagation();
     }
 
-    sendButton.onclick = () => {
-        const text = input.value;
-        const message = { id: random(), sender: CHAT_USER_ID, text };
+    UI.chat.sendButton.onclick = () => {
+        const text = UI.chat.input.value;
+        const message = { id: random(), sender: MY_USER_ID, text };
         addChatMessage(message);
         sendChatMessage(message);
-        input.value = '';
-        input.dispatchEvent(new Event('input'));
+        UI.chat.input.value = '';
+        UI.chat.input.dispatchEvent(new Event('input'));
     }
 }
 
@@ -56,15 +51,15 @@ export const drawChat = () => {
             messageSpan.className = 'text';
             message.elem.appendChild(messageSpan);
             if (idx === 0) {
-                messageBox.prepend(message.elem);
+                UI.chat.box.prepend(message.elem);
             } else {
                 messages[idx - 1].elem?.after(message.elem);
             }
         }
         const [userSpan, messageSpan] = [...message.elem.children] as Array<HTMLElement>;
-        userSpan.innerText = (message.sender !== CHAT_USER_ID) ? USERS[message.sender] : '';
+        userSpan.innerText = (message.sender !== MY_USER_ID) ? USERS[message.sender] : '';
         messageSpan.innerText = message.text;
-        message.elem.className = (message.sender === CHAT_USER_ID) ? 'own' : 'other';
+        message.elem.className = (message.sender === MY_USER_ID) ? 'own' : 'other';
     });
 }
 

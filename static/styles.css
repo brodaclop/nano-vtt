@@ -52,6 +52,7 @@ div#chat ul li span.sender {
     display: block;
     font-size: small;
     font-weight: bold;
+    color: aliceblue;
 }
 
 div#chat ul li span.text {
@@ -67,4 +68,12 @@ div#chat ul li.own {
 div#chat ul li.other {
     align-self: flex-end;
     background-color: midnightblue;
+}
+
+div#connection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: aquamarine;
+    color: black;
 }

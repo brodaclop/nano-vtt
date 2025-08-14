@@ -1,14 +1,13 @@
+import { UI } from "./dom";
 import { isDragging } from "./drag";
 import { MapObject } from "./types/map-objects";
-import { sendDelete, sendObject } from "./websocket";
+import { sendDelete, sendObject } from "./messages";
 
 interface ScreenElement {
     node: HTMLImageElement;
 }
 
 let selected: number | undefined = undefined;
-
-const canvas = document.getElementById('canvas')!;
 
 let objects: Array<MapObject> = [];
 
@@ -35,7 +34,7 @@ const screenObjects: Record<number, ScreenElement> = {};
 const ensureElement = (id: number): ScreenElement => {
     if (!screenObjects[id]) {
         const node = document.createElement("img");
-        canvas?.appendChild(node);
+        UI.canvas.appendChild(node);
         screenObjects[id] = {
             node
         }
@@ -107,7 +106,7 @@ export const MapObjects = {
         objects = objects.filter(ob => ob.id !== id);
         const elem = screenObjects[id];
         if (elem) {
-            canvas.removeChild(elem.node);
+            UI.canvas.removeChild(elem.node);
             delete screenObjects[id];
         }
         if (selected === id) {

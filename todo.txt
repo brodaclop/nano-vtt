@@ -4,6 +4,7 @@ Networking:
   - auth
   - versioning / sync
   - debounce
+  - connection indicator
 
 Map:
   - show/hide image
@@ -12,10 +13,11 @@ Map:
 
 
 Chat:
-  - set name
   - private message
   - dice roller
   - delete message
+  - change name
+  - display join/rename messages
 
 
   Other:

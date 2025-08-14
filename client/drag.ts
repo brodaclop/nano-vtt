@@ -42,13 +42,10 @@ document.ondragenter = e => {
 const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg'];
 
 document.ondrop = e => {
-    console.log('dropped');
     if (e.dataTransfer?.items.length === 1) {
         const item = e.dataTransfer.items[0];
-        console.log('dropped 1 item, type', item.type);
         if (ACCEPTED_TYPES.includes(item.type)) {
             const file = item.getAsFile();
-            console.log('item file', file);
             if (file) {
                 Operations.add(file);
             }
