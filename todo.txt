@@ -1,10 +1,7 @@
 Networking:
-  - reconnect
-  - rooms
   - auth
   - versioning / sync
   - debounce
-  - connection indicator
 
 Map:
   - show/hide image
