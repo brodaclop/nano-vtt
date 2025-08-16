@@ -7,6 +7,8 @@ Map:
   - show/hide image
   - drop location
   - don't select hidden images
+  - distance measure
+  - fog of war
 
 
 Chat:
@@ -17,8 +19,10 @@ Chat:
   - display join/rename messages
 
 
+
   Other:
   - enforce max lengths for strings/blobs
+
 
 
 

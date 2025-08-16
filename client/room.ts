@@ -37,9 +37,9 @@ export const receiveHelloMessage = (message: HelloMessage) => {
 
 let currentRoom: string | undefined = undefined;
 
-Socket.registerSocketStatusListener(open => {
-    UI.connection.innerText = open === 'open' ? '' : open;
-    if (open === 'open' && currentRoom) {
+Socket.registerSocketStatusListener(status => {
+    UI.connection.innerText = status;
+    if (status === 'connected' && currentRoom) {
         joinRoom(currentRoom, USERS[MY_USER_ID]);
     }
 })

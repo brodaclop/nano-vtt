@@ -2,18 +2,14 @@ import { UI } from "./dom";
 import { joinRoom } from "./room";
 
 export const initLobby = () => {
-    const dialog = document.getElementById('join-dialog') as HTMLDialogElement;
-    const button = dialog.querySelector('button') as HTMLButtonElement;
-    const room = document.getElementById('join-room') as HTMLInputElement;
-    const name = document.getElementById('join-name') as HTMLInputElement;
-    dialog.showModal();
+    UI.lobby.dialog.showModal();
 
-    UI.disableIfEmpty(button, room, name);
+    UI.disableIfEmpty(UI.lobby.button, UI.lobby.room, UI.lobby.name);
 
-    button.onclick = () => {
-        joinRoom(room.value, name.value);
+    UI.lobby.button.onclick = () => {
+        joinRoom(UI.lobby.room.value, UI.lobby.name.value);
 
-        dialog.close();
+        UI.lobby.dialog.close();
     }
 
 }

@@ -2,6 +2,7 @@ import { UI } from "./dom";
 import { random } from "./random";
 import { MY_USER_ID, USERS } from "./room";
 import { sendChatMessage } from "./messages";
+import { Interpolation } from "./interpolation";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 
@@ -22,13 +23,14 @@ export const initChat = () => {
         e.stopPropagation();
     }
 
-    UI.chat.sendButton.onclick = () => {
-        const text = UI.chat.input.value;
+    UI.chat.form.onsubmit = (event) => {
+        const text = Interpolation.perform(UI.chat.input.value);
         const message = { id: random(), sender: MY_USER_ID, text };
         addChatMessage(message);
         sendChatMessage(message);
         UI.chat.input.value = '';
         UI.chat.input.dispatchEvent(new Event('input'));
+        event.preventDefault();
     }
 }
 
@@ -60,6 +62,10 @@ export const drawChat = () => {
         userSpan.innerText = (message.sender !== MY_USER_ID) ? USERS[message.sender] : '';
         messageSpan.innerText = message.text;
         message.elem.className = (message.sender === MY_USER_ID) ? 'own' : 'other';
+    });
+    UI.chat.box.scrollTo({
+        top: UI.chat.box.scrollHeight,
+        behavior: 'smooth'
     });
 }
 

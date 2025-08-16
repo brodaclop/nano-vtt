@@ -15,6 +15,7 @@
                 "/script/random": "/script/random.js",
                 "/script/room": "/script/room.js",
                 "/script/lobby": "/script/lobby.js",
+                "/script/interpolation": "/script/interpolation.js",
                 "/script/dom": "/script/dom.js"
             }
         }
@@ -24,28 +25,32 @@
 </head>
 
 <body>
-    <div id="canvas">
+    <div class="canvas">
 
     </div>
-    <div id="chat">
-        <ul id="chat-messages"></ul>
-        <div>
-            <input type="text" id="message-input">
-            <button id="send-message">Send</button>
+    <div class="chat">
+        <div class="connection"></div>
+        <div class="container">
+            <ul class="messages"></ul>
         </div>
+        <form>
+            <div class="input-box">
+                <input type="text" autocomplete="off" />
+                <button type="submit" class="send">⌲</button>
+            </div>
+        </form>
     </div>
-    <dialog id="join-dialog">
-        <label>
+    <dialog class="join">
+        <label class="room">
             Room:
-            <input type="text" id="join-room" />
+            <input type="text" />
         </label>
-        <label>
+        <label class="name">
             Name:
-            <input type="text" id="join-name" />
+            <input type="text" />
         </label>
         <button>Join</button>
     </dialog>
-    <div id="connection"></div>
 </body>
 
 </html>
