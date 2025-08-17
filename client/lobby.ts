@@ -6,10 +6,10 @@ export const initLobby = () => {
 
     UI.disableIfEmpty(UI.lobby.button, UI.lobby.room, UI.lobby.name);
 
-    UI.lobby.button.onclick = () => {
+    UI.lobby.form.onsubmit = (e) => {
         joinRoom(UI.lobby.room.value, UI.lobby.name.value);
-
         UI.lobby.dialog.close();
-    }
-
+        e.preventDefault();
+        return false;
+    };
 }

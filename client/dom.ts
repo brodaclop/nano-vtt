@@ -6,9 +6,13 @@ export const UI = {
         form: document.querySelector('.chat form')! as HTMLFormElement,
         sendButton: document.querySelector('.chat .send')! as HTMLButtonElement,
     },
-    connection: document.querySelector('.connection')! as HTMLElement,
+    menu: {
+        room: document.querySelector('.menu .room')! as HTMLElement,
+        connection: document.querySelector('.menu .connection')! as HTMLElement,
+    },
     lobby: {
         dialog: document.querySelector('.join')! as HTMLDialogElement,
+        form: document.querySelector('.join form')! as HTMLFormElement,
         button: document.querySelector('.join button')! as HTMLButtonElement,
         room: document.querySelector('.join .room input') as HTMLInputElement,
         name: document.querySelector('.join .name input') as HTMLInputElement,

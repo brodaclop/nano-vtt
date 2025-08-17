@@ -26,9 +26,10 @@ div.canvas {
 
 .chat .input-box {
     padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-bottom: 1em;
     display: flex;
     justify-content: stretch;
+    align-items: stretch;
 }
 
 .chat .input-box input {
@@ -36,9 +37,10 @@ div.canvas {
 }
 
 
-input,
-button {
+.join input,
+.join button {
     height: var(--font-size);
+    font-size: calc(var(--font-size) / 2);
 }
 
 
@@ -92,13 +94,17 @@ button {
     background-color: midnightblue;
 }
 
-div.connection {
-    background-color: aquamarine;
+div.menu {
+    background-color: wheat;
     color: black;
     z-index: 1000000000;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
 }
 
-.join {
+
+.join form {
     display: flex;
     flex-direction: column;
     align-items: stretch;

@@ -5,6 +5,9 @@ import { draw, Operations } from "./screen";
 console.log('Script loaded');
 
 document.onkeydown = e => {
+    if (document.activeElement !== document.body) {
+        return;
+    }
     if (e.key === 'Delete') {
         Operations.remove();
     } else if (e.key === '+') {

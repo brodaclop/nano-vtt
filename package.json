@@ -4,22 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "cf-typegen": "wrangler types",
     "build:client": "tsc --project tsconfig-client.json",
     "build": "tsc",
-    "start": "node dist/server.js",
     "start:all": "npm run build:client && npm run build && npm start",
-    "dev": "nodemon --watch src --watch static --watch client -e ts,html,css --exec npm run start:all",
     "lint": "eslint 'src/**/*.ts'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "express-ws": "^5.0.2"
-  },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/express-ws": "^3.0.5",
@@ -28,6 +25,7 @@
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^4.30.0"
   }
 }

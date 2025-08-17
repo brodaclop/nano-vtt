@@ -10,6 +10,7 @@ Map:
   - distance measure
   - fog of war
   - allow webp
+  - lock image in place
 
 
 Chat:
@@ -21,8 +22,11 @@ Chat:
 
 
 
-  Other:
+Other:
   - enforce max lengths for strings/blobs
+
+Bugs:
+
 
 
 

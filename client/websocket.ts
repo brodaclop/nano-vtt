@@ -11,7 +11,8 @@ export type SocketStatus = 'disconnected' | 'connecting...' | 'waiting...' | 'co
 const connect = () => {
     statusListener?.('connecting...');
     console.log('Connecting...');
-    socket = new WebSocket(`ws://${HOST_PORT.host}/api`);
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    socket = new WebSocket(`${protocol}://${HOST_PORT.host}/ws`);
     socket.addEventListener("open", (event) => {
         console.log('Connected');
         statusListener?.('connected');

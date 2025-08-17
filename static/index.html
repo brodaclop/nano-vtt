@@ -29,7 +29,23 @@
 
     </div>
     <div class="chat">
-        <div class="connection"></div>
+        <div class="menu">
+            <div class="room">No room</div>
+            <button popovertarget="help">?</button>
+            <div id="help" popover>
+                <h1>nano-vtt</h1>
+                <p>Drag image file onto map to add image to map</p>
+                <p><b>Select image:</b> click image or cycle selection via <b>Tab</b> key</p>
+                <p><b>Deselect image:</b> click on selected image again or press <b>Esc</b> key</p>
+                <p><b>Move selected image:</b> drag image via mouse</p>
+                <p><b>Scale selected image:</b> <b>+</b>/<b>-</b> key </p>
+                <p><b>Rotate selected image:</b> <b>Left/right arrow</b> key</p>
+                <p><b>Bring selected image to top:</b> <b>Up arrow</b> key</p>
+                <p><b>Send selected image to bottom:</b> <b>Down arrow</b> key</p>
+                <p><b>Remove selected image:</b> <b>Del</b> key</p>
+            </div>
+            <div class="connection"></div>
+        </div>
         <div class="container">
             <ul class="messages"></ul>
         </div>
@@ -41,15 +57,17 @@
         </form>
     </div>
     <dialog class="join">
-        <label class="room">
-            Room:
-            <input type="text" />
-        </label>
-        <label class="name">
-            Name:
-            <input type="text" />
-        </label>
-        <button>Join</button>
+        <form>
+            <label class="room">
+                Room:
+                <input type="text" />
+            </label>
+            <label class="name">
+                Name:
+                <input type="text" />
+            </label>
+            <button>Join</button>
+        </form>
     </dialog>
 </body>
 
