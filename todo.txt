@@ -9,6 +9,7 @@ Map:
   - don't select hidden images
   - distance measure
   - fog of war
+  - allow webp
 
 
 Chat:
