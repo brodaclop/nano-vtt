@@ -39,15 +39,16 @@ document.ondragenter = e => {
     e.preventDefault();
 }
 
-const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg'];
+const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 
 document.ondrop = e => {
+    console.log('Event', e);
     if (e.dataTransfer?.items.length === 1) {
         const item = e.dataTransfer.items[0];
         if (ACCEPTED_TYPES.includes(item.type)) {
             const file = item.getAsFile();
             if (file) {
-                Operations.add(file);
+                Operations.add(file, e.clientX, e.clientY);
             }
         }
     }

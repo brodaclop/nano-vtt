@@ -5,11 +5,9 @@ Networking:
 
 Map:
   - show/hide image
-  - drop location
   - don't select hidden images
   - distance measure
   - fog of war
-  - allow webp
   - lock image in place
 
 
@@ -19,6 +17,7 @@ Chat:
   - delete message
   - change name
   - display join/rename messages
+  - display user list
 
 
 

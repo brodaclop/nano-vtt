@@ -88,12 +88,12 @@ const minLayer = () => Math.min(STARTING_ZINDEX, ...objects.map(ob => ob.layer).
 
 export const MapObjects = {
     selected: () => objects.find(ob => ob.id === selected),
-    add: (data: Blob) => {
+    add: (data: Blob, x: number, y: number) => {
         const ob: MapObject = {
             id: Math.round(Math.random() * 1_000_000_000),
             angle: 0,
-            x: 0,
-            y: 0,
+            x,
+            y,
             layer: maxLayer() + 1,
             zoom: 1000,
             data
@@ -171,8 +171,8 @@ export const Operations = {
             update({ id: selected, x: x + dx, y: y + dy });
         }
     },
-    add: (data: Blob) => {
-        const ob = MapObjects.add(data);
+    add: (data: Blob, x: number, y: number) => {
+        const ob = MapObjects.add(data, x, y);
         sendObject(ob);
     },
     selectNext: () => {
