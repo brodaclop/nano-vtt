@@ -11,13 +11,24 @@ enum MessageType {
     OBJECT = 1,
     CHAT = 2,
     JOIN_ROOM = 3,
-    HELLO = 4
+    HELLO = 4,
+    SYNC = 5
 }
+
+const MessageTypeLabel: Record<MessageType, string> = {
+    [MessageType.PING]: 'PING',
+    [MessageType.OBJECT]: 'OBJECT',
+    [MessageType.CHAT]: 'CHAT',
+    [MessageType.JOIN_ROOM]: 'JOIN_ROOM',
+    [MessageType.HELLO]: 'HELLO',
+    [MessageType.SYNC]: 'SYNC'
+};
 
 
 // Listen for messages
 Socket.registerMessageListener(async data => {
     const [type, payload] = await fromMessage(data);
+    console.log('received', MessageTypeLabel[type]);
     switch (type) {
         case MessageType.OBJECT: {
             const decoded = await fromObjectMessage(payload);
@@ -41,13 +52,23 @@ Socket.registerMessageListener(async data => {
             receiveHelloMessage(await fromHelloMessage(payload));
             return;
         }
+        case MessageType.SYNC: {
+            const obs = await fromSyncMessage(payload);
+            console.log('obs', obs);
+            return;
+        }
         default: throw new Error(`Unknown message type: ${type}`)
     }
 });
 
 const send = (messageType: MessageType, blob: Blob) => {
+    console.log('sending', MessageTypeLabel[messageType]);
     const payload = toMessage(messageType, blob);
     Socket.send(payload);
+}
+
+export const sendSyncMessage = (obs: Array<MapObject>) => {
+    send(MessageType.SYNC, toSyncMessage(obs));
 }
 
 export const sendJoinMessage = (message: JoinMessage) => {
@@ -157,7 +178,8 @@ const fromObjectMessage = async (blob: Blob): Promise<Partial<MapObject> | { del
     const ob: Partial<MapObject> = {};
     const buffer = await blob.slice(0, OBJECT_HEADER_LENGTH).arrayBuffer();
     const header = new DataView(buffer);
-    const data = await blob.slice(OBJECT_HEADER_LENGTH);
+    const dataLength = header.getInt32(4 + DATA_IDX * 4);
+    const data = await blob.slice(OBJECT_HEADER_LENGTH, OBJECT_HEADER_LENGTH + dataLength);
     const mask = header.getUint32(0);
     NUMBER_FIELDS.forEach((field, idx) => {
         if (mask & (1 << idx)) {
@@ -168,11 +190,43 @@ const fromObjectMessage = async (blob: Blob): Promise<Partial<MapObject> | { del
         ob.data = data;
     }
 
-    const deleteFlag = mask & (1 << 31);
-    if (deleteFlag) {
-        return { deletedId: ob.id! };
-    }
+
 
     return ob;
 }
+
+const toSyncMessage = (obs: Array<MapObject>): Blob => {
+    const blobs = obs.map(ob => toObjectMessage(ob, ALL_FIELDS));
+    return new Blob(blobs);
+}
+
+const fromSyncMessage = async (blob: Blob): Promise<Array<MapObject>> => {
+    let ret: Array<MapObject> = [];
+    while (blob.size > 0) {
+        const ob: Partial<MapObject> = {};
+        const next = await unpackSyncMessage(blob, ob);
+        ret.push(ob as MapObject);
+        blob = blob.slice(next);
+    }
+    return ret;
+}
+
+const unpackSyncMessage = async (blob:Blob, ob: Partial<MapObject>): Promise<number> => {
+    const buffer = await blob.slice(0, OBJECT_HEADER_LENGTH).arrayBuffer();
+    const header = new DataView(buffer);
+    const dataLength = header.getInt32(4 + DATA_IDX * 4);
+    const data = await blob.slice(OBJECT_HEADER_LENGTH, OBJECT_HEADER_LENGTH + dataLength);
+    const mask = header.getUint32(0);
+    NUMBER_FIELDS.forEach((field, idx) => {
+        if (mask & (1 << idx)) {
+            ob[field] = header.getInt32(4 + idx * 4) as (number & Blob);
+        }
+    });
+    if (mask & (1 << DATA_IDX)) {
+        ob.data = data;
+    }
+
+    return dataLength + OBJECT_HEADER_LENGTH;
+}
+
 

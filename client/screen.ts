@@ -1,7 +1,7 @@
 import { UI } from "./dom";
 import { isDragging } from "./drag";
 import { MapObject } from "./types/map-objects";
-import { sendDelete, sendObject } from "./messages";
+import { sendDelete, sendObject, sendSyncMessage } from "./messages";
 
 interface ScreenElement {
     node: HTMLImageElement;
@@ -23,7 +23,10 @@ const init = async () => {
         layer: STARTING_ZINDEX,
         zoom: 1000,
         angle: 0
-    })
+    });
+    UI.menu.syncButton.onclick = () => {
+        Operations.sync();
+    }
 }
 
 await init();
@@ -53,24 +56,17 @@ export const draw = () => {
             node.style.position = 'absolute';
         }
 
-        node.style.opacity = '1';
-
-        if (selected === id) {
-            node.style.zIndex = String(maxLayer() + 1);
-            node.style.opacity = '0.5';
-        } else if (layer === 0) {
-            node.style.display = 'none'
-        } else {
-            node.style.display = 'inline-block';
-            node.style.zIndex = String(layer);
-        }
+        node.style.opacity = (selected && (selected !== id)) ? '0.5' : '1';
+        node.style.display = (layer === 0) ? 'none' : 'inline-block';
+        node.style.zIndex = selected === id ? String(maxLayer() + 1): String(layer);
 
 
         node.style.left = '0';
         node.style.top = '0';
         node.style.transform = `translate(${x}px, ${y}px) scale(${zoom / 1000}) rotate(${angle}deg)`;
         node.style.boxShadow = selected === id ? '0px 0px 7px 2px #E6F41D' : '';
-        node.onmousedown = (e) => {
+        node.onmousedown = () => {
+            console.log('mousedown', id, selected, isDragging());
             if (!isDragging()) {
                 if (selected === undefined || selected === id) {
                     selected = id;
@@ -196,5 +192,8 @@ export const Operations = {
     unselect: () => {
         selected = undefined;
         draw();
+    },
+    sync: () => {
+        sendSyncMessage(objects);
     }
 }

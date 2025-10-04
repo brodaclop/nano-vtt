@@ -62,6 +62,11 @@ export class VttSessions extends DurableObject {
 		// and allowing the WebSocket to send and receive messages.
 		server.accept();
 
+		server.addEventListener('open', e => console.log('open', e));
+		server.addEventListener('error', e => {
+			this.handleConnectionClose(server);
+		});
+
 		server.addEventListener('message', (event) => {
 			this.handleWebSocketMessage(server, event.data);
 		});
@@ -81,6 +86,8 @@ export class VttSessions extends DurableObject {
 		await this.processRoomJoinMessage(message as ArrayBuffer, ws);
 		const room = this.sessions.get(ws)!;
 
+		console.log('Sending message in room', room, this.getOthersInSameRoom(ws));
+		console.log('Members:', this.rooms);
 		if (room) {
 			this.getOthersInSameRoom(ws).forEach(target => {
 				target.send(message);
@@ -89,6 +96,7 @@ export class VttSessions extends DurableObject {
 	}
 
 	async handleConnectionClose(ws: WebSocket) {
+		console.log('leaving room', ws);
 		this.leaveRoom(ws);
 		ws.close(1000, 'Closing WebSocket');
 	}
@@ -97,18 +105,22 @@ export class VttSessions extends DurableObject {
 		const room = this.sessions.get(ws);
 		if (room) {
 			return this.rooms.get(room)!.filter(item => item !== ws);
-		}
+		} 
 		return [];
 	}
 
 	processRoomJoinMessage = async (message: ArrayBuffer, ws: WebSocket) => {
 		const buffer = Buffer.from(message);
-		const mType = buffer.readUInt8(0);
+		const fragNo = buffer.readUInt8(4);
+		const fragCount = buffer.readUInt8(5);
+		const mType = buffer.readUInt8(6);
 		// TODO: there must be a better way to share constants, this is MessageType.JOIN_ROOM
-		if (mType === 3) {
+		if (mType === 3 && fragNo === 0 && fragCount === 1) {
 			const blob = new Blob([buffer]);
-			const room = (await blob.slice(5).text()).split(' | ')[0];
-			this.sessions.set(ws, room);
+			const room = (await blob.slice(11).text()).split(' | ')[0];
+
+			console.log('joining room', await blob.slice(11).text());
+			this.sessions.set(ws, room); 
 			this.rooms.set(room, [...(this.rooms.get(room) ?? []), ws]);
 		}
 	}

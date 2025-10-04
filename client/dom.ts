@@ -9,6 +9,7 @@ export const UI = {
     menu: {
         room: document.querySelector('.menu .room')! as HTMLElement,
         connection: document.querySelector('.menu .connection')! as HTMLElement,
+        syncButton: document.querySelector('.menu button.sync')! as HTMLButtonElement,
     },
     lobby: {
         dialog: document.querySelector('.join')! as HTMLDialogElement,
