@@ -43,7 +43,6 @@ div.canvas {
     font-size: calc(var(--font-size) / 2);
 }
 
-
 .chat .container {
     display: flex;
     flex-direction: column;
@@ -92,6 +91,11 @@ div.canvas {
 .chat ul li.other {
     align-self: flex-end;
     background-color: midnightblue;
+}
+
+.chat button,
+.chat input {
+    height: 4dvh;
 }
 
 div.menu {

@@ -1,6 +1,5 @@
 Networking:
   - auth
-  - versioning / sync
   - debounce
 
 Map:

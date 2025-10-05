@@ -56,7 +56,7 @@ export const draw = () => {
             node.style.position = 'absolute';
         }
 
-        node.style.opacity = (selected && (selected !== id)) ? '0.5' : '1';
+        node.style.opacity = (selected && (selected !== id)) ? '0.5' : '0.8';
         node.style.display = (layer === 0) ? 'none' : 'inline-block';
         node.style.zIndex = selected === id ? String(maxLayer() + 1) : String(layer);
 
@@ -68,9 +68,9 @@ export const draw = () => {
         node.onmousedown = () => {
             if (!isDragging()) {
                 if (selected === undefined || selected === id) {
-                    selected = id;
+                    select(ob);
                 } else {
-                    selected = undefined;
+                    select();
                 }
                 draw();
             }
@@ -94,6 +94,7 @@ export const MapObjects = {
             data
         };
         objects.push(ob);
+        select(ob);
         draw();
         return ob;
     },
@@ -105,7 +106,7 @@ export const MapObjects = {
             delete screenObjects[id];
         }
         if (selected === id) {
-            selected = undefined;
+            select();
         }
         draw();
     },
@@ -134,6 +135,26 @@ const update = (change: Partial<MapObject>) => {
     const ob = MapObjects.update(change);
     const fields = Object.keys(change) as Array<keyof MapObject>;
     sendObject(ob, fields);
+}
+
+const select = (ob?: MapObject) => {
+    debugger;
+    selected = ob?.id;
+    if (ob) {
+        const node = screenObjects[ob?.id]?.node;
+        if (node) {
+            const r = node.getBoundingClientRect();
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+
+            const visible =
+                r.top < h && r.bottom > 0 &&
+                r.left < w && r.right > 0
+            if (!visible) {
+                node.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }
 }
 
 export const Operations = {
@@ -177,25 +198,30 @@ export const Operations = {
         sendObject(ob);
     },
     selectNext: () => {
-        if (selected === undefined) {
-            selected = objects[0]?.id;
-        } else if (objects.length > 0) {
-            const idx = objects.findIndex(ob => ob.id === selected);
-            selected = objects[(idx + 1) % objects.length].id;
+        if (objects.length > 0) {
+            if (selected === undefined) {
+                select(objects[0]);
+            } else {
+                const idx = objects.findIndex(ob => ob.id === selected);
+                select(objects[(idx + 1) % objects.length]);
+            }
+            draw();
+
         }
-        draw();
     },
     selectPrevious: () => {
-        if (selected === undefined) {
-            selected = objects[0]?.id;
-        } else if (objects.length > 0) {
-            const idx = objects.findIndex(ob => ob.id === selected);
-            selected = objects[(idx - 1 + objects.length) % objects.length].id;
+        if (objects.length > 0) {
+            if (selected === undefined) {
+                select(objects.at(-1));
+            } else if (objects.length > 0) {
+                const idx = objects.findIndex(ob => ob.id === selected);
+                select(objects[(idx - 1 + objects.length) % objects.length]);
+            }
+            draw();
         }
-        draw();
     },
     unselect: () => {
-        selected = undefined;
+        select();
         draw();
     },
     sync: () => {

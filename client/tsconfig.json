@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2024",
+    "module": "es2022",
+    "outDir": "./static/script",
+    "rootDir": "./client",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "client/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
