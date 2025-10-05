@@ -32,7 +32,7 @@ const init = async () => {
 await init();
 
 
-const screenObjects: Record<number, ScreenElement> = {};
+let screenObjects: Record<number, ScreenElement> = {};
 
 const ensureElement = (id: number): ScreenElement => {
     if (!screenObjects[id]) {
@@ -58,7 +58,7 @@ export const draw = () => {
 
         node.style.opacity = (selected && (selected !== id)) ? '0.5' : '1';
         node.style.display = (layer === 0) ? 'none' : 'inline-block';
-        node.style.zIndex = selected === id ? String(maxLayer() + 1): String(layer);
+        node.style.zIndex = selected === id ? String(maxLayer() + 1) : String(layer);
 
 
         node.style.left = '0';
@@ -66,7 +66,6 @@ export const draw = () => {
         node.style.transform = `translate(${x}px, ${y}px) scale(${zoom / 1000}) rotate(${angle}deg)`;
         node.style.boxShadow = selected === id ? '0px 0px 7px 2px #E6F41D' : '';
         node.onmousedown = () => {
-            console.log('mousedown', id, selected, isDragging());
             if (!isDragging()) {
                 if (selected === undefined || selected === id) {
                     selected = id;
@@ -122,6 +121,12 @@ export const MapObjects = {
             draw();
             return newOb as MapObject;
         }
+    },
+    replace: (obs: Array<MapObject>) => {
+        Object.values(screenObjects).forEach(e => UI.canvas.removeChild(e.node));
+        screenObjects = {};
+        objects = obs;
+        draw();
     }
 }
 

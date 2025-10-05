@@ -28,7 +28,6 @@ const MessageTypeLabel: Record<MessageType, string> = {
 // Listen for messages
 Socket.registerMessageListener(async data => {
     const [type, payload] = await fromMessage(data);
-    console.log('received', MessageTypeLabel[type]);
     switch (type) {
         case MessageType.OBJECT: {
             const decoded = await fromObjectMessage(payload);
@@ -54,7 +53,7 @@ Socket.registerMessageListener(async data => {
         }
         case MessageType.SYNC: {
             const obs = await fromSyncMessage(payload);
-            console.log('obs', obs);
+            MapObjects.replace(obs);
             return;
         }
         default: throw new Error(`Unknown message type: ${type}`)
@@ -62,7 +61,6 @@ Socket.registerMessageListener(async data => {
 });
 
 const send = (messageType: MessageType, blob: Blob) => {
-    console.log('sending', MessageTypeLabel[messageType]);
     const payload = toMessage(messageType, blob);
     Socket.send(payload);
 }
@@ -211,7 +209,7 @@ const fromSyncMessage = async (blob: Blob): Promise<Array<MapObject>> => {
     return ret;
 }
 
-const unpackSyncMessage = async (blob:Blob, ob: Partial<MapObject>): Promise<number> => {
+const unpackSyncMessage = async (blob: Blob, ob: Partial<MapObject>): Promise<number> => {
     const buffer = await blob.slice(0, OBJECT_HEADER_LENGTH).arrayBuffer();
     const header = new DataView(buffer);
     const dataLength = header.getInt32(4 + DATA_IDX * 4);

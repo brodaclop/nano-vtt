@@ -86,8 +86,6 @@ export class VttSessions extends DurableObject {
 		await this.processRoomJoinMessage(message as ArrayBuffer, ws);
 		const room = this.sessions.get(ws)!;
 
-		console.log('Sending message in room', room, this.getOthersInSameRoom(ws));
-		console.log('Members:', this.rooms);
 		if (room) {
 			this.getOthersInSameRoom(ws).forEach(target => {
 				target.send(message);
@@ -105,7 +103,7 @@ export class VttSessions extends DurableObject {
 		const room = this.sessions.get(ws);
 		if (room) {
 			return this.rooms.get(room)!.filter(item => item !== ws);
-		} 
+		}
 		return [];
 	}
 
@@ -117,10 +115,10 @@ export class VttSessions extends DurableObject {
 		// TODO: there must be a better way to share constants, this is MessageType.JOIN_ROOM
 		if (mType === 3 && fragNo === 0 && fragCount === 1) {
 			const blob = new Blob([buffer]);
-			const room = (await blob.slice(11).text()).split(' | ')[0];
+			const [room, name] = (await blob.slice(11).text()).split(' | ');
 
-			console.log('joining room', await blob.slice(11).text());
-			this.sessions.set(ws, room); 
+			console.log('joining room', room, name);
+			this.sessions.set(ws, room);
 			this.rooms.set(room, [...(this.rooms.get(room) ?? []), ws]);
 		}
 	}
@@ -128,8 +126,8 @@ export class VttSessions extends DurableObject {
 	leaveRoom = (ws: WebSocket) => {
 		const room = this.sessions.get(ws);
 		if (room) {
-			this.sessions.delete(ws);
 			this.rooms.set(room, this.getOthersInSameRoom(ws))
+			this.sessions.delete(ws);
 		}
 
 	}

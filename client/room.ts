@@ -20,7 +20,6 @@ export const MY_USER_ID = random();
 export const USERS: Record<number, string> = {};
 
 export const receiveJoinMessage = (message: JoinMessage) => {
-    console.log('Receiving join message', message);
     USERS[message.sender] = message.name;
     addChatMessage({ id: random(), sender: message.sender, text: '<joined>' });
 }
