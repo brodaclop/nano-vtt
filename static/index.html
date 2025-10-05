@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <title>nano-vtt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Contrail+One&amp;display=swap" rel="stylesheet">
+
     <script type="importmap">
         {
             "imports": {
@@ -31,7 +35,15 @@
     </div>
     <div class="chat">
         <div class="menu">
-            <div class="room">No room</div>
+            <div>
+                <div>Room:</div>
+                <div class="room">—</div>
+            </div>
+            <div>
+                <div>Name:</div>
+                <div class="name">—</div>
+            </div>
+
             <button popovertarget="help">?</button>
             <button class="sync">Sync</button>
             <div id="help" popover>
@@ -62,11 +74,11 @@
         <form>
             <label class="room">
                 Room:
-                <input type="text" />
+                <input maxlength="12" type="text" />
             </label>
             <label class="name">
                 Name:
-                <input type="text" />
+                <input maxlength="12" type="text" />
             </label>
             <button>Join</button>
         </form>

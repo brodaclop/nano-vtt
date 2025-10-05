@@ -2,6 +2,7 @@ body {
     background-color: black;
     color: white;
     --font-size: 3dvh;
+    font-family: "Contrail One", sans-serif;
 }
 
 div.canvas {
@@ -27,6 +28,8 @@ div.canvas {
 .chat .input-box {
     padding-top: 0.5em;
     padding-bottom: 1em;
+    padding-left: 2px;
+    padding-right: 2px;
     display: flex;
     justify-content: stretch;
     align-items: stretch;
@@ -36,12 +39,11 @@ div.canvas {
     flex-grow: 1;
 }
 
-
-.join input,
-.join button {
-    height: var(--font-size);
-    font-size: calc(var(--font-size) / 2);
+.chat .input-box button {
+    width: calc(1.30*var(--font-size));
+    margin-left: 0.5em;
 }
+
 
 .chat .container {
     display: flex;
@@ -63,7 +65,7 @@ div.canvas {
 .chat ul li {
     display: inline-block;
     width: 60%;
-    border: 1px solid black;
+    border: calc(0.05*var(--font-size)) solid black;
     border-radius: 0.25em;
     padding: 0.25em;
     margin: 0.25em;
@@ -74,7 +76,7 @@ div.canvas {
 
 .chat ul li span.sender {
     display: block;
-    font-size: small;
+    font-size: calc(0.75*var(--font-size));
     font-weight: bold;
     color: aliceblue;
 }
@@ -93,9 +95,14 @@ div.canvas {
     background-color: midnightblue;
 }
 
-.chat button,
-.chat input {
-    height: 4dvh;
+button,
+input {
+    height: calc(1.30*var(--font-size));
+    font-size: var(--font-size);
+    border-width: calc(0.1*var(--font-size));
+    padding: calc(0.05*var(--font-size));
+    box-sizing: content-box;
+    font-family: "Contrail One", sans-serif;
 }
 
 div.menu {
@@ -107,9 +114,35 @@ div.menu {
     justify-content: space-between;
 }
 
+.join {
+    overflow: hidden;
+}
 
 .join form {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    margin: 1em;
+}
+
+.join form>* {
+    margin-top: calc(0.1*var(--font-size));
+}
+
+.join form label {
+    font-size: calc(1.3*var(--font-size));
+    overflow-x: hidden;
+    text-wrap: nowrap;
+}
+
+.join,
+div#help {
+    filter: drop-shadow(goldenrod calc(0.5*var(--font-size)) calc(0.5*var(--font-size)) calc(2*var(--font-size)));
+    border-radius: 0.25em;
+    border-style: ridge;
+}
+
+.join::backdrop,
+#help::backdrop {
+    backdrop-filter: sepia(1);
 }

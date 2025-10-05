@@ -15,12 +15,22 @@ export interface HelloMessage {
     name: string;
 }
 
-export const MY_USER_ID = random();
+
+export let MY_USER_ID = random();
+
+const storedId = sessionStorage.getItem('user_id');
+if (storedId) {
+    MY_USER_ID = Number(storedId);
+} else {
+    sessionStorage.setItem('user_id', String(MY_USER_ID));
+}
+
 
 export const USERS: Record<number, string> = {};
 
 export const receiveJoinMessage = (message: JoinMessage) => {
     USERS[message.sender] = message.name;
+    updateRoomDisplay();
     addChatMessage({ id: random(), sender: message.sender, text: '<joined>' });
 }
 
@@ -30,6 +40,7 @@ export const receiveHelloMessage = (message: HelloMessage) => {
             addChatMessage({ id: random(), sender: message.sender, text: `${USERS[message.sender]} --> ${message.name} ` });
         }
         USERS[message.sender] = message.name;
+        updateRoomDisplay();
         drawChat();
     }
 }
@@ -37,16 +48,22 @@ export const receiveHelloMessage = (message: HelloMessage) => {
 let currentRoom: string | undefined = undefined;
 
 Socket.registerSocketStatusListener(status => {
-    UI.menu.connection.innerText = status;
+    UI.menu.connection.innerText = status === 'connected' ? '' : status;
     if (status === 'connected' && currentRoom) {
         joinRoom(currentRoom, USERS[MY_USER_ID]);
     }
-})
+});
+
+const updateRoomDisplay = () => {
+    UI.menu.room.innerText = `${currentRoom} (${Object.keys(USERS).length} users)`;
+    UI.menu.name.innerText = USERS[MY_USER_ID];
+
+}
 
 export const joinRoom = (room: string, name: string) => {
     currentRoom = room;
     USERS[MY_USER_ID] = name;
-    UI.menu.room.innerText = room;
+    updateRoomDisplay();
     sendJoinMessage({ sender: MY_USER_ID, room, name: USERS[MY_USER_ID] });
 }
 
