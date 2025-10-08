@@ -128,7 +128,7 @@ export const sendDelete = (id: number) => {
     send(MessageType.OBJECT, toObjectMessage({ id } as MapObject, ['id'], true));
 }
 
-const NUMBER_FIELDS: Array<keyof MapObject> = ['id', 'x', 'y', 'zoom', 'layer', 'angle'];
+const NUMBER_FIELDS: Array<keyof MapObject> = ['id', 'x', 'y', 'zoom', 'layer', 'locked', 'angle'];
 
 const ALL_FIELDS: Array<keyof MapObject> = [...NUMBER_FIELDS, 'data'];
 

@@ -3,20 +3,19 @@ Networking:
   - debounce
 
 Map:
-  - show/hide image
-  - don't select hidden images
-  - distance measure
+  - show/hide image?
+  - don't select hidden images?
+  - distance measure?
   - fog of war
-  - lock image in place
+ 
 
 
 Chat:
-  - private message
-  - dice roller
-  - delete message
-  - change name
-  - display join/rename messages
-  - display user list
+  - private message?
+  - dice roller +
+  - delete message?
+  - change name?
+  - display user list +
 
 
 

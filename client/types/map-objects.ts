@@ -5,6 +5,7 @@ export interface MapObject {
     zoom: number;
     angle: number;
     layer: number; //uint32 (0-10000)
+    locked: number;
     data: Blob;
 }
 

@@ -23,6 +23,8 @@ div.canvas {
     display: flex;
     flex-direction: column;
     justify-content: stretch;
+    border-left: calc(0.1*var(--font-size)) ridge black;
+
 }
 
 .chat .input-box {

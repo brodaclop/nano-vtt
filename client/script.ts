@@ -30,6 +30,8 @@ document.onkeydown = e => {
         }
     } else if (e.key === 'Escape') {
         Operations.unselect();
+    } else if (e.key === 'Enter') {
+        Operations.lock();
     } else {
         return;
     }

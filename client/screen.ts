@@ -22,6 +22,7 @@ const init = async () => {
         y: 0,
         layer: STARTING_ZINDEX,
         zoom: 1000,
+        locked: 0,
         angle: 0
     });
     UI.menu.syncButton.onclick = () => {
@@ -47,7 +48,7 @@ const ensureElement = (id: number): ScreenElement => {
 
 export const draw = () => {
     objects.forEach((ob) => {
-        const { id, x, y, zoom, layer, angle } = ob;
+        const { id, x, y, zoom, layer, angle, locked } = ob;
         const element = ensureElement(id);
         const node = element.node;
         // TODO: revoke the url when node is released?
@@ -64,7 +65,8 @@ export const draw = () => {
         node.style.left = '0';
         node.style.top = '0';
         node.style.transform = `translate(${x}px, ${y}px) scale(${zoom / 1000}) rotate(${angle}deg)`;
-        node.style.boxShadow = selected === id ? '0px 0px 7px 2px #E6F41D' : '';
+        const shadowColour = locked ? 'red' : '#E6F41D';
+        node.style.boxShadow = selected === id ? `0px 0px 7px 2px ${shadowColour}` : '';
         node.onmousedown = () => {
             if (!isDragging()) {
                 if (selected === undefined || selected === id) {
@@ -90,6 +92,7 @@ export const MapObjects = {
             x,
             y,
             layer: maxLayer() + 1,
+            locked: 0,
             zoom: 1000,
             data
         };
@@ -113,8 +116,10 @@ export const MapObjects = {
     update: (newOb: Partial<MapObject>) => {
         const uIdx = objects.findIndex(ob => ob.id === newOb.id);
         if (uIdx !== -1) {
-            objects[uIdx] = { ...objects[uIdx], ...newOb };
-            draw();
+            if (!objects[uIdx].locked || 'locked' in newOb) {
+                objects[uIdx] = { ...objects[uIdx], ...newOb };
+                draw();
+            }
             return objects[uIdx];
         } else {
             // TODO: check that every attribute is present
@@ -138,7 +143,6 @@ const update = (change: Partial<MapObject>) => {
 }
 
 const select = (ob?: MapObject) => {
-    debugger;
     selected = ob?.id;
     if (ob) {
         const node = screenObjects[ob?.id]?.node;
@@ -171,17 +175,23 @@ export const Operations = {
         }
     },
     sendToTop: () => {
-        if (selected) {
+        if (selected !== undefined) {
             update({ id: selected, layer: maxLayer() + 1 });
         }
     },
     sendToBottom: () => {
-        if (selected) {
+        if (selected !== undefined) {
             update({ id: selected, layer: minLayer() - 1 });
         }
     },
+    lock: () => {
+        if (selected !== undefined) {
+            const locked = MapObjects.selected()!.locked;
+            update({ id: selected, locked: Number(!locked) })
+        }
+    },
     remove: () => {
-        if (selected) {
+        if (selected !== undefined) {
             MapObjects.remove(selected);
             sendDelete(selected);
         }
