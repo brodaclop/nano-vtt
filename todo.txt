@@ -20,9 +20,10 @@ Chat:
 
 Other:
   - enforce max lengths for strings/blobs
+  - update wrangler
 
 Bugs:
-
+  - canvas doesn't expand left or up
 
 
 

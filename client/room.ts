@@ -49,6 +49,8 @@ let currentRoom: string | undefined = undefined;
 
 Socket.registerSocketStatusListener(status => {
     UI.menu.connection.innerText = status === 'connected' ? '' : status;
+    UI.menu.connection.style.display = (status === 'connected') ? 'none' : 'block';
+    UI.menu.connected.style.display = (status !== 'connected') ? 'none' : 'block';
     if (status === 'connected' && currentRoom) {
         joinRoom(currentRoom, USERS[MY_USER_ID]);
     }
@@ -56,6 +58,7 @@ Socket.registerSocketStatusListener(status => {
 
 const updateRoomDisplay = () => {
     UI.menu.room.innerText = `${currentRoom} (${Object.keys(USERS).length} users)`;
+    UI.menu.room.title = `Users:\n\n${Object.values(USERS).join('\n')}`;
     UI.menu.name.innerText = USERS[MY_USER_ID];
 
 }

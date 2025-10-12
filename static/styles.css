@@ -148,3 +148,14 @@ div#help {
 #help::backdrop {
     backdrop-filter: sepia(1);
 }
+
+.help {
+    padding-top: 0.4em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 0.4em;
+}
+
+.sync {
+    margin-left: 1em;
+}

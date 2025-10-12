@@ -10,6 +10,7 @@ export const UI = {
         room: document.querySelector('.menu .room')! as HTMLElement,
         name: document.querySelector('.menu .name')! as HTMLElement,
         connection: document.querySelector('.menu .connection')! as HTMLElement,
+        connected: document.querySelector('.menu .connected')! as HTMLElement,
         syncButton: document.querySelector('.menu button.sync')! as HTMLButtonElement,
     },
     lobby: {

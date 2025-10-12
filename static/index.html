@@ -36,16 +36,17 @@
     <div class="chat">
         <div class="menu">
             <div>
-                <div>Room:</div>
-                <div class="room">—</div>
-            </div>
-            <div>
-                <div>Name:</div>
-                <div class="name">—</div>
+                <div class="connection"></div>
+                <div class="connected">
+                    <div>Room: <span class="room">—</span><button class="sync">Sync</button></div>
+                    <div>Name: <span class="name">—</span></div>
+                </div>
             </div>
 
-            <button popovertarget="help">?</button>
-            <button class="sync">Sync</button>
+            <div>
+                <button class="help" popovertarget="help">?</button>
+            </div>
+
             <div id="help" popover>
                 <h1>nano-vtt</h1>
                 <p>Drag image file onto map to add image to map</p>
@@ -59,7 +60,6 @@
                 <p><b>Remove selected image:</b> <b>Del</b> key</p>
                 <p><b>Lock/unlock selected image:</b> <b>Enter</b> key</p>
             </div>
-            <div class="connection"></div>
         </div>
         <div class="container">
             <ul class="messages"></ul>
