@@ -12,7 +12,6 @@ Map:
 
 Chat:
   - private message?
-  - dice roller +
   - delete message?
   - change name?
   - display user list +
