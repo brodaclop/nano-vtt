@@ -51,7 +51,6 @@ export const draw = () => {
         const { id, x, y, zoom, layer, angle, locked } = ob;
         const element = ensureElement(id);
         const node = element.node;
-        // TODO: revoke the url when node is released?
         if (!node.src) {
             node.src = URL.createObjectURL(ob.data);
             node.style.position = 'absolute';
@@ -105,7 +104,7 @@ export const MapObjects = {
         objects = objects.filter(ob => ob.id !== id);
         const elem = screenObjects[id];
         if (elem) {
-            UI.canvas.removeChild(elem.node);
+            elem.node.remove();
             delete screenObjects[id];
         }
         if (selected === id) {
@@ -129,7 +128,7 @@ export const MapObjects = {
         }
     },
     replace: (obs: Array<MapObject>) => {
-        Object.values(screenObjects).forEach(e => UI.canvas.removeChild(e.node));
+        Object.values(screenObjects).forEach(e => e.node.remove());
         screenObjects = {};
         objects = obs;
         draw();
@@ -197,10 +196,15 @@ export const Operations = {
         }
     },
     move: (dx: number, dy: number) => {
-        const x = MapObjects.selected()?.x;
-        const y = MapObjects.selected()?.y;
-        if (x !== undefined && y !== undefined) {
-            update({ id: selected, x: x + dx, y: y + dy });
+        const selectedOb = MapObjects.selected();
+        if (selectedOb) {
+            const { x, y } = selectedOb;
+            const w = screenObjects[selectedOb.id].node.naturalWidth;
+            const h = screenObjects[selectedOb.id].node.naturalHeight;
+            const limitX = (w * selectedOb.zoom / 1000 - w) / 2;
+            const limitY = (h * selectedOb.zoom / 1000 - h) / 2;
+
+            update({ id: selected, x: Math.max(limitX, x + dx), y: Math.max(limitY, y + dy) });
         }
     },
     add: (data: Blob, x: number, y: number) => {

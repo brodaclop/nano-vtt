@@ -7,6 +7,7 @@ Map:
   - don't select hidden images?
   - distance measure?
   - fog of war
+
  
 
 
@@ -23,7 +24,7 @@ Other:
   - update wrangler
 
 Bugs:
-  - canvas doesn't expand left or up
+
 
 
 
