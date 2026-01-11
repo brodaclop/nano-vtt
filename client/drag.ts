@@ -1,4 +1,4 @@
-import { Operations } from "./screen";
+import { Operations } from "./world";
 
 let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;

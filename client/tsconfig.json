@@ -3,14 +3,14 @@
     "target": "es2024",
     "module": "es2022",
     "outDir": "./static/script",
-    "rootDir": "./client",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "client/**/*"
+    "**/*.ts"
   ],
   "exclude": [
     "node_modules"

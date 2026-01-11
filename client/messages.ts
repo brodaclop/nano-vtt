@@ -1,6 +1,6 @@
 import { ChatMessage, addChatMessage } from "./chat";
 import { hello, HelloMessage, JoinMessage, joinRoom, receiveHelloMessage, receiveJoinMessage } from "./room";
-import { MapObjects } from "./screen";
+import { World } from "./world";
 import { MapObject } from "./types/map-objects";
 import { Socket } from "./websocket";
 
@@ -32,9 +32,9 @@ Socket.registerMessageListener(async data => {
         case MessageType.OBJECT: {
             const decoded = await fromObjectMessage(payload);
             if ('deletedId' in decoded) {
-                MapObjects.remove(decoded.deletedId);
+                World.remove(decoded.deletedId);
             } else {
-                MapObjects.update(decoded);
+                World.update(decoded);
             }
             return;
         }
@@ -53,7 +53,7 @@ Socket.registerMessageListener(async data => {
         }
         case MessageType.SYNC: {
             const obs = await fromSyncMessage(payload);
-            MapObjects.replace(obs);
+            World.replace(obs);
             return;
         }
         default: throw new Error(`Unknown message type: ${type}`)

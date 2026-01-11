@@ -1,244 +1,70 @@
 import { UI } from "./dom";
-import { isDragging } from "./drag";
 import { MapObject } from "./types/map-objects";
-import { sendDelete, sendObject, sendSyncMessage } from "./messages";
-
 interface ScreenElement {
     node: HTMLImageElement;
 }
 
-let selected: number | undefined = undefined;
-
-let objects: Array<MapObject> = [];
-
-const STARTING_ZINDEX = 100_000_000;
-
-const init = async () => {
-    const map = await (await fetch('/assets/alunselkirk.jpg')).blob();
-    objects.push({
-        id: 0,
-        data: map,
-        x: 0,
-        y: 0,
-        layer: STARTING_ZINDEX,
-        zoom: 1000,
-        locked: 0,
-        angle: 0
-    });
-    UI.menu.syncButton.onclick = () => {
-        Operations.sync();
-    }
-}
-
-await init();
-
-
 let screenObjects: Record<number, ScreenElement> = {};
 
-const ensureElement = (id: number): ScreenElement => {
-    if (!screenObjects[id]) {
+const ensureElement = (ob: MapObject, mouseHandlerFor: (ob: MapObject) => (() => void)): ScreenElement => {
+    if (!screenObjects[ob.id]) {
         const node = document.createElement("img");
+        node.onmousedown = mouseHandlerFor(ob);
+        node.src = URL.createObjectURL(ob.data);
+        node.style.position = 'absolute';
         UI.canvas.appendChild(node);
-        screenObjects[id] = {
+        screenObjects[ob.id] = {
             node
         }
     }
-    return screenObjects[id];
+    return screenObjects[ob.id];
 }
 
-export const draw = () => {
+export const drawScreen = (objects: Array<MapObject>, selected: number | undefined, mouseHandlerFor: (ob: MapObject) => (() => void)) => {
+    const maxLayer = Math.max(0, ...objects.map(ob => ob.layer).filter(l => l !== 0));
     objects.forEach((ob) => {
         const { id, x, y, zoom, layer, angle, locked } = ob;
-        const element = ensureElement(id);
+        const element = ensureElement(ob, mouseHandlerFor);
         const node = element.node;
-        if (!node.src) {
-            node.src = URL.createObjectURL(ob.data);
-            node.style.position = 'absolute';
-        }
 
         node.style.opacity = (selected && (selected !== id)) ? '0.5' : '0.8';
         node.style.display = (layer === 0) ? 'none' : 'inline-block';
-        node.style.zIndex = selected === id ? String(maxLayer() + 1) : String(layer);
-
+        node.style.zIndex = selected === id ? String(maxLayer + 1) : String(layer);
 
         node.style.left = '0';
         node.style.top = '0';
         node.style.transform = `translate(${x}px, ${y}px) scale(${zoom / 1000}) rotate(${angle}deg)`;
         const shadowColour = locked ? 'red' : '#E6F41D';
         node.style.boxShadow = selected === id ? `0px 0px 7px 2px ${shadowColour}` : '';
-        node.onmousedown = () => {
-            if (!isDragging()) {
-                if (selected === undefined || selected === id) {
-                    select(ob);
-                } else {
-                    select();
-                }
-                draw();
-            }
-        };
+    });
+    const deleted = Object.keys(screenObjects).filter(id => objects.every(ob => ob.id !== Number(id))).map(id => Number(id));
+    deleted.forEach((id) => {
+        const elem = screenObjects[id];
+        elem.node.remove();
+        delete screenObjects[id];
     });
 }
 
-const maxLayer = () => Math.max(STARTING_ZINDEX, ...objects.map(ob => ob.layer).filter(l => l !== 0));
-const minLayer = () => Math.min(STARTING_ZINDEX, ...objects.map(ob => ob.layer).filter(l => l !== 0));
+export const scrollIntoView = (ob: MapObject) => {
+    const node = screenObjects[ob?.id]?.node;
+    if (node) {
+        const r = node.getBoundingClientRect();
+        const w = window.innerWidth;
+        const h = window.innerHeight;
 
-export const MapObjects = {
-    selected: () => objects.find(ob => ob.id === selected),
-    add: (data: Blob, x: number, y: number) => {
-        const ob: MapObject = {
-            id: Math.round(Math.random() * 1_000_000_000),
-            angle: 0,
-            x,
-            y,
-            layer: maxLayer() + 1,
-            locked: 0,
-            zoom: 1000,
-            data
-        };
-        objects.push(ob);
-        select(ob);
-        draw();
-        return ob;
-    },
-    remove: (id: number) => {
-        objects = objects.filter(ob => ob.id !== id);
-        const elem = screenObjects[id];
-        if (elem) {
-            elem.node.remove();
-            delete screenObjects[id];
-        }
-        if (selected === id) {
-            select();
-        }
-        draw();
-    },
-    update: (newOb: Partial<MapObject>) => {
-        const uIdx = objects.findIndex(ob => ob.id === newOb.id);
-        if (uIdx !== -1) {
-            if (!objects[uIdx].locked || 'locked' in newOb) {
-                objects[uIdx] = { ...objects[uIdx], ...newOb };
-                draw();
-            }
-            return objects[uIdx];
-        } else {
-            // TODO: check that every attribute is present
-            objects.push(newOb as MapObject);
-            draw();
-            return newOb as MapObject;
-        }
-    },
-    replace: (obs: Array<MapObject>) => {
-        Object.values(screenObjects).forEach(e => e.node.remove());
-        screenObjects = {};
-        objects = obs;
-        draw();
-    }
-}
-
-const update = (change: Partial<MapObject>) => {
-    const ob = MapObjects.update(change);
-    const fields = Object.keys(change) as Array<keyof MapObject>;
-    sendObject(ob, fields);
-}
-
-const select = (ob?: MapObject) => {
-    selected = ob?.id;
-    if (ob) {
-        const node = screenObjects[ob?.id]?.node;
-        if (node) {
-            const r = node.getBoundingClientRect();
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-
-            const visible =
-                r.top < h && r.bottom > 0 &&
-                r.left < w && r.right > 0
-            if (!visible) {
-                node.scrollIntoView({ behavior: 'smooth' });
-            }
+        const visible =
+            r.top < h && r.bottom > 0 &&
+            r.left < w && r.right > 0
+        if (!visible) {
+            node.scrollIntoView({ behavior: 'smooth' });
         }
     }
 }
 
-export const Operations = {
-    zoom: (zoom: number) => {
-        const originalZoom = MapObjects.selected()?.zoom;
-        if (originalZoom !== undefined) {
-            update({ id: selected, zoom: originalZoom * zoom })
-        }
-    },
-    rotate: (angle: number) => {
-        const originalAngle = MapObjects.selected()?.angle;
-        if (originalAngle !== undefined) {
-            update({ id: selected, angle: originalAngle + angle })
-        }
-    },
-    sendToTop: () => {
-        if (selected !== undefined) {
-            update({ id: selected, layer: maxLayer() + 1 });
-        }
-    },
-    sendToBottom: () => {
-        if (selected !== undefined) {
-            update({ id: selected, layer: minLayer() - 1 });
-        }
-    },
-    lock: () => {
-        if (selected !== undefined) {
-            const locked = MapObjects.selected()!.locked;
-            update({ id: selected, locked: Number(!locked) })
-        }
-    },
-    remove: () => {
-        if (selected !== undefined) {
-            MapObjects.remove(selected);
-            sendDelete(selected);
-        }
-    },
-    move: (dx: number, dy: number) => {
-        const selectedOb = MapObjects.selected();
-        if (selectedOb) {
-            const { x, y } = selectedOb;
-            const w = screenObjects[selectedOb.id].node.naturalWidth;
-            const h = screenObjects[selectedOb.id].node.naturalHeight;
-            const limitX = (w * selectedOb.zoom / 1000 - w) / 2;
-            const limitY = (h * selectedOb.zoom / 1000 - h) / 2;
-
-            update({ id: selected, x: Math.max(limitX, x + dx), y: Math.max(limitY, y + dy) });
-        }
-    },
-    add: (data: Blob, x: number, y: number) => {
-        const ob = MapObjects.add(data, x, y);
-        sendObject(ob);
-    },
-    selectNext: () => {
-        if (objects.length > 0) {
-            if (selected === undefined) {
-                select(objects[0]);
-            } else {
-                const idx = objects.findIndex(ob => ob.id === selected);
-                select(objects[(idx + 1) % objects.length]);
-            }
-            draw();
-
-        }
-    },
-    selectPrevious: () => {
-        if (objects.length > 0) {
-            if (selected === undefined) {
-                select(objects.at(-1));
-            } else if (objects.length > 0) {
-                const idx = objects.findIndex(ob => ob.id === selected);
-                select(objects[(idx - 1 + objects.length) % objects.length]);
-            }
-            draw();
-        }
-    },
-    unselect: () => {
-        select();
-        draw();
-    },
-    sync: () => {
-        sendSyncMessage(objects);
+export const getObjectSize = (ob: MapObject) => {
+    const { node } = screenObjects[ob.id];
+    return {
+        w: node.naturalWidth,
+        h: node.naturalHeight
     }
 }

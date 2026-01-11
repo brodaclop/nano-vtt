@@ -1,6 +1,7 @@
 import { initChat } from "./chat";
+import { UI } from "./dom";
 import { initLobby } from "./lobby";
-import { draw, Operations } from "./screen";
+import { initWorld, Operations } from "./world";
 
 console.log('Script loaded');
 
@@ -38,7 +39,12 @@ document.onkeydown = e => {
     e.preventDefault();
 }
 
+initWorld();
 initChat();
-draw();
 initLobby();
+
+UI.menu.syncButton.onclick = () => {
+    Operations.sync();
+}
+
 
