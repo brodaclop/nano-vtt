@@ -1,7 +1,10 @@
+import { Canvas } from "./canvas";
 import { initChat } from "./chat";
 import { UI } from "./dom";
+import { initDrag } from "./drag";
 import { initLobby } from "./lobby";
-import { initWorld, Operations } from "./world";
+import { Operations } from "./operations";
+import { initWorld } from "./world";
 
 console.log('Script loaded');
 
@@ -39,7 +42,10 @@ document.onkeydown = e => {
     e.preventDefault();
 }
 
-initWorld();
+await Canvas.init();
+
+initWorld(Canvas);
+initDrag();
 initChat();
 initLobby();
 
