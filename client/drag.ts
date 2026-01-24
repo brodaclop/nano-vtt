@@ -12,7 +12,7 @@ let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;
 
 document.onmousemove = (e) => {
-    if (e.buttons & 1) {
+    if (e.buttons & 5) {
         const oldDrag = drag;
         drag = Point.fromCoords(e.clientX, e.clientY);
         if (oldDrag) {

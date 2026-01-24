@@ -42,6 +42,13 @@ document.onkeydown = e => {
     e.preventDefault();
 }
 
+document.onwheel = (e: WheelEvent) => {
+    if (!e.altKey && !e.shiftKey && !e.ctrlKey && e.deltaY !== 0) {
+        Operations.zoom(e.deltaY < 0 ? 1.1 : 0.9);
+        e.preventDefault();
+    }
+}
+
 await Canvas.init();
 
 initWorld(Canvas);

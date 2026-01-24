@@ -1,7 +1,5 @@
 import { MapObject } from "./types/map-objects";
-import { sendDelete, sendObject, sendSyncMessage } from "./messages";
 import { ScreenProvider } from "./types/screen-type";
-import { isDragging } from "./drag";
 
 
 let screen: ScreenProvider;
@@ -9,8 +7,6 @@ let screen: ScreenProvider;
 let selected: number | undefined = undefined;
 
 let objects: Array<MapObject> = [];
-
-const STARTING_ZINDEX = 100_000_000;
 
 export const initWorld = async (screenProvider: ScreenProvider) => {
     screen = screenProvider;
@@ -20,7 +16,7 @@ export const initWorld = async (screenProvider: ScreenProvider) => {
         data: map,
         x: 0,
         y: 0,
-        layer: STARTING_ZINDEX,
+        layer: 0,
         zoom: 1000,
         locked: 0,
         angle: 0
@@ -76,7 +72,7 @@ export const World = {
     },
     draw: () => screen.draw(objects, selected),
     maxLayer: () => Math.max(0, ...objects.map(ob => ob.layer).filter(l => l !== 0)),
-    minLayer: () => Math.min(STARTING_ZINDEX, ...objects.map(ob => ob.layer).filter(l => l !== 0)),
+    minLayer: () => Math.min(Number.MAX_SAFE_INTEGER, ...objects.map(ob => ob.layer).filter(l => l !== 0)),
     select: (ob?: MapObject) => select(ob),
     selectNext: () => {
         if (objects.length > 0) {

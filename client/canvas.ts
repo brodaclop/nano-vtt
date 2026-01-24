@@ -6,13 +6,16 @@ import { ScreenProvider } from "./types/screen-type";
 import { Viewport } from "./viewport";
 import { World } from "./world";
 
+const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
 
 const init = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = window.visualViewport?.width!;
-    canvas.height = window.visualViewport?.height!;
+    setCanvasSize();
     ctx = canvas.getContext('2d')!;
+    window.onresize = () => {
+        setCanvasSize();
+        World.draw();
+    };
     canvas.addEventListener('mousedown', e => {
         if (!isDragging()) {
             const objects = sortObjects(World.getAll(), World.selected()?.id).toReversed();
@@ -33,6 +36,11 @@ const init = () => {
     return Promise.resolve();
 }
 
+const setCanvasSize = () => {
+    canvas.width = window.visualViewport?.width! - 10;
+    canvas.height = window.visualViewport?.height! - 10;
+}
+
 const images: Record<number, HTMLImageElement> = {};
 
 const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
@@ -46,17 +54,14 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
 }
 
 const draw = async (objects: MapObject[], selected: number | undefined) => {
-    ctx.reset();
-    ctx.fillStyle = 'black'
-    ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+    clearCanvas();
     for (const ob of sortObjects(objects, selected)) {
         const image = await ensureImage(ob);
-        const { imageOrigin, imageSize } = await transformObjectSpace(ob, image, selected);
+        const { imageOrigin, imageSize } = await transformObjectSpace(ob, image);
+        ctx.globalAlpha = (selected !== undefined && (selected !== ob.id)) ? 0.7 : 0.8;
         ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
         if (selected === ob.id) {
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = ob.locked ? 'red' : '#E6F41D';
-            ctx.strokeRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
+            drawBorder(ob, imageOrigin, imageSize);
         }
     }
 }
@@ -80,28 +85,27 @@ const sortObjects = (objects: MapObject[], selected: number | undefined): MapObj
 }).toReversed();
 
 
-const transformObjectSpace = (ob: MapObject, image: HTMLImageElement, selected?: number) => {
+const transformObjectSpace = (ob: MapObject, image: HTMLImageElement) => {
     const imageSize = Point.fromCoords(image.width, image.height);
     const worldCentre = Point.add(ob, Point.scale(imageSize, 0.5));
     const screenCentre = Viewport.world2Screen(worldCentre);
     const screenScale = Viewport.zoom() * ob.zoom / 1000;
     ctx.resetTransform();
-    ctx.globalAlpha = (selected !== undefined && (selected !== ob.id)) ? 0.5 : 0.8;
     ctx.translate(screenCentre.x, screenCentre.y);
     ctx.scale(screenScale, screenScale);
     ctx.rotate(ob.angle * Math.PI / 180);
     const imageOrigin = Point.scale(imageSize, -0.5);
     return { image, imageOrigin, imageSize };
 }
-/*
-const selectFn = (ob: MapObject) => () => {
-    if (!isDragging()) {
-        if (selected === undefined || selected === ob.id) {
-            select(ob);
-        } else {
-            select();
-        }
-        World.draw();
-    }
-};
-*/
+
+const clearCanvas = () => {
+    ctx.reset();
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+}
+
+const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = ob.locked ? 'red' : '#E6F41D';
+    ctx.strokeRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
+}
