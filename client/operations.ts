@@ -26,9 +26,13 @@ export const Operations = {
     sendToBottom: () => {
         update({ layer: World.minLayer() - 1 });
     },
-    lock: () => {
+    lock: async () => {
         const locked = World.selected()?.locked;
-        update({ locked: Number(!locked) })
+        await update({ locked: Number(!locked) });
+        if (!locked) {
+            World.select();
+            World.draw();
+        }
     },
     remove: () => {
         const selected = World.selected();
@@ -65,10 +69,10 @@ export const Operations = {
     }
 }
 
-const update = (change: Partial<Omit<MapObject, 'id'>>) => {
+const update = async (change: Partial<Omit<MapObject, 'id'>>) => {
     const selected = World.selected();
     if (selected) {
-        const ob = World.update({ ...change, id: selected.id });
+        const ob = await World.update({ ...change, id: selected.id });
         const fields = Object.keys(change) as Array<keyof MapObject>;
         sendObject(ob, fields);
     }

@@ -18,7 +18,7 @@ const init = () => {
     };
     canvas.addEventListener('mousedown', e => {
         if (!isDragging()) {
-            const objects = sortObjects(World.getAll(), World.selected()?.id).toReversed();
+            const objects = sortObjects(World.getAll(), World.selected()?.id).toReversed().filter(ob => !ob.locked);
             const clicked = objects.find(ob => {
                 const { imageOrigin, imageSize } = transformObjectSpace(ob, images[ob.id]);
                 const matrix = ctx.getTransform().inverse();
@@ -29,7 +29,6 @@ const init = () => {
             });
             World.select(clicked);
             World.draw();
-
         }
     });
     UI.canvas.appendChild(canvas);

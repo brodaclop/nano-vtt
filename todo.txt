@@ -3,19 +3,17 @@ Networking:
   - debounce
 
 Map:
-  - show/hide image?
-  - don't select hidden images?
+  - don't select locked images with mouse x
   - distance measure?
   - fog of war
-
  
-
-
 Chat:
-  - private message?
-  - delete message?
   - change name?
-  - display user list +
+  - improve user list
+  - open chat box in multiple places
+
+Menu:
+  - set to fixed x
 
 
 

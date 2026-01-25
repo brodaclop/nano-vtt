@@ -51,18 +51,18 @@ export const World = {
         }
         World.draw();
     },
-    update: (newOb: Partial<MapObject>) => {
+    update: async (newOb: Partial<MapObject>) => {
         const uIdx = objects.findIndex(ob => ob.id === newOb.id);
         if (uIdx !== -1) {
             if (!objects[uIdx].locked || 'locked' in newOb) {
                 objects[uIdx] = { ...objects[uIdx], ...newOb };
-                World.draw();
+                await World.draw();
             }
             return objects[uIdx];
         } else {
             // TODO: check that every attribute is present
             objects.push(newOb as MapObject);
-            World.draw();
+            await World.draw();
             return newOb as MapObject;
         }
     },
