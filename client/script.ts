@@ -59,5 +59,12 @@ initLobby();
 UI.menu.syncButton.onclick = () => {
     Operations.sync();
 }
-
+UI.menu.openchat.onclick = () => {
+    const isHidden = UI.chat.container.classList.contains('hidden');
+    if (isHidden) {
+        UI.chat.container.classList.remove('hidden');
+    } else {
+        UI.chat.container.classList.add('hidden');
+    }
+}
 

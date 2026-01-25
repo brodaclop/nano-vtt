@@ -1,7 +1,8 @@
 export const UI = {
     canvas: document.querySelector('.canvas')!,
     chat: {
-        box: document.querySelector('.chat .messages')!,
+        container: document.querySelector('.chat')! as HTMLElement,
+        box: document.querySelector('.chat .messages')! as HTMLElement,
         input: document.querySelector('.chat input')! as HTMLInputElement,
         form: document.querySelector('.chat form')! as HTMLFormElement,
         sendButton: document.querySelector('.chat .send')! as HTMLButtonElement,
@@ -9,6 +10,7 @@ export const UI = {
     menu: {
         room: document.querySelector('.menu .room')! as HTMLElement,
         name: document.querySelector('.menu .name')! as HTMLElement,
+        openchat: document.querySelector('.menu .openchat')! as HTMLElement,
         connection: document.querySelector('.menu .connection')! as HTMLElement,
         connected: document.querySelector('.menu .connected')! as HTMLElement,
         syncButton: document.querySelector('.menu button.sync')! as HTMLButtonElement,

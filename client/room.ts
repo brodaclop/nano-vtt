@@ -49,8 +49,8 @@ let currentRoom: string | undefined = undefined;
 
 Socket.registerSocketStatusListener(status => {
     UI.menu.connection.innerText = status === 'connected' ? '' : status;
-    UI.menu.connection.style.display = (status === 'connected') ? 'none' : 'block';
-    UI.menu.connected.style.display = (status !== 'connected') ? 'none' : 'block';
+    UI.menu.connection.style.display = (status === 'connected') ? 'none' : 'inline';
+    UI.menu.connected.style.display = (status !== 'connected') ? 'none' : 'inline';
     if (status === 'connected' && currentRoom) {
         joinRoom(currentRoom, USERS[MY_USER_ID]);
     }
