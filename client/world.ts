@@ -1,4 +1,4 @@
-import { MapObject } from "./types/map-objects";
+import { Grid, MapObject } from "./types/map-objects";
 import { ScreenProvider } from "./types/screen-type";
 
 
@@ -7,6 +7,10 @@ let screen: ScreenProvider;
 let selected: number | undefined = undefined;
 
 let objects: Array<MapObject> = [];
+let grid: Grid = {
+    size: 50,
+    strength: 1
+};
 
 export const initWorld = async (screenProvider: ScreenProvider) => {
     screen = screenProvider;

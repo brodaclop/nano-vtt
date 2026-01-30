@@ -9,3 +9,8 @@ export interface MapObject {
     data: Blob;
 }
 
+export interface Grid {
+    size: number;
+    strength: number;
+}
+

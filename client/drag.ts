@@ -56,12 +56,24 @@ document.ondragenter = e => {
 const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 
 document.ondrop = e => {
-    if (e.dataTransfer?.items.length === 1) {
+    const worldCoord = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
+    const url = e.dataTransfer?.getData('URL');
+    if (url) {
+        try {
+            (async () => {
+                const res = await fetch(url);
+                if (res.ok && ACCEPTED_TYPES.includes(res.headers.get('content-type')!)) {
+                    Operations.add(await res.blob(), worldCoord.x, worldCoord.y);
+                }
+            })();
+        } catch (e) {
+        }
+
+    } else if (e.dataTransfer?.items.length === 1) {
         const item = e.dataTransfer.items[0];
         if (ACCEPTED_TYPES.includes(item.type)) {
             const file = item.getAsFile();
             if (file) {
-                const worldCoord = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
                 Operations.add(file, worldCoord.x, worldCoord.y);
             }
         }
