@@ -1,4 +1,4 @@
-import { sendDelete, sendObject, sendSyncMessage } from "./messages";
+import { sendDelete, sendGridMessage, sendObject, sendSyncMessage } from "./messages";
 import { Point } from "./point";
 import { MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
@@ -51,8 +51,8 @@ export const Operations = {
             update({ x: Math.max(limitX, x + delta.x), y: Math.max(limitY, y + delta.y) });
         }
     },
-    add: (data: Blob, x: number, y: number) => {
-        const ob = World.add(data, x, y);
+    add: async (data: Blob, x: number, y: number) => {
+        const ob = await World.add(data, x, y);
         sendObject(ob);
     },
     selectNext: () => {
@@ -65,7 +65,15 @@ export const Operations = {
         World.unselect();
     },
     sync: () => {
-        sendSyncMessage(World.getAll());
+        sendSyncMessage(World.getAll(), World.getGrid());
+    },
+    setGridSize: async (size: number) => {
+        await World.setGrid({ size });
+        sendGridMessage(World.getGrid());
+    },
+    setGridStrength: async (strength: number) => {
+        await World.setGrid({ strength });
+        sendGridMessage(World.getGrid());
     }
 }
 

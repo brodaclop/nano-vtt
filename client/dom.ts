@@ -8,12 +8,15 @@ export const UI = {
         sendButton: document.querySelector('.chat .send')! as HTMLButtonElement,
     },
     menu: {
+        container: document.querySelector('.menu')! as HTMLElement,
         room: document.querySelector('.menu .room')! as HTMLElement,
         name: document.querySelector('.menu .name')! as HTMLElement,
         openchat: document.querySelector('.menu .openchat')! as HTMLElement,
         connection: document.querySelector('.menu .connection')! as HTMLElement,
         connected: document.querySelector('.menu .connected')! as HTMLElement,
         syncButton: document.querySelector('.menu button.sync')! as HTMLButtonElement,
+        gridSize: document.querySelector('.menu #grid-size')! as HTMLInputElement,
+        gridStrength: document.querySelector('.menu #grid-strength')! as HTMLInputElement,
     },
     lobby: {
         dialog: document.querySelector('.join')! as HTMLDialogElement,
@@ -28,4 +31,8 @@ export const UI = {
         fn();
     }
 } as const;
+
+
+
+
 

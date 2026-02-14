@@ -1,13 +1,16 @@
 import { UI } from "./dom";
 import { isDragging } from "./drag";
+import { drawFog, isScreenPointInFog } from "./fog";
 import { Point } from "./point";
-import { MapObject } from "./types/map-objects";
+import { FogCircle, Grid, MapObject } from "./types/map-objects";
 import { ScreenProvider } from "./types/screen-type";
 import { Viewport } from "./viewport";
 import { World } from "./world";
 
 const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
+
+
 
 const init = () => {
     setCanvasSize();
@@ -17,12 +20,13 @@ const init = () => {
         World.draw();
     };
     canvas.addEventListener('mousedown', e => {
-        if (!isDragging()) {
+        const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
+        if (!isDragging() && e.button === 0 && !isScreenPointInFog(screenPoint)) {
             const objects = sortObjects(World.getAll(), World.selected()?.id).toReversed().filter(ob => !ob.locked);
             const clicked = objects.find(ob => {
                 const { imageOrigin, imageSize } = transformObjectSpace(ob, images[ob.id]);
                 const matrix = ctx.getTransform().inverse();
-                const transformedClickPoint = matrix.transformPoint(new DOMPoint(e.offsetX, e.offsetY));
+                const transformedClickPoint = matrix.transformPoint(screenPoint);
                 const endX = imageOrigin.x + imageSize.x;
                 const endY = imageOrigin.y + imageSize.y;
                 return imageOrigin.x <= transformedClickPoint.x && endX > transformedClickPoint.x && imageOrigin.y <= transformedClickPoint.y && endY > transformedClickPoint.y;
@@ -52,8 +56,9 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
     return images[ob.id];
 }
 
-const draw = async (objects: MapObject[], selected: number | undefined) => {
+const draw = async (objects: MapObject[], grid: Grid, fog: Array<FogCircle>, selected: number | undefined) => {
     clearCanvas();
+    drawGrid(grid);
     for (const ob of sortObjects(objects, selected)) {
         const image = await ensureImage(ob);
         const { imageOrigin, imageSize } = await transformObjectSpace(ob, image);
@@ -63,6 +68,10 @@ const draw = async (objects: MapObject[], selected: number | undefined) => {
             drawBorder(ob, imageOrigin, imageSize);
         }
     }
+    ctx.resetTransform();
+    const fogImg = drawFog(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
+    ctx.globalAlpha = 1;
+    ctx.drawImage(fogImg, 0, 0);
 }
 
 
@@ -108,3 +117,33 @@ const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
     ctx.strokeStyle = ob.locked ? 'red' : '#E6F41D';
     ctx.strokeRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
 }
+
+const drawGrid = (grid: Grid) => {
+    console.log('grid strength', grid.strength, UI.menu.gridStrength.value);
+    if (grid.strength > 0) {
+        const worldTopLeft = Viewport.screen2World({ x: 0, y: 0 });
+        const worldBottomRight = Viewport.screen2World({ x: canvas.width, y: canvas.height });
+        let x = Math.ceil(worldTopLeft.x / grid.size) * grid.size;
+        while (x < worldBottomRight.x) {
+            const start = Viewport.world2Screen({ x, y: worldTopLeft.y });
+            const end = Viewport.world2Screen({ x, y: worldBottomRight.y });
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+            x += grid.size;
+        }
+        let y = Math.ceil(worldTopLeft.y / grid.size) * grid.size;
+        while (y < worldBottomRight.y) {
+            const start = Viewport.world2Screen({ x: worldTopLeft.x, y });
+            const end = Viewport.world2Screen({ x: worldBottomRight.x, y });
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+            y += grid.size;
+        }
+        ctx.strokeStyle = 'white';
+        ctx.globalAlpha = grid.strength;
+        ctx.stroke();
+    }
+    UI.menu.gridSize.value = String(grid.size);
+    UI.menu.gridStrength.value = String(grid.strength);
+}
+

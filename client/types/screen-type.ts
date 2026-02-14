@@ -1,4 +1,4 @@
-import { MapObject } from "./map-objects";
+import { FogCircle, Grid, MapObject } from "./map-objects";
 
 export interface ScreenProvider {
     init: () => Promise<void>;
@@ -7,5 +7,5 @@ export interface ScreenProvider {
         h: number;
     };
     scrollIntoView: (ob: MapObject) => void;
-    draw: (objects: Array<MapObject>, selected: number | undefined) => void;
+    draw: (objects: Array<MapObject>, grid: Grid, fog: Array<FogCircle>, selected: number | undefined) => void;
 }

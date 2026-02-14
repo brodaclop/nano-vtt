@@ -1,3 +1,5 @@
+import { Point } from "../point";
+
 export interface MapObject {
     id: number;
     x: number;
@@ -12,5 +14,11 @@ export interface MapObject {
 export interface Grid {
     size: number;
     strength: number;
+}
+
+export interface FogCircle {
+    origin: Point;
+    radius: number;
+    reverted: boolean;
 }
 

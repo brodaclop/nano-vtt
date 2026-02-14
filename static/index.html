@@ -17,6 +17,7 @@
                 "/script/canvas": "/script/canvas.js",
                 "/script/world": "/script/world.js",
                 "/script/point": "/script/point.js",
+                "/script/fog": "/script/fog.js",
                 "/script/viewport": "/script/viewport.js",
                 "/script/chat": "/script/chat.js",
                 "/script/operations": "/script/operations.js",
@@ -35,7 +36,6 @@
 
 <body>
     <div class="canvas">
-
     </div>
     <div class="menu">
         <span class="left">
@@ -44,12 +44,15 @@
                 <span>Room: <span class="room">—</span></span>
                 <span>Name: <span class="name">—</span></span>
             </span>
+            <button id="edit-fog">Add fog</button>
         </span>
 
         <span class="mid">nano-vtt</span>
 
 
         <span class="right">
+            <span>Grid strength: <input type="range" min="0" max="1" step="0.1" id="grid-strength" /></span>
+            <span>Grid size: <input type="number" id="grid-size" /></span>
             <button class="sync">Sync</button>
             <button class="openchat">Chat</button>
             <button class="help" popovertarget="help">?</button>

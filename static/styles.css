@@ -167,7 +167,7 @@ div.menu {
     width: 100%;
     height: 1.5em;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 5fr 1fr 5fr;
     background-color: darkolivegreen;
 }
 
@@ -181,4 +181,8 @@ div.menu {
 
 .menu .right {
     text-align: right;
+}
+
+.menu input[type=range] {
+    height: 0.5em;
 }

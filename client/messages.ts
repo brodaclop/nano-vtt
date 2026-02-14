@@ -1,7 +1,7 @@
 import { ChatMessage, addChatMessage } from "./chat";
 import { hello, HelloMessage, JoinMessage, joinRoom, receiveHelloMessage, receiveJoinMessage } from "./room";
 import { World } from "./world";
-import { MapObject } from "./types/map-objects";
+import { Grid, MapObject } from "./types/map-objects";
 import { Socket } from "./websocket";
 
 const HOST_PORT = new URL(window.location.href);
@@ -12,18 +12,9 @@ enum MessageType {
     CHAT = 2,
     JOIN_ROOM = 3,
     HELLO = 4,
-    SYNC = 5
+    SYNC = 5,
+    GRID = 6,
 }
-
-const MessageTypeLabel: Record<MessageType, string> = {
-    [MessageType.PING]: 'PING',
-    [MessageType.OBJECT]: 'OBJECT',
-    [MessageType.CHAT]: 'CHAT',
-    [MessageType.JOIN_ROOM]: 'JOIN_ROOM',
-    [MessageType.HELLO]: 'HELLO',
-    [MessageType.SYNC]: 'SYNC'
-};
-
 
 // Listen for messages
 Socket.registerMessageListener(async data => {
@@ -52,8 +43,14 @@ Socket.registerMessageListener(async data => {
             return;
         }
         case MessageType.SYNC: {
-            const obs = await fromSyncMessage(payload);
-            World.replace(obs);
+            const { obs, grid } = await fromSyncMessage(payload);
+            await World.replace(obs);
+            await World.setGrid(grid);
+            return;
+        }
+        case MessageType.GRID: {
+            const grid = await fromGridMessage(payload);
+            World.setGrid(grid);
             return;
         }
         default: throw new Error(`Unknown message type: ${type}`)
@@ -65,8 +62,8 @@ const send = (messageType: MessageType, blob: Blob) => {
     Socket.send(payload);
 }
 
-export const sendSyncMessage = (obs: Array<MapObject>) => {
-    send(MessageType.SYNC, toSyncMessage(obs));
+export const sendSyncMessage = (obs: Array<MapObject>, grid: Grid) => {
+    send(MessageType.SYNC, toSyncMessage(obs, grid));
 }
 
 export const sendJoinMessage = (message: JoinMessage) => {
@@ -91,6 +88,26 @@ export const sendChatMessage = (message: ChatMessage) => {
     header.setUint32(0, message.id);
     header.setUint32(4, message.sender);
     send(MessageType.CHAT, new Blob([buffer, message.text]))
+}
+
+export const sendGridMessage = (grid: Grid) => {
+    send(MessageType.GRID, toGridMessage(grid));
+}
+
+const toGridMessage = (grid: Grid): Blob => {
+    const buffer = new ArrayBuffer(8);
+    const header = new DataView(buffer);
+    header.setUint32(0, grid.size);
+    header.setFloat32(4, grid.strength);
+    return new Blob([buffer]);
+}
+
+const fromGridMessage = async (blob: Blob): Promise<Grid> => {
+    const buffer = await blob.slice(0, 8).arrayBuffer();
+    const header = new DataView(buffer);
+    const size = header.getUint32(0);
+    const strength = header.getFloat32(4);
+    return { size, strength };
 }
 
 const fromChatMessage = async (blob: Blob): Promise<ChatMessage> => {
@@ -193,20 +210,22 @@ const fromObjectMessage = async (blob: Blob): Promise<Partial<MapObject> | { del
     return ob;
 }
 
-const toSyncMessage = (obs: Array<MapObject>): Blob => {
+const toSyncMessage = (obs: Array<MapObject>, grid: Grid): Blob => {
     const blobs = obs.map(ob => toObjectMessage(ob, ALL_FIELDS));
-    return new Blob(blobs);
+    return new Blob([toGridMessage(grid), ...blobs]);
 }
 
-const fromSyncMessage = async (blob: Blob): Promise<Array<MapObject>> => {
-    let ret: Array<MapObject> = [];
-    while (blob.size > 0) {
+const fromSyncMessage = async (blob: Blob): Promise<{ obs: Array<MapObject>, grid: Grid }> => {
+    let obs: Array<MapObject> = [];
+    const grid = await fromGridMessage(blob);
+    let objectBlob = blob.slice(8);
+    while (objectBlob.size > 0) {
         const ob: Partial<MapObject> = {};
-        const next = await unpackSyncMessage(blob, ob);
-        ret.push(ob as MapObject);
-        blob = blob.slice(next);
+        const next = await unpackSyncMessage(objectBlob, ob);
+        obs.push(ob as MapObject);
+        objectBlob = objectBlob.slice(next);
     }
-    return ret;
+    return { obs, grid };
 }
 
 const unpackSyncMessage = async (blob: Blob, ob: Partial<MapObject>): Promise<number> => {

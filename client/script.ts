@@ -4,7 +4,7 @@ import { UI } from "./dom";
 import { initDrag } from "./drag";
 import { initLobby } from "./lobby";
 import { Operations } from "./operations";
-import { initWorld } from "./world";
+import { initWorld, World } from "./world";
 
 console.log('Script loaded');
 
@@ -17,7 +17,7 @@ document.onkeydown = e => {
     } else if (e.key === '+') {
         Operations.zoom(1.1);
     } else if (e.key === '-') {
-        Operations.zoom(0.9);
+        Operations.zoom(1 / 1.1);
     } else if (e.key === 'ArrowLeft') {
         Operations.rotate(-5);
     } else if (e.key === 'ArrowRight') {
@@ -44,7 +44,7 @@ document.onkeydown = e => {
 
 document.onwheel = (e: WheelEvent) => {
     if (!e.altKey && !e.shiftKey && !e.ctrlKey && e.deltaY !== 0) {
-        Operations.zoom(e.deltaY < 0 ? 1.1 : 0.9);
+        Operations.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1);
         e.preventDefault();
     }
 }
@@ -68,3 +68,13 @@ UI.menu.openchat.onclick = () => {
     }
 }
 
+
+UI.menu.gridSize.onchange = () => {
+    Operations.setGridSize(Number(UI.menu.gridSize.value));
+}
+
+UI.menu.gridStrength.onchange = () => {
+    Operations.setGridStrength(Number(UI.menu.gridStrength.value));
+}
+
+UI.menu.container.onmousemove = e => e.stopPropagation();
