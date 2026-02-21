@@ -1,6 +1,6 @@
-import { UI } from "./dom";
+import { bindInputValue, UI } from "./dom";
 import { isDragging } from "./drag";
-import { drawFog, isScreenPointInFog } from "./fog";
+import { Fog } from "./fog";
 import { Point } from "./point";
 import { FogCircle, Grid, MapObject } from "./types/map-objects";
 import { ScreenProvider } from "./types/screen-type";
@@ -10,6 +10,7 @@ import { World } from "./world";
 const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
 
+const fogSize = bindInputValue(UI.menu.fogSize, 100);
 
 
 const init = () => {
@@ -21,7 +22,17 @@ const init = () => {
     };
     canvas.addEventListener('mousedown', e => {
         const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
-        if (!isDragging() && e.button === 0 && !isScreenPointInFog(screenPoint)) {
+        if (World.getEditMode() === 'fog' && e.buttons & 3) {
+            const worldPoint = Viewport.screen2World(screenPoint);
+            World.addFogCircle({
+                origin: worldPoint,
+                radius: fogSize.value,
+                reverted: Boolean(e.buttons & 2)
+            })
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        } else if (!isDragging() && e.button === 0 && !Fog.isScreenPointInFog(screenPoint)) {
             const objects = sortObjects(World.getAll(), World.selected()?.id).toReversed().filter(ob => !ob.locked);
             const clicked = objects.find(ob => {
                 const { imageOrigin, imageSize } = transformObjectSpace(ob, images[ob.id]);
@@ -69,7 +80,7 @@ const draw = async (objects: MapObject[], grid: Grid, fog: Array<FogCircle>, sel
         }
     }
     ctx.resetTransform();
-    const fogImg = drawFog(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
+    const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
     ctx.globalAlpha = 1;
     ctx.drawImage(fogImg, 0, 0);
 }

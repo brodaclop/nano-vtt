@@ -186,3 +186,7 @@ div.menu {
 .menu input[type=range] {
     height: 0.5em;
 }
+
+#fog-controls.hidden {
+    display: none;
+}

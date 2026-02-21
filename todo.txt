@@ -3,9 +3,12 @@ Networking:
   - debounce
 
 Map:
-  - don't select locked images with mouse x
   - distance measure?
-  - fog of war
+  - fog of war: postponed cos it's not clear if we need it at all
+    - fog ownership
+    - fog transfer
+    - fog size limits
+    - fog draw cursor
  
 Chat:
   - change name?
@@ -13,16 +16,14 @@ Chat:
   - open chat box in multiple places
 
 Menu:
-  - set to fixed x
-
-
 
 Other:
   - enforce max lengths for strings/blobs
   - update wrangler
+  - make binding make sense
 
 Bugs:
-
+  
 
 
 

@@ -6,6 +6,8 @@ let screen: ScreenProvider;
 
 let selected: number | undefined = undefined;
 
+let editMode: 'normal' | 'fog' = 'normal';
+
 let objects: Array<MapObject> = [];
 let grid: Grid = {
     size: 50,
@@ -116,6 +118,12 @@ export const World = {
         await World.draw();
     },
     getGrid: () => ({ ...grid }),
+    addFogCircle: async (circle: FogCircle) => {
+        fog.push(circle);
+        await World.draw();
+    },
+    getEditMode: () => editMode,
+    flipEditMode: () => editMode = editMode === 'normal' ? 'fog' : 'normal'
 }
 
 

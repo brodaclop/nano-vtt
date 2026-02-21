@@ -12,7 +12,7 @@ let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;
 
 document.onmousemove = (e) => {
-    if (e.buttons & 5) {
+    if (e.buttons & 5 && World.getEditMode() === 'normal') {
         const oldDrag = drag;
         drag = Point.fromCoords(e.clientX, e.clientY);
         if (oldDrag) {

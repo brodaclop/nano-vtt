@@ -8,6 +8,8 @@ import { initWorld, World } from "./world";
 
 console.log('Script loaded');
 
+
+
 document.onkeydown = e => {
     if (document.activeElement !== document.body) {
         return;
@@ -78,3 +80,17 @@ UI.menu.gridStrength.onchange = () => {
 }
 
 UI.menu.container.onmousemove = e => e.stopPropagation();
+
+UI.menu.editFog.onclick = () => {
+    World.flipEditMode();
+    UI.menu.editFog.innerText = World.getEditMode() === 'normal' ? 'Edit fog' : 'Finish fog editing';
+    const showControls = World.getEditMode() === 'fog';
+    if (showControls) {
+        UI.menu.fogControls.classList.remove('hidden');
+    } else {
+        UI.menu.fogControls.classList.add('hidden');
+    }
+    Operations.unselect();
+}
+
+UI.canvas.addEventListener('contextmenu', e => e.preventDefault());
