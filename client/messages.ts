@@ -1,5 +1,5 @@
-import { ChatMessage, addChatMessage } from "./chat";
-import { hello, HelloMessage, JoinMessage, joinRoom, receiveHelloMessage, receiveJoinMessage } from "./room";
+import { ChatMessage, addChatMessage, startedTyping, stoppedTyping } from "./chat";
+import { hello, HelloMessage, JoinMessage, joinRoom, MY_USER_ID, receiveHelloMessage, receiveJoinMessage } from "./room";
 import { World } from "./world";
 import { Grid, MapObject } from "./types/map-objects";
 import { Socket } from "./websocket";
@@ -14,6 +14,8 @@ enum MessageType {
     HELLO = 4,
     SYNC = 5,
     GRID = 6,
+    TYPING_START = 7,
+    TYPING_END = 8,
 }
 
 // Listen for messages
@@ -53,6 +55,16 @@ Socket.registerMessageListener(async data => {
             World.setGrid(grid);
             return;
         }
+        case MessageType.TYPING_START: {
+            const sender = await fromTypingMessage(payload);
+            startedTyping(sender);
+            return;
+        }
+        case MessageType.TYPING_END: {
+            const sender = await fromTypingMessage(payload);
+            stoppedTyping(sender);
+            return;
+        }
         default: throw new Error(`Unknown message type: ${type}`)
     }
 });
@@ -60,6 +72,14 @@ Socket.registerMessageListener(async data => {
 const send = (messageType: MessageType, blob: Blob) => {
     const payload = toMessage(messageType, blob);
     Socket.send(payload);
+}
+
+export const sendTypingMessage = (op: 'start' | 'end') => {
+    const buffer = new ArrayBuffer(4);
+    const header = new DataView(buffer);
+    header.setUint32(0, MY_USER_ID);
+
+    send(op === 'start' ? MessageType.TYPING_START : MessageType.TYPING_END, new Blob([buffer]));
 }
 
 export const sendSyncMessage = (obs: Array<MapObject>, grid: Grid) => {
@@ -134,6 +154,14 @@ const fromJoinMessage = async (blob: Blob): Promise<JoinMessage> => {
     const roomAndName = await blob.slice(4).text();
     const [room, name] = roomAndName.split(' | ');
     return { sender, room, name };
+}
+
+
+const fromTypingMessage = async (blob: Blob): Promise<number> => {
+    const buffer = await blob.slice(0, 4).arrayBuffer();
+    const header = new DataView(buffer);
+    const sender = header.getUint32(0);
+    return sender;
 }
 
 

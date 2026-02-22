@@ -5,6 +5,8 @@ body {
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
+    --menu-height: 2em;
+
 }
 
 div.canvas {
@@ -15,9 +17,9 @@ div.canvas {
 
 .chat {
     position: fixed;
-    top: 1.5em;
+    top: var(--menu-height);
     right: 0;
-    height: calc(100dvh - 1.5em);
+    height: calc(100dvh - var(--menu-height));
     width: 20dvw;
     background-color: grey;
     z-index: 1;
@@ -108,13 +110,46 @@ div.canvas {
 
 .chat ul li.own {
     align-self: flex-start;
-    background-color: darkslateblue;
+    background-color: antiquewhite;
+    color: black;
 }
 
 .chat ul li.other {
     align-self: flex-end;
+}
+
+.chat ul li.other.c0 {
     background-color: midnightblue;
 }
+
+.chat ul li.other.c1 {
+    background-color: chocolate;
+}
+
+.chat ul li.other.c2 {
+    background-color: darkgreen;
+}
+
+.chat ul li.other.c3 {
+    background-color: steelblue;
+}
+
+.chat ul li.other.c4 {
+    background-color: silver;
+}
+
+.chat ul li.other.c5 {
+    background-color: brown;
+}
+
+.chat ul li.other.c6 {
+    background-color: seagreen;
+}
+
+.chat ul li.other.c7 {
+    background-color: slategrey;
+}
+
 
 button,
 input {
@@ -165,10 +200,27 @@ div.menu {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 1.5em;
+    height: var(--menu-height);
+    padding-top: 0.3em;
     display: grid;
     grid-template-columns: 5fr 1fr 5fr;
-    background-color: darkolivegreen;
+    background-color: darkred;
+    box-sizing: border-box;
+}
+
+div.menu .entry {
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+div.menu .entry .label {
+    color: aquamarine;
+}
+
+div.menu .logo {
+    font-size: 1.2em;
 }
 
 .menu .left {

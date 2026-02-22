@@ -25,7 +25,6 @@ if (storedId) {
     sessionStorage.setItem('user_id', String(MY_USER_ID));
 }
 
-
 export const USERS: Record<number, string> = {};
 
 export const receiveJoinMessage = (message: JoinMessage) => {
@@ -63,7 +62,7 @@ const updateRoomDisplay = () => {
 
 }
 
-export const joinRoom = (room: string, name: string) => {
+export const joinRoom = (room: string, name: string,) => {
     currentRoom = room;
     USERS[MY_USER_ID] = name;
     updateRoomDisplay();
