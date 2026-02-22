@@ -12,8 +12,7 @@ Map:
  
 Chat:
   - change name?
-  - improve user list, we really need this
-  - open chat box in multiple places
+  - open chat box in multiple places?
 
 Menu:
 

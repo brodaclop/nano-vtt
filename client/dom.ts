@@ -7,6 +7,7 @@ export const UI = {
         form: document.querySelector('.chat form')! as HTMLFormElement,
         sendButton: document.querySelector('.chat .send')! as HTMLButtonElement,
         typing: document.querySelector('.chat #typing')! as HTMLElement,
+        userList: document.querySelector('.chat .participants .list')! as HTMLElement,
     },
     menu: {
         container: document.querySelector('.menu')! as HTMLElement,

@@ -59,7 +59,7 @@ const updateRoomDisplay = () => {
     UI.menu.room.innerText = `${currentRoom} (${Object.keys(USERS).length} users)`;
     UI.menu.room.title = `Users:\n\n${Object.values(USERS).join('\n')}`;
     UI.menu.name.innerText = USERS[MY_USER_ID];
-
+    UI.chat.userList.innerText = Object.entries(USERS).map(u => `${u[1]}${u[0] === String(MY_USER_ID) ? ' (you)' : ''}`).join(', ')
 }
 
 export const joinRoom = (room: string, name: string,) => {

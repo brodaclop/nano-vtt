@@ -38,12 +38,16 @@ div.canvas {
     height: 0;
 }
 
-.chat form {
+.chat form,
+.chat .title,
+.chat .participants {
     transition: opacity 1s step-end;
     opacity: 1;
 }
 
-.chat.hidden form {
+.chat.hidden form,
+.chat.hidden .title,
+.chat.hidden .participants {
     transition: opacity 1s step-start;
     opacity: 0;
 }
@@ -150,6 +154,19 @@ div.canvas {
     background-color: slategrey;
 }
 
+.chat .label {
+    color: aquamarine;
+}
+
+.chat .title {
+    text-align: center;
+    background-color: blueviolet;
+    color: coral;
+}
+
+.chat .participants {
+    background-color: black;
+}
 
 button,
 input {
@@ -179,6 +196,10 @@ input {
     text-wrap: nowrap;
 }
 
+.join form label input {
+    float: right;
+}
+
 .join,
 div#help {
     filter: drop-shadow(goldenrod 0.5em 0.5em 2em);
@@ -202,6 +223,8 @@ div.menu {
     width: 100%;
     height: var(--menu-height);
     padding-top: 0.3em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
     display: grid;
     grid-template-columns: 5fr 1fr 5fr;
     background-color: darkred;
@@ -221,6 +244,7 @@ div.menu .entry .label {
 
 div.menu .logo {
     font-size: 1.2em;
+    color: coral;
 }
 
 .menu .left {
