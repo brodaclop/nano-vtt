@@ -1,3 +1,4 @@
+import { Events } from "./events";
 import { Point } from "./point";
 
 let zoom: number = 1;
@@ -10,6 +11,10 @@ export const Viewport = {
     origin: () => origin,
     moveOrigin: (delta: Point) => {
         origin = Point.add(origin, delta);
+        Events.emit({ type: 'viewport-changed' });
     },
-    adjustZoom: (factor: number) => zoom *= factor,
+    adjustZoom: (factor: number) => {
+        zoom *= factor;
+        Events.emit({ type: 'viewport-changed' });
+    }
 }

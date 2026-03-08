@@ -1,9 +1,11 @@
 import { Canvas } from "./canvas";
-import { initChat } from "./chat";
+import { Chat, initChat } from "./chat";
 import { UI } from "./dom";
 import { initDrag } from "./drag";
+import { Events } from "./events";
 import { initLobby } from "./lobby";
 import { Operations } from "./operations";
+import { Room } from "./room";
 import { initWorld, World } from "./world";
 
 console.log('Script loaded');
@@ -51,12 +53,26 @@ document.onwheel = (e: WheelEvent) => {
     }
 }
 
+Events.register('world-changed', Canvas.draw);
+Events.register('viewport-changed', Canvas.draw);
+Events.register('object-selected', Canvas.scrollIntoView);
+Events.register('chat-received', Chat.incomingChatMessage);
+Events.register('typing-received', Chat.incomingTyping);
+Events.register('grid-received', World.change.setGrid);
+Events.register('object-delete-received', World.change.remove);
+Events.register('object-received', World.change.update);
+Events.register('sync-received', World.change.replace);
+Events.register('join-received', Room.joined);
+Events.register('hello-received', Room.helloed);
+
 await Canvas.init();
 
-initWorld(Canvas);
+
+initWorld();
 initDrag();
 initChat();
 initLobby();
+
 
 UI.menu.syncButton.onclick = () => {
     Operations.sync();

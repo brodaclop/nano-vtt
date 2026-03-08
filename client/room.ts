@@ -1,22 +1,13 @@
-import { addChatMessage, drawChat } from "./chat";
 import { random } from "./random";
 import { sendHelloMessage, sendJoinMessage } from "./messages";
 import { Socket } from "./websocket";
 import { UI } from "./dom";
-
-export interface JoinMessage {
-    sender: number;
-    room: string;
-    name: string;
-}
-
-export interface HelloMessage {
-    sender: number;
-    name: string;
-}
+import { Events } from "./events";
+import { HelloMessage, JoinMessage } from "./types/map-objects";
 
 
-export let MY_USER_ID = random();
+
+let MY_USER_ID = random();
 
 const storedId = sessionStorage.getItem('user_id');
 if (storedId) {
@@ -25,24 +16,27 @@ if (storedId) {
     sessionStorage.setItem('user_id', String(MY_USER_ID));
 }
 
-export const USERS: Record<number, string> = {};
+const USERS: Record<number, string> = {};
 
-export const receiveJoinMessage = (message: JoinMessage) => {
+
+const receiveJoinMessage = (message: JoinMessage) => {
     USERS[message.sender] = message.name;
     updateRoomDisplay();
-    addChatMessage({ id: random(), sender: message.sender, text: '<joined>' });
+    hello();
+    Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '<joined>' } })
 }
 
-export const receiveHelloMessage = (message: HelloMessage) => {
+const receiveHelloMessage = (message: HelloMessage) => {
     if (USERS[message.sender] !== message.name) {
         if (USERS[message.sender]) {
-            addChatMessage({ id: random(), sender: message.sender, text: `${USERS[message.sender]} --> ${message.name} ` });
+            Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: `${USERS[message.sender]} --> ${message.name} ` } });
         }
         USERS[message.sender] = message.name;
         updateRoomDisplay();
-        drawChat();
     }
 }
+
+
 
 let currentRoom: string | undefined = undefined;
 
@@ -62,15 +56,23 @@ const updateRoomDisplay = () => {
     UI.chat.userList.innerText = Object.entries(USERS).map(u => `${u[1]}${u[0] === String(MY_USER_ID) ? ' (you)' : ''}`).join(', ')
 }
 
-export const joinRoom = (room: string, name: string,) => {
+const joinRoom = (room: string, name: string,) => {
     currentRoom = room;
     USERS[MY_USER_ID] = name;
     updateRoomDisplay();
     sendJoinMessage({ sender: MY_USER_ID, room, name: USERS[MY_USER_ID] });
 }
 
-export const hello = (newName?: string) => {
+const hello = (newName?: string) => {
     const name = newName ?? USERS[MY_USER_ID];
     USERS[MY_USER_ID] = name;
     sendHelloMessage({ sender: MY_USER_ID, name });
 }
+
+export const Room = {
+    joined: receiveJoinMessage,
+    helloed: receiveHelloMessage,
+    join: joinRoom,
+    me: MY_USER_ID,
+    userName: (userId: number) => USERS[userId]
+};

@@ -1,23 +1,20 @@
 import { UI } from "./dom";
 import { random } from "./random";
-import { MY_USER_ID, USERS } from "./room";
 import { sendChatMessage, sendTypingMessage } from "./messages";
 import { Interpolation } from "./interpolation";
+import { ChatMessage } from "./types/map-objects";
+import { Room } from "./room";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 const typing: Set<number> = new Set();
 
-export interface ChatMessage {
-    id: number;
-    sender: number;
-    text: string;
-}
+
 
 export const initChat = () => {
     UI.chat.input.oninput = () => {
         const empty = !UI.chat.input.value;
         UI.chat.sendButton.disabled = empty;
-        sendTypingMessage(empty ? 'end' : 'start');
+        sendTypingMessage(empty ? 'end' : 'start', Room.me);
     }
 
     UI.chat.sendButton.disabled = !UI.chat.input.value;
@@ -28,7 +25,7 @@ export const initChat = () => {
 
     UI.chat.form.onsubmit = (event) => {
         const text = Interpolation.perform(UI.chat.input.value);
-        const message = { id: random(), sender: MY_USER_ID, text };
+        const message = { id: random(), sender: Room.me, text };
         addChatMessage(message);
         sendChatMessage(message);
         UI.chat.input.value = '';
@@ -37,7 +34,7 @@ export const initChat = () => {
     }
 }
 
-export const addChatMessage = async (message: ChatMessage) => {
+const addChatMessage = async (message: ChatMessage) => {
     if (messages.some(m => m.id === message.id)) {
         return;
     }
@@ -45,14 +42,17 @@ export const addChatMessage = async (message: ChatMessage) => {
     drawChat();
 }
 
-export const startedTyping = (user: number) => {
-    typing.add(user);
-    drawChat();
-}
 
-export const stoppedTyping = (user: number) => {
-    typing.delete(user);
-    drawChat();
+export const Chat = {
+    incomingTyping: ({ user, action }: { user: number, action: 'start' | 'end' }) => {
+        if (action === 'start') {
+            typing.add(user);
+        } else {
+            typing.delete(user);
+        }
+        drawChat();
+    },
+    incomingChatMessage: addChatMessage
 }
 
 export const drawChat = () => {
@@ -72,12 +72,12 @@ export const drawChat = () => {
             }
         }
         const [userSpan, messageSpan] = [...message.elem.children] as Array<HTMLElement>;
-        userSpan.innerText = (message.sender !== MY_USER_ID) ? USERS[message.sender] : '';
+        userSpan.innerText = (message.sender !== Room.me) ? Room.userName(message.sender) : '';
         messageSpan.innerText = message.text;
         const color = message.sender & 7;
-        message.elem.className = (message.sender === MY_USER_ID) ? 'own' : `other c${color}`;
+        message.elem.className = (message.sender === Room.me) ? 'own' : `other c${color}`;
     });
-    const typers = typing.size < 3 ? [...typing].map(user => USERS[user]).join(', ') : 'Several people';
+    const typers = typing.size < 3 ? [...typing].map(user => Room.userName(user)).join(', ') : 'Several people';
     UI.chat.typing.innerText = typers.length > 0 ? `${typers} typing...` : '';
     UI.chat.box.scrollTo({
         top: UI.chat.box.scrollHeight,

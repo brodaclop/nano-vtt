@@ -17,13 +17,11 @@ document.onmousemove = (e) => {
         drag = Point.fromCoords(e.clientX, e.clientY);
         if (oldDrag) {
             const delta = Point.fromCoords(drag.x - oldDrag.x, drag.y - oldDrag.y);
-            if (World.selected()) {
+            if (World.selected) {
                 Operations.move(Point.scale(delta, 1 / Viewport.zoom()));
             } else {
                 Viewport.moveOrigin(delta);
-                World.draw();
             }
-
         } else {
             dragActive = true;
         }

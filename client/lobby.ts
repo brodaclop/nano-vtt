@@ -1,5 +1,5 @@
 import { UI } from "./dom";
-import { joinRoom } from "./room";
+import { Room } from "./room";
 
 export const initLobby = () => {
     UI.lobby.dialog.showModal();
@@ -7,7 +7,7 @@ export const initLobby = () => {
     UI.disableIfEmpty(UI.lobby.button, UI.lobby.room, UI.lobby.name);
 
     UI.lobby.form.onsubmit = (e) => {
-        joinRoom(UI.lobby.room.value, UI.lobby.name.value);
+        Room.join(UI.lobby.room.value, UI.lobby.name.value);
         UI.lobby.dialog.close();
         e.preventDefault();
         return false;

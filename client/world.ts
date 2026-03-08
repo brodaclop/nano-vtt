@@ -1,8 +1,6 @@
-import { FogCircle, Grid, MapObject } from "./types/map-objects";
-import { ScreenProvider } from "./types/screen-type";
+import { Events } from "./events";
+import { FogCircle, Grid, MapObject, WorldObject } from "./types/map-objects";
 
-
-let screen: ScreenProvider;
 
 let selected: number | undefined = undefined;
 
@@ -21,8 +19,15 @@ let fog: Array<FogCircle> = [
     // { origin: { x: 200, y: 0 }, radius: 100, reverted: false },
 ];
 
-export const initWorld = async (screenProvider: ScreenProvider) => {
-    screen = screenProvider;
+const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<F>) => Promise<ReturnType<F>> => {
+    return async (...args: Parameters<F>) => {
+        const ret = fn(...args);
+        await Events.emit({ type: 'world-changed' });
+        return ret;
+    }
+}
+
+export const initWorld = changeFn(async () => {
     const map = await (await fetch('/assets/alunselkirk.jpg')).blob();
     objects.push({
         id: 0,
@@ -34,94 +39,89 @@ export const initWorld = async (screenProvider: ScreenProvider) => {
         locked: 0,
         angle: 0
     });
-    World.draw();
-}
+});
 
 
 export const World = {
-    selected: (): MapObject | undefined => objects.find(ob => ob.id === selected),
-    getAll: () => objects,
-    add: async (data: Blob, x: number, y: number) => {
-        const ob: MapObject = {
-            id: Math.round(Math.random() * 1_000_000_000),
-            angle: 0,
-            x,
-            y,
-            layer: World.maxLayer() + 1,
-            locked: 0,
-            zoom: 1000,
-            data
-        };
-        objects.push(ob);
-        select(ob);
-        await World.draw();
-        return ob;
+    get objects(): Array<MapObject> {
+        return [...objects];
     },
-    remove: async (id: number) => {
-        objects = objects.filter(ob => ob.id !== id);
-        if (selected === id) {
-            select();
-        }
-        await World.draw();
+    get grid(): Grid {
+        return { ...grid };
     },
-    update: async (newOb: Partial<MapObject>) => {
-        const uIdx = objects.findIndex(ob => ob.id === newOb.id);
-        if (uIdx !== -1) {
-            if (!objects[uIdx].locked || 'locked' in newOb) {
-                objects[uIdx] = { ...objects[uIdx], ...newOb };
-                await World.draw();
-            }
-            return objects[uIdx];
-        } else {
-            // TODO: check that every attribute is present
-            objects.push(newOb as MapObject);
-            await World.draw();
-            return newOb as MapObject;
-        }
+    get selected(): MapObject | undefined {
+        return objects.find(ob => ob.id === selected);
     },
-    replace: async (obs: Array<MapObject>) => {
-        objects = obs;
-        await World.draw();
-    },
-    draw: () => screen.draw(objects, grid, fog, selected),
-    maxLayer: () => Math.max(0, ...objects.map(ob => ob.layer).filter(l => l !== 0)),
-    minLayer: () => Math.min(Number.MAX_SAFE_INTEGER, ...objects.map(ob => ob.layer).filter(l => l !== 0)),
-    select: (ob?: MapObject) => select(ob),
-    selectNext: async () => {
-        if (objects.length > 0) {
-            if (selected === undefined) {
-                select(objects[0]);
+    get layers(): { min: number, max: number } {
+        let ret: { min: number, max: number } | undefined;
+        objects.forEach(ob => {
+            if (!ret) {
+                ret = { min: ob.layer, max: ob.layer };
             } else {
-                const idx = objects.findIndex(ob => ob.id === selected);
-                select(objects[(idx + 1) % objects.length]);
+                ret.min = Math.min(ret.min, ob.layer);
+                ret.max = Math.max(ret.max, ob.layer);
             }
-            await World.draw();
-        }
+        });
+        return ret ?? { min: 0, max: 0 };
     },
-    selectPrevious: async () => {
-        if (objects.length > 0) {
-            if (selected === undefined) {
-                select(objects.at(-1));
-            } else if (objects.length > 0) {
-                const idx = objects.findIndex(ob => ob.id === selected);
-                select(objects[(idx - 1 + objects.length) % objects.length]);
+    change: {
+        remove: changeFn((id: number) => {
+            objects = objects.filter(ob => ob.id !== id);
+            if (selected === id) {
+                select();
             }
-            await World.draw();
-        }
+        }),
+        update: changeFn((newOb: Partial<MapObject>, selectNewOb = false) => {
+            const uIdx = objects.findIndex(ob => ob.id === newOb.id);
+            if (uIdx !== -1) {
+                if (!objects[uIdx].locked || 'locked' in newOb) {
+                    objects[uIdx] = { ...objects[uIdx], ...newOb };
+                }
+                return objects[uIdx];
+            } else {
+                // TODO: check that every attribute is present
+                const fullNewOb = newOb as MapObject;
+                objects.push(fullNewOb);
+                if (selectNewOb) {
+                    select(fullNewOb);
+                }
+                return fullNewOb;
+            }
+        }),
+        replace: changeFn((newWorld: WorldObject) => {
+            objects = newWorld.objects;
+            grid = newWorld.grid;
+        }),
+        select: changeFn((ob?: MapObject) => select(ob)),
+        selectNext: changeFn(() => {
+            if (objects.length > 0) {
+                if (selected === undefined) {
+                    select(objects[0]);
+                } else {
+                    const idx = objects.findIndex(ob => ob.id === selected);
+                    select(objects[(idx + 1) % objects.length]);
+                }
+            }
+        }),
+        selectPrevious: changeFn(() => {
+            if (objects.length > 0) {
+                if (selected === undefined) {
+                    select(objects.at(-1));
+                } else if (objects.length > 0) {
+                    const idx = objects.findIndex(ob => ob.id === selected);
+                    select(objects[(idx - 1 + objects.length) % objects.length]);
+                }
+            }
+        }),
+        unselect: changeFn(() => select()),
+        setGrid: changeFn((newGrid: Partial<Grid>) => {
+            grid = { ...grid, ...newGrid };
+            return grid;
+        }),
     },
-    unselect: async () => {
-        select();
-        await World.draw();
-    },
-    setGrid: async (newGrid: Partial<Grid>) => {
-        grid = { ...grid, ...newGrid };
-        await World.draw();
-    },
-    getGrid: () => ({ ...grid }),
-    addFogCircle: async (circle: FogCircle) => {
+    addFogCircle: changeFn((circle: FogCircle) => {
         fog.push(circle);
-        await World.draw();
-    },
+    }),
     getEditMode: () => editMode,
     flipEditMode: () => editMode = editMode === 'normal' ? 'fog' : 'normal'
 }
@@ -131,7 +131,7 @@ export const World = {
 const select = (ob?: MapObject) => {
     selected = ob?.id;
     if (ob) {
-        screen.scrollIntoView(ob);
+        Events.emit({ type: 'object-selected', payload: ob });
     }
 }
 

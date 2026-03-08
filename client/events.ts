@@ -1,0 +1,126 @@
+import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
+
+interface WorldChanged {
+    type: 'world-changed',
+    payload?: never
+}
+
+interface ViewportChanged {
+    type: 'viewport-changed',
+    payload?: never
+}
+
+interface ObjectSelected {
+    type: 'object-selected',
+    payload: MapObject
+}
+
+interface ChatReceived {
+    type: 'chat-received',
+    payload: ChatMessage
+}
+
+interface TypingReceived {
+    type: 'typing-received',
+    payload: {
+        user: number;
+        action: 'start' | 'end'
+    }
+}
+
+interface GridReceived {
+    type: 'grid-received',
+    payload: Grid
+}
+
+interface ObjectDeleteReceived {
+    type: 'object-delete-received',
+    payload: number
+}
+
+interface ObjectReceived {
+    type: 'object-received',
+    payload: Partial<MapObject>;
+}
+
+interface SyncReceived {
+    type: 'sync-received',
+    payload: WorldObject;
+}
+
+interface JoinReceived {
+    type: 'join-received',
+    payload: JoinMessage
+}
+
+interface HelloReceived {
+    type: 'hello-received',
+    payload: HelloMessage
+}
+
+
+export type Event =
+    | WorldChanged
+    | ViewportChanged
+    | ObjectSelected
+    | ChatReceived
+    | TypingReceived
+    | GridReceived
+    | ObjectDeleteReceived
+    | ObjectReceived
+    | SyncReceived
+    | JoinReceived
+    | HelloReceived;
+
+const listeners: Record<Event['type'], Array<(arg: Event['payload']) => unknown>> = {
+    'viewport-changed': [],
+    'world-changed': [],
+    'object-selected': [],
+    'chat-received': [],
+    'typing-received': [],
+    'grid-received': [],
+    'object-delete-received': [],
+    'object-received': [],
+    'sync-received': [],
+    'join-received': [],
+    'hello-received': [],
+};
+
+function register(type: ViewportChanged['type'], listener: (event: ViewportChanged['payload']) => unknown): void;
+function register(type: WorldChanged['type'], listener: (event: WorldChanged['payload']) => unknown): void;
+function register(type: ObjectSelected['type'], listener: (event: ObjectSelected['payload']) => unknown): void;
+function register(type: ChatReceived['type'], listener: (event: ChatReceived['payload']) => unknown): void;
+function register(type: TypingReceived['type'], listener: (event: TypingReceived['payload']) => unknown): void;
+function register(type: GridReceived['type'], listener: (event: GridReceived['payload']) => unknown): void;
+function register(type: ObjectDeleteReceived['type'], listener: (event: ObjectDeleteReceived['payload']) => unknown): void;
+function register(type: ObjectReceived['type'], listener: (event: ObjectReceived['payload']) => unknown): void;
+function register(type: SyncReceived['type'], listener: (event: SyncReceived['payload']) => unknown): void;
+function register(type: JoinReceived['type'], listener: (event: JoinReceived['payload']) => unknown): void;
+function register(type: HelloReceived['type'], listener: (event: HelloReceived['payload']) => unknown): void;
+function register(type: Event['type'], listener: (event: any) => unknown): void {
+    listeners[type].push(listener);
+}
+
+function unregister(type: ViewportChanged['type'], listener: (event: ViewportChanged) => unknown): void;
+function unregister(type: WorldChanged['type'], listener: (event: WorldChanged) => unknown): void;
+function unregister(type: ObjectSelected['type'], listener: (event: ObjectSelected) => unknown): void;
+function unregister(type: ChatReceived['type'], listener: (event: ChatReceived['payload']) => unknown): void;
+function unregister(type: TypingReceived['type'], listener: (event: TypingReceived['payload']) => unknown): void;
+function unregister(type: GridReceived['type'], listener: (event: GridReceived['payload']) => unknown): void;
+function unregister(type: ObjectDeleteReceived['type'], listener: (event: ObjectDeleteReceived['payload']) => unknown): void;
+function unregister(type: ObjectReceived['type'], listener: (event: ObjectReceived['payload']) => unknown): void;
+function unregister(type: SyncReceived['type'], listener: (event: SyncReceived['payload']) => unknown): void;
+function unregister(type: JoinReceived['type'], listener: (event: JoinReceived['payload']) => unknown): void;
+function unregister(type: HelloReceived['type'], listener: (event: HelloReceived['payload']) => unknown): void;
+function unregister(type: Event['type'], listener: (event: any) => unknown): void {
+    listeners[type] = listeners[type].filter(l => l !== listener);
+}
+
+export const Events = {
+    emit: async (event: Event): Promise<void> => {
+        const ls = listeners[event.type];
+        await Promise.all(ls.map(l => l(event.payload))).then;
+    },
+    register,
+    unregister
+};

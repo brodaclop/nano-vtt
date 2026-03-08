@@ -22,3 +22,21 @@ export interface FogCircle {
     reverted: boolean;
 }
 
+export interface WorldObject { objects: Array<MapObject>, grid: Grid }
+
+export interface ChatMessage {
+    id: number;
+    sender: number;
+    text: string;
+}
+
+export interface JoinMessage {
+    sender: number;
+    room: string;
+    name: string;
+}
+
+export interface HelloMessage {
+    sender: number;
+    name: string;
+}

@@ -1,10 +1,6 @@
-import { ChatMessage, addChatMessage, startedTyping, stoppedTyping } from "./chat";
-import { hello, HelloMessage, JoinMessage, joinRoom, MY_USER_ID, receiveHelloMessage, receiveJoinMessage } from "./room";
-import { World } from "./world";
-import { Grid, MapObject } from "./types/map-objects";
+import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
 import { Socket } from "./websocket";
-
-const HOST_PORT = new URL(window.location.href);
+import { Events } from "./events";
 
 enum MessageType {
     PING = 0,
@@ -25,44 +21,38 @@ Socket.registerMessageListener(async data => {
         case MessageType.OBJECT: {
             const decoded = await fromObjectMessage(payload);
             if ('deletedId' in decoded) {
-                World.remove(decoded.deletedId);
+                Events.emit({ type: 'object-delete-received', payload: decoded.deletedId });
             } else {
-                World.update(decoded);
+                Events.emit({ type: 'object-received', payload: decoded });
             }
             return;
         }
         case MessageType.CHAT: {
-            addChatMessage(await fromChatMessage(payload));
+            Events.emit({ type: 'chat-received', payload: await fromChatMessage(payload) });
             return;
         }
         case MessageType.JOIN_ROOM: {
-            receiveJoinMessage(await fromJoinMessage(payload));
-            hello();
+            Events.emit({ type: 'join-received', payload: await fromJoinMessage(payload) })
             return;
         }
         case MessageType.HELLO: {
-            receiveHelloMessage(await fromHelloMessage(payload));
+            Events.emit({ type: 'hello-received', payload: await fromHelloMessage(payload) })
             return;
         }
         case MessageType.SYNC: {
-            const { obs, grid } = await fromSyncMessage(payload);
-            await World.replace(obs);
-            await World.setGrid(grid);
+            await Events.emit({ type: 'sync-received', payload: await fromSyncMessage(payload) })
             return;
         }
         case MessageType.GRID: {
-            const grid = await fromGridMessage(payload);
-            World.setGrid(grid);
+            Events.emit({ type: 'grid-received', payload: await fromGridMessage(payload) });
             return;
         }
         case MessageType.TYPING_START: {
-            const sender = await fromTypingMessage(payload);
-            startedTyping(sender);
+            Events.emit({ type: 'typing-received', payload: { action: 'start', user: await fromTypingMessage(payload) } })
             return;
         }
         case MessageType.TYPING_END: {
-            const sender = await fromTypingMessage(payload);
-            stoppedTyping(sender);
+            Events.emit({ type: 'typing-received', payload: { action: 'end', user: await fromTypingMessage(payload) } })
             return;
         }
         default: throw new Error(`Unknown message type: ${type}`)
@@ -74,10 +64,10 @@ const send = (messageType: MessageType, blob: Blob) => {
     Socket.send(payload);
 }
 
-export const sendTypingMessage = (op: 'start' | 'end') => {
+export const sendTypingMessage = (op: 'start' | 'end', me: number) => {
     const buffer = new ArrayBuffer(4);
     const header = new DataView(buffer);
-    header.setUint32(0, MY_USER_ID);
+    header.setUint32(0, me);
 
     send(op === 'start' ? MessageType.TYPING_START : MessageType.TYPING_END, new Blob([buffer]));
 }
@@ -243,17 +233,17 @@ const toSyncMessage = (obs: Array<MapObject>, grid: Grid): Blob => {
     return new Blob([toGridMessage(grid), ...blobs]);
 }
 
-const fromSyncMessage = async (blob: Blob): Promise<{ obs: Array<MapObject>, grid: Grid }> => {
-    let obs: Array<MapObject> = [];
+const fromSyncMessage = async (blob: Blob): Promise<WorldObject> => {
+    let objects: Array<MapObject> = [];
     const grid = await fromGridMessage(blob);
     let objectBlob = blob.slice(8);
     while (objectBlob.size > 0) {
         const ob: Partial<MapObject> = {};
         const next = await unpackSyncMessage(objectBlob, ob);
-        obs.push(ob as MapObject);
+        objects.push(ob as MapObject);
         objectBlob = objectBlob.slice(next);
     }
-    return { obs, grid };
+    return { objects, grid };
 }
 
 const unpackSyncMessage = async (blob: Blob, ob: Partial<MapObject>): Promise<number> => {

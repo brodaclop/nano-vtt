@@ -1,9 +1,9 @@
 import { bindInputValue, UI } from "./dom";
 import { isDragging } from "./drag";
+import { Events } from "./events";
 import { Fog } from "./fog";
 import { Point } from "./point";
 import { FogCircle, Grid, MapObject } from "./types/map-objects";
-import { ScreenProvider } from "./types/screen-type";
 import { Viewport } from "./viewport";
 import { World } from "./world";
 
@@ -18,7 +18,7 @@ const init = () => {
     ctx = canvas.getContext('2d')!;
     window.onresize = () => {
         setCanvasSize();
-        World.draw();
+        Events.emit({ type: 'viewport-changed' });
     };
     canvas.addEventListener('mousedown', e => {
         const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
@@ -33,7 +33,7 @@ const init = () => {
             e.stopPropagation();
             return false;
         } else if (!isDragging() && e.button === 0 && !Fog.isScreenPointInFog(screenPoint)) {
-            const objects = sortObjects(World.getAll(), World.selected()?.id).toReversed().filter(ob => !ob.locked);
+            const objects = sortObjects(World.objects, World.selected?.id).toReversed().filter(ob => !ob.locked);
             const clicked = objects.find(ob => {
                 const { imageOrigin, imageSize } = transformObjectSpace(ob, images[ob.id]);
                 const matrix = ctx.getTransform().inverse();
@@ -42,8 +42,7 @@ const init = () => {
                 const endY = imageOrigin.y + imageSize.y;
                 return imageOrigin.x <= transformedClickPoint.x && endX > transformedClickPoint.x && imageOrigin.y <= transformedClickPoint.y && endY > transformedClickPoint.y;
             });
-            World.select(clicked);
-            World.draw();
+            World.change.select(clicked);
         }
     });
     UI.canvas.appendChild(canvas);
@@ -67,30 +66,33 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
     return images[ob.id];
 }
 
-const draw = async (objects: MapObject[], grid: Grid, fog: Array<FogCircle>, selected: number | undefined) => {
+const draw = async () => {
     clearCanvas();
+    const { selected, objects, grid } = World;
     drawGrid(grid);
-    for (const ob of sortObjects(objects, selected)) {
+    for (const ob of sortObjects(objects, selected?.id)) {
         const image = await ensureImage(ob);
         const { imageOrigin, imageSize } = await transformObjectSpace(ob, image);
-        ctx.globalAlpha = (selected !== undefined && (selected !== ob.id)) ? 0.7 : 0.8;
+        ctx.globalAlpha = (selected !== undefined && (selected?.id !== ob.id)) ? 0.7 : 0.8;
         ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
-        if (selected === ob.id) {
+        if (selected?.id === ob.id) {
             drawBorder(ob, imageOrigin, imageSize);
         }
     }
     ctx.resetTransform();
-    const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
-    ctx.globalAlpha = 1;
-    ctx.drawImage(fogImg, 0, 0);
+    // const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
+    // ctx.globalAlpha = 1;
+    // ctx.drawImage(fogImg, 0, 0);
 }
 
 
-export const Canvas: ScreenProvider = {
+export const Canvas = {
     init,
     draw,
-    getObjectSize: () => ({ h: 1000, w: 1000 }),
-    scrollIntoView: () => { }
+    scrollIntoView: (ob: MapObject) => {
+        console.log('TODO: scroll into view');
+        //TODO: scroll object into view on selection
+    }
 }
 
 const sortObjects = (objects: MapObject[], selected: number | undefined): MapObject[] => objects.toSorted((a, z) => {

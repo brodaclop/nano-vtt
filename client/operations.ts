@@ -6,81 +6,86 @@ import { World } from "./world";
 
 export const Operations = {
     zoom: (zoom: number) => {
-        const originalZoom = World.selected()?.zoom;
+        const originalZoom = World.selected?.zoom;
         if (originalZoom !== undefined) {
             update({ zoom: originalZoom * zoom })
         } else {
             Viewport.adjustZoom(zoom);
-            World.draw();
         }
     },
     rotate: (angle: number) => {
-        const originalAngle = World.selected()?.angle;
+        const originalAngle = World.selected?.angle;
         if (originalAngle !== undefined) {
             update({ angle: originalAngle + angle })
         }
     },
     sendToTop: () => {
-        update({ layer: World.maxLayer() + 1 });
+        update({ layer: World.layers.max + 1 });
     },
     sendToBottom: () => {
-        update({ layer: World.minLayer() - 1 });
+        update({ layer: World.layers.min - 1 });
     },
     lock: async () => {
-        const locked = World.selected()?.locked;
+        const locked = World.selected?.locked;
         await update({ locked: Number(!locked) });
         if (!locked) {
-            World.select();
-            World.draw();
+            World.change.select();
         }
     },
     remove: () => {
-        const selected = World.selected();
+        const selected = World.selected;
         if (selected !== undefined) {
-            World.remove(selected.id);
+            World.change.remove(selected.id);
             sendDelete(selected.id);
         }
     },
     move: (delta: Point) => {
-        const selectedOb = World.selected();
+        const selectedOb = World.selected;
         if (selectedOb) {
             const { x, y } = selectedOb;
-            const limitX = -1000000;
-            const limitY = -1000000;
-
-            update({ x: Math.max(limitX, x + delta.x), y: Math.max(limitY, y + delta.y) });
+            update({ x: x + delta.x, y: y + delta.y });
         }
     },
     add: async (data: Blob, x: number, y: number) => {
-        const ob = await World.add(data, x, y);
+        const ob: MapObject = {
+            id: Math.round(Math.random() * 1_000_000_000),
+            angle: 0,
+            x,
+            y,
+            layer: World.layers.max + 1,
+            locked: 0,
+            zoom: 1000,
+            data
+        };
+        await World.change.update(ob, true);
         sendObject(ob);
     },
     selectNext: () => {
-        World.selectNext();
+        World.change.selectNext();
     },
     selectPrevious: () => {
-        World.selectPrevious();
+        World.change.selectPrevious();
     },
     unselect: () => {
-        World.unselect();
+        World.change.unselect();
     },
     sync: () => {
-        sendSyncMessage(World.getAll(), World.getGrid());
+        sendSyncMessage(World.objects, World.grid);
     },
     setGridSize: async (size: number) => {
-        await World.setGrid({ size });
-        sendGridMessage(World.getGrid());
+        const grid = await World.change.setGrid({ size });
+        sendGridMessage(grid);
     },
     setGridStrength: async (strength: number) => {
-        await World.setGrid({ strength });
-        sendGridMessage(World.getGrid());
+        const grid = await World.change.setGrid({ strength });
+        sendGridMessage(grid);
     }
 }
 
 const update = async (change: Partial<Omit<MapObject, 'id'>>) => {
-    const selected = World.selected();
+    const selected = World.selected;
     if (selected) {
-        const ob = await World.update({ ...change, id: selected.id });
+        const ob = await World.change.update({ ...change, id: selected.id });
         const fields = Object.keys(change) as Array<keyof MapObject>;
         sendObject(ob, fields);
     }
