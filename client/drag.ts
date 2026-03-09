@@ -59,11 +59,7 @@ document.ondrop = e => {
     if (url) {
         try {
             (async () => {
-                const res = await fetch(url, {
-                    mode: 'cors', headers: {
-                        'x-wut': 'wut'
-                    }
-                });
+                const res = await fetch(url);
                 if (res.ok && ACCEPTED_TYPES.includes(res.headers.get('content-type')!)) {
                     Operations.add(await res.blob(), worldCoord.x, worldCoord.y);
                 }

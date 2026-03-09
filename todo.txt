@@ -13,6 +13,7 @@ Map:
 Chat:
   - change name?
   - open chat box in multiple places?
+  - rich text support
 
 Menu:
 

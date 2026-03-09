@@ -9,7 +9,7 @@ let editMode: 'normal' | 'fog' = 'normal';
 let objects: Array<MapObject> = [];
 let grid: Grid = {
     size: 50,
-    strength: 0.5
+    strength: 5
 };
 
 let fog: Array<FogCircle> = [
@@ -27,7 +27,7 @@ const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<
     }
 }
 
-export const initWorld = changeFn(async () => {
+export const initWorld = async () => {
     const map = await (await fetch('/assets/alunselkirk.jpg')).blob();
     objects.push({
         id: 0,
@@ -39,7 +39,8 @@ export const initWorld = changeFn(async () => {
         locked: 0,
         angle: 0
     });
-});
+    await Events.emit({ type: 'world-changed' });
+};
 
 
 export const World = {

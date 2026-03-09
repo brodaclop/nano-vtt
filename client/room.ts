@@ -1,9 +1,9 @@
 import { random } from "./random";
-import { sendHelloMessage, sendJoinMessage } from "./messages";
 import { Socket } from "./websocket";
 import { UI } from "./dom";
 import { Events } from "./events";
 import { HelloMessage, JoinMessage } from "./types/map-objects";
+import { Send } from "./messages";
 
 
 
@@ -60,13 +60,13 @@ const joinRoom = (room: string, name: string,) => {
     currentRoom = room;
     USERS[MY_USER_ID] = name;
     updateRoomDisplay();
-    sendJoinMessage({ sender: MY_USER_ID, room, name: USERS[MY_USER_ID] });
+    Send.join({ sender: MY_USER_ID, room, name: USERS[MY_USER_ID] });
 }
 
 const hello = (newName?: string) => {
     const name = newName ?? USERS[MY_USER_ID];
     USERS[MY_USER_ID] = name;
-    sendHelloMessage({ sender: MY_USER_ID, name });
+    Send.hello({ sender: MY_USER_ID, name });
 }
 
 export const Room = {

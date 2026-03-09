@@ -132,7 +132,6 @@ const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
 }
 
 const drawGrid = (grid: Grid) => {
-    console.log('grid strength', grid.strength, UI.menu.gridStrength.value);
     if (grid.strength > 0) {
         const worldTopLeft = Viewport.screen2World({ x: 0, y: 0 });
         const worldBottomRight = Viewport.screen2World({ x: canvas.width, y: canvas.height });
@@ -153,7 +152,7 @@ const drawGrid = (grid: Grid) => {
             y += grid.size;
         }
         ctx.strokeStyle = 'white';
-        ctx.globalAlpha = grid.strength;
+        ctx.globalAlpha = grid.strength / 10;
         ctx.stroke();
     }
     UI.menu.gridSize.value = String(grid.size);

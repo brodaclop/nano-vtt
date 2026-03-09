@@ -1,9 +1,9 @@
 import { UI } from "./dom";
 import { random } from "./random";
-import { sendChatMessage, sendTypingMessage } from "./messages";
 import { Interpolation } from "./interpolation";
 import { ChatMessage } from "./types/map-objects";
 import { Room } from "./room";
+import { Send } from "./messages";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 const typing: Set<number> = new Set();
@@ -14,7 +14,7 @@ export const initChat = () => {
     UI.chat.input.oninput = () => {
         const empty = !UI.chat.input.value;
         UI.chat.sendButton.disabled = empty;
-        sendTypingMessage(empty ? 'end' : 'start', Room.me);
+        Send.typing(empty ? 'end' : 'start', Room.me);
     }
 
     UI.chat.sendButton.disabled = !UI.chat.input.value;
@@ -27,7 +27,7 @@ export const initChat = () => {
         const text = Interpolation.perform(UI.chat.input.value);
         const message = { id: random(), sender: Room.me, text };
         addChatMessage(message);
-        sendChatMessage(message);
+        Send.chat(message);
         UI.chat.input.value = '';
         UI.chat.input.dispatchEvent(new Event('input'));
         event.preventDefault();

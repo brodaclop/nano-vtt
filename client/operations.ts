@@ -1,4 +1,4 @@
-import { sendDelete, sendGridMessage, sendObject, sendSyncMessage } from "./messages";
+import { Send } from "./messages";
 import { Point } from "./point";
 import { MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
@@ -36,7 +36,7 @@ export const Operations = {
         const selected = World.selected;
         if (selected !== undefined) {
             World.change.remove(selected.id);
-            sendDelete(selected.id);
+            Send.delete(selected.id);
         }
     },
     move: (delta: Point) => {
@@ -58,7 +58,7 @@ export const Operations = {
             data
         };
         await World.change.update(ob, true);
-        sendObject(ob);
+        Send.object(ob);
     },
     selectNext: () => {
         World.change.selectNext();
@@ -70,15 +70,15 @@ export const Operations = {
         World.change.unselect();
     },
     sync: () => {
-        sendSyncMessage(World.objects, World.grid);
+        Send.sync(World);
     },
     setGridSize: async (size: number) => {
         const grid = await World.change.setGrid({ size });
-        sendGridMessage(grid);
+        Send.grid(grid);
     },
     setGridStrength: async (strength: number) => {
         const grid = await World.change.setGrid({ strength });
-        sendGridMessage(grid);
+        Send.grid(grid);
     }
 }
 
@@ -87,6 +87,6 @@ const update = async (change: Partial<Omit<MapObject, 'id'>>) => {
     if (selected) {
         const ob = await World.change.update({ ...change, id: selected.id });
         const fields = Object.keys(change) as Array<keyof MapObject>;
-        sendObject(ob, fields);
+        Send.object(ob, fields);
     }
 }

@@ -68,7 +68,7 @@ Events.register('hello-received', Room.helloed);
 await Canvas.init();
 
 
-initWorld();
+await initWorld();
 initDrag();
 initChat();
 initLobby();
