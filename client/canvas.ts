@@ -77,6 +77,9 @@ const draw = async () => {
         ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
         if (selected?.id === ob.id) {
             drawBorder(ob, imageOrigin, imageSize);
+            ctx.globalAlpha = 0.05;
+            ctx.fillStyle = 'lightgreen';
+            ctx.fillRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
         }
     }
     ctx.resetTransform();
@@ -96,12 +99,12 @@ export const Canvas = {
 }
 
 const sortObjects = (objects: MapObject[], selected: number | undefined): MapObject[] => objects.toSorted((a, z) => {
-    if (a.id === selected) {
-        return -1;
-    }
-    if (z.id === selected) {
-        return 1;
-    }
+    // if (a.id === selected) {
+    //     return -1;
+    // }
+    // if (z.id === selected) {
+    //     return 1;
+    // }
     return z.layer - a.layer;
 }).toReversed();
 
@@ -128,6 +131,7 @@ const clearCanvas = () => {
 const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
     ctx.lineWidth = 3;
     ctx.strokeStyle = ob.locked ? 'red' : '#E6F41D';
+    ctx.globalAlpha = 1;
     ctx.strokeRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
 }
 
