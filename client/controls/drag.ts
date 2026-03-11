@@ -1,23 +1,35 @@
-import { Operations } from "./operations";
-import { Point } from "./point";
-import { Viewport } from "./viewport";
-import { World } from "./world";
+import { Operations } from "../operations";
+import { Point } from "../point";
+import { Viewport } from "../viewport";
+import { World } from "../world";
 
+const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 
-export const initDrag = () => {
-    console.log('drag init');
-};
 
 let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;
 
-document.onmousemove = (e) => {
+document.addEventListener('wheel', (e: WheelEvent) => {
+    if (!e.altKey && !e.shiftKey && !e.ctrlKey && e.deltaY !== 0) {
+        Operations.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1);
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (e.buttons & 4 && World.getEditMode() === 'normal' && !isDragging()) {
+
+    }
+});
+
+
+document.addEventListener('mousemove', (e) => {
     if (e.buttons & 5 && World.getEditMode() === 'normal') {
         const oldDrag = drag;
         drag = Point.fromCoords(e.clientX, e.clientY);
         if (oldDrag) {
             const delta = Point.fromCoords(drag.x - oldDrag.x, drag.y - oldDrag.y);
-            if (World.selected) {
+            if (World.selected && e.buttons & 1) {
                 Operations.move(Point.scale(delta, 1 / Viewport.zoom()));
             } else {
                 Viewport.moveOrigin(delta);
@@ -27,9 +39,9 @@ document.onmousemove = (e) => {
         }
         e.preventDefault();
     }
-}
+});
 
-document.onmouseup = (e) => {
+document.addEventListener('mouseup', (e) => {
     if (dragActive) {
         drag = undefined;
         dragActive = false;
@@ -37,37 +49,24 @@ document.onmouseup = (e) => {
         e.stopPropagation();
         return false;
     }
-}
+});
 
-document.ondragstart = e => {
+document.addEventListener('dragstart', e => {
     e.preventDefault();
-}
+});
 
-document.ondragover = e => {
+document.addEventListener('dragover', e => {
     e.preventDefault();
-}
+});
 
-document.ondragenter = e => {
+document.addEventListener('dragenter', e => {
     e.preventDefault();
-}
+});
 
-const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 
-document.ondrop = e => {
+document.addEventListener('drop', e => {
     const worldCoord = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
-    const url = e.dataTransfer?.getData('URL');
-    if (url) {
-        try {
-            (async () => {
-                const res = await fetch(url);
-                if (res.ok && ACCEPTED_TYPES.includes(res.headers.get('content-type')!)) {
-                    Operations.add(await res.blob(), worldCoord.x, worldCoord.y);
-                }
-            })();
-        } catch (e) {
-        }
-
-    } else if (e.dataTransfer?.items.length === 1) {
+    if (e.dataTransfer?.items.length === 1) {
         const item = e.dataTransfer.items[0];
         if (ACCEPTED_TYPES.includes(item.type)) {
             const file = item.getAsFile();
@@ -77,6 +76,6 @@ document.ondrop = e => {
         }
     }
     e.preventDefault();
-}
+});
 
 export const isDragging = () => dragActive;

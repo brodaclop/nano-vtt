@@ -6,6 +6,8 @@ export const initLobby = () => {
 
     UI.disableIfEmpty(UI.lobby.button, UI.lobby.room, UI.lobby.name);
 
+    UI.lobby.dialog.addEventListener('mousemove', e => e.stopPropagation());
+
     UI.lobby.form.onsubmit = (e) => {
         Room.join(UI.lobby.room.value, UI.lobby.name.value);
         UI.lobby.dialog.close();

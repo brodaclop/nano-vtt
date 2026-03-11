@@ -1,13 +1,12 @@
 import { Events } from "./events";
 import { FogCircle, Grid, MapObject, WorldObject } from "./types/map-objects";
 
-
-let selected: number | undefined = undefined;
+export let selected: number | undefined = undefined;
 
 let editMode: 'normal' | 'fog' = 'normal';
 
-let objects: Array<MapObject> = [];
-let grid: Grid = {
+export let objects: Array<MapObject> = [];
+export let grid: Grid = {
     size: 50,
     strength: 5
 };
@@ -27,20 +26,7 @@ const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<
     }
 }
 
-export const initWorld = async () => {
-    const map = await (await fetch('/assets/alunselkirk.jpg')).blob();
-    objects.push({
-        id: 0,
-        data: map,
-        x: 0,
-        y: 0,
-        layer: 0,
-        zoom: 1000,
-        locked: 0,
-        angle: 0
-    });
-    await Events.emit({ type: 'world-changed' });
-};
+
 
 
 export const World = {

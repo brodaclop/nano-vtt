@@ -8,54 +8,32 @@ import { Send } from "./messages";
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 const typing: Set<number> = new Set();
 
+UI.chat.sendButton.disabled = !UI.chat.input.value;
+
+UI.chat.input.addEventListener('input', () => {
+    const empty = !UI.chat.input.value;
+    UI.chat.sendButton.disabled = empty;
+    Send.typing(empty ? 'end' : 'start', Room.me);
+});
 
 
-export const initChat = () => {
-    UI.chat.input.oninput = () => {
-        const empty = !UI.chat.input.value;
-        UI.chat.sendButton.disabled = empty;
-        Send.typing(empty ? 'end' : 'start', Room.me);
-    }
+UI.chat.input.addEventListener('keydown', e => {
+    e.stopPropagation();
+});
 
-    UI.chat.sendButton.disabled = !UI.chat.input.value;
-
-    UI.chat.input.onkeydown = e => {
-        e.stopPropagation();
-    }
-
-    UI.chat.form.onsubmit = (event) => {
-        const text = Interpolation.perform(UI.chat.input.value);
-        const message = { id: random(), sender: Room.me, text };
-        addChatMessage(message);
-        Send.chat(message);
-        UI.chat.input.value = '';
-        UI.chat.input.dispatchEvent(new Event('input'));
-        event.preventDefault();
-    }
-}
-
-const addChatMessage = async (message: ChatMessage) => {
-    if (messages.some(m => m.id === message.id)) {
-        return;
-    }
-    messages.push(message);
-    drawChat();
-}
+UI.chat.form.addEventListener('submit', (event) => {
+    const text = Interpolation.perform(UI.chat.input.value);
+    const message = { id: random(), sender: Room.me, text };
+    addChatMessage(message);
+    Send.chat(message);
+    UI.chat.input.value = '';
+    UI.chat.input.dispatchEvent(new Event('input'));
+    event.preventDefault();
+});
 
 
-export const Chat = {
-    incomingTyping: ({ user, action }: { user: number, action: 'start' | 'end' }) => {
-        if (action === 'start') {
-            typing.add(user);
-        } else {
-            typing.delete(user);
-        }
-        drawChat();
-    },
-    incomingChatMessage: addChatMessage
-}
 
-export const drawChat = () => {
+const draw = () => {
     messages.forEach((message, idx) => {
         if (!message.elem) {
             message.elem = document.createElement('li');
@@ -83,6 +61,27 @@ export const drawChat = () => {
         top: UI.chat.box.scrollHeight,
         behavior: 'smooth'
     });
+}
+
+const addChatMessage = async (message: ChatMessage) => {
+    if (messages.some(m => m.id === message.id)) {
+        return;
+    }
+    messages.push(message);
+    draw();
+}
+
+export const Chat = {
+    incomingTyping: ({ user, action }: { user: number, action: 'start' | 'end' }) => {
+        if (action === 'start') {
+            typing.add(user);
+        } else {
+            typing.delete(user);
+        }
+        draw();
+    },
+    incomingChatMessage: addChatMessage,
+    draw
 }
 
 
