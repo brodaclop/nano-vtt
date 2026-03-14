@@ -14,7 +14,7 @@ Map:
 Chat:
   - change name?
   - open chat box in multiple places?
-  - rich text support
+  - rich text support x
 
 Menu:
 

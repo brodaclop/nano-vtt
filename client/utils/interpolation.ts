@@ -21,8 +21,8 @@ const rollNormalDice = (count: string | undefined, dice: string, mod?: string) =
 
 export const Interpolation = {
     perform: (message: string): string => {
-        let output = message.replaceAll(MEZOLIT_DICE_PATTERN, (match, num) => `${match} = ${rollSuccessDice(num)}`);
-        output = output.replaceAll(CLASSIC_DICE_PATTERN, (match, count, dice, mod) => `${match} = ${rollNormalDice(count, dice, mod)}`);
+        let output = message.replaceAll(MEZOLIT_DICE_PATTERN, (match, num) => `[b]${match} = [i]${rollSuccessDice(num)}[/i][/b]`);
+        output = output.replaceAll(CLASSIC_DICE_PATTERN, (match, count, dice, mod) => `[b]${match} = [i]${rollNormalDice(count, dice, mod)}[/i][/b]`);
         return output;
     }
 }

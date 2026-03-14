@@ -5,6 +5,7 @@ import { ChatMessage } from "./types/map-objects";
 import { Room } from "./room";
 import { Send } from "./messages";
 import { Events } from "./events";
+import { bbCodeFormat } from "./utils/bbcode-format";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 const typing: Set<number> = new Set();
@@ -44,12 +45,11 @@ const draw = () => {
             } else {
                 messages[idx - 1].elem?.after(message.elem);
             }
+            userSpan.innerText = (message.sender !== Room.me) ? Room.userName(message.sender) : '';
+            bbCodeFormat(message.text, messageSpan);
+            const color = message.sender & 7;
+            message.elem.className = (message.sender === Room.me) ? 'own' : `other c${color}`;
         }
-        const [userSpan, messageSpan] = [...message.elem.children] as Array<HTMLElement>;
-        userSpan.innerText = (message.sender !== Room.me) ? Room.userName(message.sender) : '';
-        messageSpan.innerText = message.text;
-        const color = message.sender & 7;
-        message.elem.className = (message.sender === Room.me) ? 'own' : `other c${color}`;
     });
     const typers = typing.size < 3 ? [...typing].map(user => Room.userName(user)).join(', ') : 'Several people';
     UI.chat.typing.innerText = typers.length > 0 ? `${typers} typing...` : '';
