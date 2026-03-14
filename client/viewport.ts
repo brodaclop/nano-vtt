@@ -1,5 +1,5 @@
 import { Events } from "./events";
-import { Point } from "./point";
+import { Point } from "./utils/point";
 
 let zoom: number = 1;
 let origin: Point = { x: 0, y: 0 };

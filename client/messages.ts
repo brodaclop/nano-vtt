@@ -1,7 +1,7 @@
 import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
 import { Socket } from "./websocket";
 import { Events } from "./events";
-import { ALL_FIELDS, Converter } from "./converters";
+import { ALL_FIELDS, Converter } from "./utils/converters";
 
 enum MessageType {
     PING = 0,
@@ -29,8 +29,7 @@ const fromMessage = async (blob: Blob): Promise<[MessageType, Blob]> => {
 }
 
 
-// Listen for messages
-Socket.registerMessageListener(async data => {
+Events.register('incoming-message', async (data: Blob) => {
     const [type, payload] = await fromMessage(data);
     switch (type) {
         case MessageType.OBJECT: {

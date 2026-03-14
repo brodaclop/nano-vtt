@@ -1,4 +1,4 @@
-import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
+import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "../types/map-objects";
 
 const NUMBER_FIELDS: Array<keyof MapObject> = ['id', 'x', 'y', 'zoom', 'layer', 'locked', 'angle'];
 

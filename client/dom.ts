@@ -32,26 +32,26 @@ export const UI = {
     },
     disableIfEmpty: (button: HTMLButtonElement, ...inputs: Array<HTMLInputElement>) => {
         const fn = () => button.disabled = inputs.some(input => !input.value)
-        inputs.forEach(input => input.oninput = fn);
+        inputs.forEach(input => input.addEventListener('input', fn));
         fn();
+    },
+    stopEvent: (e: Event) => e.stopPropagation(),
+    bindInputValue: <T extends string | number>(input: HTMLInputElement, initialValue: T): { value: T } => {
+        let _value = initialValue;
+        input.value = String(_value);
+        const ret = {
+            set value(v: T) {
+                _value = v;
+                input.value = String(v);
+            },
+            get value() {
+                return _value;
+            }
+        }
+        input.oninput = e => {
+            _value = (typeof initialValue === 'number' ? Number(input.value) : input.value) as T;
+        }
+        return ret;
     }
 } as const;
 
-
-export const bindInputValue = <T extends string | number>(input: HTMLInputElement, initialValue: T): { value: T } => {
-    let _value = initialValue;
-    input.value = String(_value);
-    const ret = {
-        set value(v: T) {
-            _value = v;
-            input.value = String(v);
-        },
-        get value() {
-            return _value;
-        }
-    }
-    input.oninput = e => {
-        _value = (typeof initialValue === 'number' ? Number(input.value) : input.value) as T;
-    }
-    return ret;
-};

@@ -1,12 +1,10 @@
 import { Events } from "./events";
 import { FogCircle, Grid, MapObject, WorldObject } from "./types/map-objects";
 
-export let selected: number | undefined = undefined;
-
+let objects: Array<MapObject> = [];
+let selected: number | undefined = undefined;
 let editMode: 'normal' | 'fog' = 'normal';
-
-export let objects: Array<MapObject> = [];
-export let grid: Grid = {
+let grid: Grid = {
     size: 50,
     strength: 5
 };
@@ -26,8 +24,12 @@ const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<
     }
 }
 
-
-
+const select = (ob?: MapObject) => {
+    selected = ob?.id;
+    if (ob) {
+        Events.emit({ type: 'object-selected', payload: ob });
+    }
+}
 
 export const World = {
     get objects(): Array<MapObject> {
@@ -75,10 +77,6 @@ export const World = {
                 return fullNewOb;
             }
         }),
-        replace: changeFn((newWorld: WorldObject) => {
-            objects = newWorld.objects;
-            grid = newWorld.grid;
-        }),
         select: changeFn((ob?: MapObject) => select(ob)),
         selectNext: changeFn(() => {
             if (objects.length > 0) {
@@ -113,12 +111,14 @@ export const World = {
     flipEditMode: () => editMode = editMode === 'normal' ? 'fog' : 'normal'
 }
 
+Events.register('grid-received', World.change.setGrid);
+Events.register('object-delete-received', World.change.remove);
+Events.register('object-received', World.change.update);
+Events.register('sync-received', changeFn((newWorld: WorldObject) => {
+    objects = newWorld.objects;
+    grid = newWorld.grid;
+}));
 
 
-const select = (ob?: MapObject) => {
-    selected = ob?.id;
-    if (ob) {
-        Events.emit({ type: 'object-selected', payload: ob });
-    }
-}
+
 

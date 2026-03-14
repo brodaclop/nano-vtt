@@ -94,7 +94,7 @@ export class VttSessions extends DurableObject {
 	}
 
 	async handleConnectionClose(ws: WebSocket) {
-		console.log('leaving room', ws);
+		console.trace('leaving room', ws);
 		this.leaveRoom(ws);
 		ws.close(1000, 'Closing WebSocket');
 	}
@@ -117,7 +117,7 @@ export class VttSessions extends DurableObject {
 			const blob = new Blob([buffer]);
 			const [room, name] = (await blob.slice(11).text()).split(' | ');
 
-			console.log('joining room', room, name);
+			console.trace('joining room', room, name);
 			this.sessions.set(ws, room);
 			this.rooms.set(room, [...(this.rooms.get(room) ?? []), ws]);
 		}

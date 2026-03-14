@@ -1,25 +1,22 @@
 import { UI } from "./dom";
-import { random } from "./random";
-import { Interpolation } from "./interpolation";
+import { random } from "./utils/random";
+import { Interpolation } from "./utils/interpolation";
 import { ChatMessage } from "./types/map-objects";
 import { Room } from "./room";
 import { Send } from "./messages";
+import { Events } from "./events";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 const typing: Set<number> = new Set();
 
-UI.chat.sendButton.disabled = !UI.chat.input.value;
+UI.disableIfEmpty(UI.chat.sendButton, UI.chat.input);
 
 UI.chat.input.addEventListener('input', () => {
-    const empty = !UI.chat.input.value;
-    UI.chat.sendButton.disabled = empty;
-    Send.typing(empty ? 'end' : 'start', Room.me);
+    Send.typing(UI.chat.input.value ? 'start' : 'end', Room.me);
 });
 
 
-UI.chat.input.addEventListener('keydown', e => {
-    e.stopPropagation();
-});
+UI.chat.input.addEventListener('keydown', UI.stopEvent);
 
 UI.chat.form.addEventListener('submit', (event) => {
     const text = Interpolation.perform(UI.chat.input.value);
@@ -30,7 +27,6 @@ UI.chat.form.addEventListener('submit', (event) => {
     UI.chat.input.dispatchEvent(new Event('input'));
     event.preventDefault();
 });
-
 
 
 const draw = () => {
@@ -71,17 +67,19 @@ const addChatMessage = async (message: ChatMessage) => {
     draw();
 }
 
-export const Chat = {
-    incomingTyping: ({ user, action }: { user: number, action: 'start' | 'end' }) => {
-        if (action === 'start') {
-            typing.add(user);
-        } else {
-            typing.delete(user);
-        }
-        draw();
-    },
-    incomingChatMessage: addChatMessage,
-    draw
-}
+Events.register('room-changed', users => {
+    UI.chat.userList.innerText = users.map(u => `${Room.userName(u)}${u === Room.me ? ' (you)' : ''}`).join(', ')
+});
+
+Events.register('chat-received', addChatMessage);
+Events.register('typing-received', ({ user, action }: { user: number, action: 'start' | 'end' }) => {
+    if (action === 'start') {
+        typing.add(user);
+    } else {
+        typing.delete(user);
+    }
+    draw();
+});
+
 
 

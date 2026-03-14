@@ -1,8 +1,8 @@
-import { bindInputValue, UI } from "./dom";
-import { isDragging } from "./controls/drag";
+import { UI } from "./dom";
+import { isDragging } from "./controls/mouse";
 import { Events } from "./events";
 import { Fog } from "./fog";
-import { Point } from "./point";
+import { Point } from "./utils/point";
 import { FogCircle, Grid, MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
@@ -11,8 +11,7 @@ const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
 
 const images: Record<number, HTMLImageElement> = {};
-
-const fogSize = bindInputValue(UI.menu.fogSize, 100);
+const fogSize = UI.bindInputValue(UI.menu.fogSize, 100);
 
 const setCanvasSize = () => {
     canvas.width = window.visualViewport?.width! - 10;
@@ -70,8 +69,6 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
 }
 
 const draw = async () => {
-    console.group('draw');
-    console.trace('caller');
     clearCanvas();
     const { selected, objects, grid } = World;
     drawGrid(grid);
@@ -80,8 +77,6 @@ const draw = async () => {
         const { imageOrigin, imageSize } = await transformObjectSpace(ob, image);
         ctx.globalAlpha = (selected !== undefined && (selected?.id !== ob.id)) ? 0.7 : 0.8;
         ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
-        console.log('selected', selected?.id);
-        console.log('image', ob.id, selected?.id === ob.id);
         if (selected?.id === ob.id) {
             drawBorder(ob, imageOrigin, imageSize);
             ctx.globalAlpha = 0.05;
@@ -93,16 +88,7 @@ const draw = async () => {
     // const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
     // ctx.globalAlpha = 1;
     // ctx.drawImage(fogImg, 0, 0);
-    console.groupEnd();
-}
 
-
-export const Canvas = {
-    draw,
-    scrollIntoView: (ob: MapObject) => {
-        console.log('TODO: scroll into view');
-        //TODO: scroll object into view on selection
-    }
 }
 
 const sortObjects = (objects: MapObject[]): MapObject[] => objects.toSorted((a, z) => {
@@ -163,4 +149,11 @@ const drawGrid = (grid: Grid) => {
     UI.menu.gridSize.value = String(grid.size);
     UI.menu.gridStrength.value = String(grid.strength);
 }
+
+Events.register('world-changed', draw);
+Events.register('viewport-changed', draw);
+Events.register('object-selected', (ob: MapObject) => {
+    console.log('TODO: scroll into view');
+    //TODO: scroll object into view on selection
+});
 

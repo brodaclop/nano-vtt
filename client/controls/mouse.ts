@@ -1,5 +1,5 @@
 import { Operations } from "../operations";
-import { Point } from "../point";
+import { Point } from "../utils/point";
 import { Viewport } from "../viewport";
 import { World } from "../world";
 
@@ -15,13 +15,6 @@ document.addEventListener('wheel', (e: WheelEvent) => {
         e.preventDefault();
     }
 });
-
-document.addEventListener('mousemove', (e) => {
-    if (e.buttons & 4 && World.getEditMode() === 'normal' && !isDragging()) {
-
-    }
-});
-
 
 document.addEventListener('mousemove', (e) => {
     if (e.buttons & 5 && World.getEditMode() === 'normal') {

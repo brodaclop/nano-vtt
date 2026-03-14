@@ -9,6 +9,7 @@ Map:
     - fog transfer
     - fog size limits
     - fog draw cursor
+  - scroll selected object into view
  
 Chat:
   - change name?

@@ -1,78 +1,61 @@
-import { random } from "./random";
-import { Socket } from "./websocket";
-import { UI } from "./dom";
+import { random } from "./utils/random";
 import { Events } from "./events";
 import { HelloMessage, JoinMessage } from "./types/map-objects";
 import { Send } from "./messages";
 
-
-
 let MY_USER_ID = random();
-
+const users: Map<number, string> = new Map();
 const storedId = sessionStorage.getItem('user_id');
+let currentRoom: string | undefined = undefined;
+
+
 if (storedId) {
     MY_USER_ID = Number(storedId);
 } else {
     sessionStorage.setItem('user_id', String(MY_USER_ID));
 }
 
-const USERS: Record<number, string> = {};
-
-
-const receiveJoinMessage = (message: JoinMessage) => {
-    USERS[message.sender] = message.name;
-    updateRoomDisplay();
-    hello();
-    Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '<joined>' } })
-}
-
-const receiveHelloMessage = (message: HelloMessage) => {
-    if (USERS[message.sender] !== message.name) {
-        if (USERS[message.sender]) {
-            Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: `${USERS[message.sender]} --> ${message.name} ` } });
-        }
-        USERS[message.sender] = message.name;
-        updateRoomDisplay();
-    }
-}
-
-
-
-let currentRoom: string | undefined = undefined;
-
-Socket.registerSocketStatusListener(status => {
-    UI.menu.connection.innerText = status === 'connected' ? '' : status;
-    UI.menu.connection.style.display = (status === 'connected') ? 'none' : 'inline';
-    UI.menu.connected.style.display = (status !== 'connected') ? 'none' : 'inline';
+Events.register('socket-status-changed', status => {
     if (status === 'connected' && currentRoom) {
-        joinRoom(currentRoom, USERS[MY_USER_ID]);
+        joinRoom(currentRoom, users.get(MY_USER_ID)!);
     }
 });
 
-const updateRoomDisplay = () => {
-    UI.menu.room.innerText = `${currentRoom} (${Object.keys(USERS).length} users)`;
-    UI.menu.room.title = `Users:\n\n${Object.values(USERS).join('\n')}`;
-    UI.menu.name.innerText = USERS[MY_USER_ID];
-    UI.chat.userList.innerText = Object.entries(USERS).map(u => `${u[1]}${u[0] === String(MY_USER_ID) ? ' (you)' : ''}`).join(', ')
-}
+Events.register('join-received', (message: JoinMessage) => {
+    users.set(message.sender, message.name);
+    hello();
+    Events.emit({ type: 'room-changed', payload: [...users.keys()] })
+    Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '<joined>' } })
+});
+
+Events.register('hello-received', ({ sender, name }: HelloMessage) => {
+    if (users.get(sender) !== name) {
+        if (users.has(sender)) {
+            Events.emit({ type: 'chat-received', payload: { id: random(), sender, text: `${users.get(sender)} --> ${name} ` } });
+        }
+        users.set(sender, name);
+        Events.emit({ type: 'room-changed', payload: [...users.keys()] })
+    }
+});
 
 const joinRoom = (room: string, name: string,) => {
     currentRoom = room;
-    USERS[MY_USER_ID] = name;
-    updateRoomDisplay();
-    Send.join({ sender: MY_USER_ID, room, name: USERS[MY_USER_ID] });
+    users.set(MY_USER_ID, name);
+    Events.emit({ type: 'room-changed', payload: [...users.keys()] })
+    Send.join({ sender: MY_USER_ID, room, name });
 }
 
 const hello = (newName?: string) => {
-    const name = newName ?? USERS[MY_USER_ID];
-    USERS[MY_USER_ID] = name;
+    const name = newName ?? users.get(MY_USER_ID)!;
+    users.set(MY_USER_ID, name);
     Send.hello({ sender: MY_USER_ID, name });
 }
 
 export const Room = {
-    joined: receiveJoinMessage,
-    helloed: receiveHelloMessage,
     join: joinRoom,
     me: MY_USER_ID,
-    userName: (userId: number) => USERS[userId]
+    get roomName() {
+        return currentRoom;
+    },
+    userName: (userId: number) => users.get(userId)!
 };

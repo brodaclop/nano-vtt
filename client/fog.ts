@@ -1,4 +1,4 @@
-import { Point } from "./point";
+import { Point } from "./utils/point";
 import { FogCircle } from "./types/map-objects";
 import { Viewport } from "./viewport";
 

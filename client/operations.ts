@@ -1,5 +1,5 @@
 import { Send } from "./messages";
-import { Point } from "./point";
+import { Point } from "./utils/point";
 import { MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";

@@ -1,13 +1,7 @@
-import { fromBinary, Header, toBinary } from "./headers";
-import { random } from "./random";
+import { Events } from "./events";
+import { fromBinary, Header, toBinary } from "./utils/headers";
+import { random } from "./utils/random";
 
-const HOST_PORT = new URL(window.location.href);
-
-let messageListener: ((message: Blob) => void) | undefined = undefined;
-let statusListener: ((open: SocketStatus) => void) | undefined = undefined;
-
-let socket: WebSocket | undefined;
-let init = 0;
 export type SocketStatus = 'disconnected' | 'connecting...' | 'waiting...' | 'connected';
 
 interface MessageBuffer {
@@ -15,13 +9,18 @@ interface MessageBuffer {
     startTime: number;
 }
 
-const messageBuffer: Record<number, MessageBuffer> = {};
-
 interface FragmentHeader {
     messageId: number;
     count: number;
     total: number;
 }
+
+const MAX_FRAGMENT_SIZE = 1_000_000;
+
+let socket: WebSocket | undefined;
+let reconnect: number | undefined = undefined;
+
+const messageBuffer: Record<number, MessageBuffer> = {};
 
 const FORMAT: Header<FragmentHeader> = [
     {
@@ -51,12 +50,11 @@ const receiveFragment = async (blob: Blob) => {
     }
     messageBuffer[header.messageId].fragments[header.count] = payload;
     if (messageBuffer[header.messageId].fragments.every(frag => !!frag)) {
-        messageListener?.(new Blob(messageBuffer[header.messageId].fragments));
+        Events.emit({ type: 'incoming-message', payload: new Blob(messageBuffer[header.messageId].fragments) })
         delete messageBuffer[header.messageId];
     }
 };
 
-const MAX_FRAGMENT_SIZE = 1_000_000;
 
 const splitToFragments = (blob: Blob): Array<Blob> => {
     const id = random();
@@ -66,7 +64,7 @@ const splitToFragments = (blob: Blob): Array<Blob> => {
         throw new Error('too many fragments');
     }
     for (let i = 0; i < fragmentCount; i++) {
-        const data = blob.slice(i * MAX_FRAGMENT_SIZE, (i+1)*MAX_FRAGMENT_SIZE);
+        const data = blob.slice(i * MAX_FRAGMENT_SIZE, (i + 1) * MAX_FRAGMENT_SIZE);
         const header = toBinary({
             messageId: id,
             count: i,
@@ -78,8 +76,8 @@ const splitToFragments = (blob: Blob): Array<Blob> => {
     return ret;
 }
 
-let reconnect: number | undefined = undefined;
 
+await Events.emit({ type: 'socket-status-changed', payload: 'disconnected' });
 
 const connect = () => {
     if (socket !== undefined) {
@@ -87,19 +85,19 @@ const connect = () => {
         return;
     }
     reconnect = undefined;
-    statusListener?.('connecting...');
-    console.log('Connecting...');
+    Events.emit({ type: 'socket-status-changed', payload: 'connecting...' });
+    console.trace('Connecting...');
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-    socket = new WebSocket(`${protocol}://${HOST_PORT.host}/ws`);
+    const host = window.location.host;
+    socket = new WebSocket(`${protocol}://${host}/ws`);
     socket.addEventListener("open", (event) => {
-        console.log('Connected');
-        statusListener?.('connected');
+        Events.emit({ type: 'socket-status-changed', payload: 'connected' });
     });
 
     socket.addEventListener('close', () => {
-        console.log('Disconnected, reconnecting in 30 seconds.');
+        console.trace('Disconnected, reconnecting in 30 seconds.');
         socket = undefined;
-        statusListener?.('waiting...');
+        Events.emit({ type: 'socket-status-changed', payload: 'waiting...' });
         if (!reconnect) {
             reconnect = setTimeout(connect, 10000) as any;
         }
@@ -110,7 +108,7 @@ const connect = () => {
     });
 
     socket.addEventListener('error', error => {
-        console.log('Socket error', error);
+        console.warn('Socket error', error);
         socket?.close();
     });
 }
@@ -118,20 +116,6 @@ const connect = () => {
 connect();
 
 export const Socket = {
-    registerMessageListener: (listener: (message: Blob) => void): void => {
-        messageListener = listener;
-        init++;
-        if (init >= 2) {
-            connect();
-        }
-    },
-    registerSocketStatusListener: (listener: (socketOpen: SocketStatus) => void): void => {
-        statusListener = listener;
-        init++;
-        if (init >= 2) {
-            connect();
-        }
-    },
     send: (blob: Blob) => {
         const fragments = splitToFragments(blob);
         fragments.forEach((frag, idx) => {
