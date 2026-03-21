@@ -31,17 +31,41 @@
                 "/script/operations": "/script/operations.js",
                 "/script/room": "/script/room.js",
                 "/script/lobby": "/script/lobby.js",
-                "/script/dom": "/script/dom.js"
+                "/script/dom": "/script/dom.js",
+                "/script/main": "/script/main.js"
             }
         }
     </script>
-    <script type="module" src="./script/main.js" defer></script>
+    <script type="module">
+        console.log('module');
+        document.addEventListener('DOMContentLoaded', async (e) => {
+            const pluginFrame = document.querySelector('#plugin-frame');
+            const pluginContainer = document.querySelector('#plugin');
+            pluginContainer.appendChild(pluginFrame);
+
+            (await import('./script/main')).appInit();
+        });
+    </script>
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./sidebar.css" />
 </head>
 
 <body>
     <div class="canvas">
     </div>
+    <dialog class="join">
+        <form>
+            <label class="room">
+                Room name:
+                <input maxlength="12" type="text" />
+            </label>
+            <label class="name">
+                Player name:
+                <input maxlength="12" type="text" />
+            </label>
+            <button>Join</button>
+        </form>
+    </dialog>
     <div class="menu">
         <span class="left">
             <span class="connection entry"></span>
@@ -64,7 +88,8 @@
                     id="grid-strength" /></span><span class="entry"><span class="label">Grid size:</span> <input
                     type="number" id="grid-size" /></span>
             <button class="sync">Sync</button>
-            <button class="openchat">Chat</button>
+            <button id="openchat" class="hidden">Chat</button>
+            <button id="openplugin" class="hidden">Plugin</button>
             <button class="help" popovertarget="help">?</button>
         </span>
 
@@ -82,36 +107,31 @@
             <p><b>Lock/unlock selected image:</b> <b>Enter</b> key</p>
         </div>
     </div>
-    <div class="chat">
-        <div class="title">Chat</div>
-        <div class="participants">
-            <span class="label">Participants:</span>
-            <span class="list" />
+    <div id="sidebar">
+        <div id="plugin">
+            <div class="title">Plugin<button class="close">Close</button></div>
         </div>
-        <div class="container">
-            <ul class="messages"></ul>
-            <div id="typing" />
-        </div>
-        <form>
-            <div class="input-box">
-                <input type="text" autocomplete="off" />
-                <button type="submit" class="send">⌲</button>
+        <div id="chat">
+            <div class="title">Chat<button class="close">Close</button></div>
+            <div class="participants">
+                <span class="label">Participants:</span>
+                <span class="list" />
             </div>
-        </form>
+            <div class="container">
+                <ul class="messages"></ul>
+                <div id="typing" />
+            </div>
+            <form>
+                <div class="input-box">
+                    <input type="text" autocomplete="off" />
+                    <button type="submit" class="send">⌲</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <dialog class="join">
-        <form>
-            <label class="room">
-                Room name:
-                <input maxlength="12" type="text" />
-            </label>
-            <label class="name">
-                Player name:
-                <input maxlength="12" type="text" />
-            </label>
-            <button>Join</button>
-        </form>
-    </dialog>
+
+    <iframe id="plugin-frame" loading="lazy" src="test-frame.html" />
+
 </body>
 
 </html>

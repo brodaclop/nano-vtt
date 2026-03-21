@@ -9,13 +9,46 @@ UI.menu.syncButton.addEventListener('click', () => {
 });
 
 UI.menu.openchat.addEventListener('click', () => {
-    const isHidden = UI.chat.container.classList.contains('hidden');
-    if (isHidden) {
-        UI.chat.container.classList.remove('hidden');
+    UI.chat.main.classList.remove('hidden');
+    UI.menu.openchat.classList.add('hidden');
+    if (UI.plugin.main.classList.contains('hidden') && UI.chat.main.classList.contains('hidden')) {
+        UI.sidebar.classList.add('hidden');
     } else {
-        UI.chat.container.classList.add('hidden');
+        UI.sidebar.classList.remove('hidden');
     }
 });
+
+UI.menu.openplugin.addEventListener('click', () => {
+    UI.plugin.main.classList.remove('hidden');
+    UI.menu.openplugin.classList.add('hidden');
+    if (UI.plugin.main.classList.contains('hidden') && UI.chat.main.classList.contains('hidden')) {
+        UI.sidebar.classList.add('hidden');
+    } else {
+        UI.sidebar.classList.remove('hidden');
+    }
+});
+
+UI.plugin.close.addEventListener('click', () => {
+    UI.plugin.main.classList.add('hidden');
+    UI.menu.openplugin.classList.remove('hidden');
+    if (UI.plugin.main.classList.contains('hidden') && UI.chat.main.classList.contains('hidden')) {
+        UI.sidebar.classList.add('hidden');
+    } else {
+        UI.sidebar.classList.remove('hidden');
+    }
+});
+
+UI.chat.close.addEventListener('click', () => {
+    UI.chat.main.classList.add('hidden');
+    UI.menu.openchat.classList.remove('hidden');
+    if (UI.plugin.main.classList.contains('hidden') && UI.chat.main.classList.contains('hidden')) {
+        UI.sidebar.classList.add('hidden');
+    } else {
+        UI.sidebar.classList.remove('hidden');
+    }
+});
+
+
 
 UI.menu.gridSize.addEventListener('change', () => {
     Operations.setGridSize(Number(UI.menu.gridSize.value));

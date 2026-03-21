@@ -1,19 +1,28 @@
+
 export const UI = {
     canvas: document.querySelector('.canvas')!,
+    sidebar: document.querySelector('#sidebar')! as HTMLElement,
+    plugin: {
+        main: document.querySelector('#plugin')! as HTMLElement,
+        close: document.querySelector('#plugin .close')! as HTMLButtonElement,
+    },
     chat: {
-        container: document.querySelector('.chat')! as HTMLElement,
-        box: document.querySelector('.chat .messages')! as HTMLElement,
-        input: document.querySelector('.chat input')! as HTMLInputElement,
-        form: document.querySelector('.chat form')! as HTMLFormElement,
-        sendButton: document.querySelector('.chat .send')! as HTMLButtonElement,
-        typing: document.querySelector('.chat #typing')! as HTMLElement,
-        userList: document.querySelector('.chat .participants .list')! as HTMLElement,
+        main: document.querySelector('#chat')! as HTMLElement,
+        close: document.querySelector('#chat .close')! as HTMLButtonElement,
+        container: document.querySelector('#chat .container')! as HTMLElement,
+        box: document.querySelector('#chat .messages')! as HTMLElement,
+        input: document.querySelector('#chat input')! as HTMLInputElement,
+        form: document.querySelector('#chat form')! as HTMLFormElement,
+        sendButton: document.querySelector('#chat .send')! as HTMLButtonElement,
+        typing: document.querySelector('#chat #typing')! as HTMLElement,
+        userList: document.querySelector('#chat .participants .list')! as HTMLElement,
     },
     menu: {
         container: document.querySelector('.menu')! as HTMLElement,
         room: document.querySelector('.menu .room')! as HTMLElement,
         name: document.querySelector('.menu .name')! as HTMLElement,
-        openchat: document.querySelector('.menu .openchat')! as HTMLElement,
+        openchat: document.querySelector('.menu #openchat')! as HTMLElement,
+        openplugin: document.querySelector('.menu #openplugin')! as HTMLButtonElement,
         connection: document.querySelector('.menu .connection')! as HTMLElement,
         connected: document.querySelector('.menu .connected')! as HTMLElement,
         syncButton: document.querySelector('.menu button.sync')! as HTMLButtonElement,
@@ -54,4 +63,3 @@ export const UI = {
         return ret;
     }
 } as const;
-

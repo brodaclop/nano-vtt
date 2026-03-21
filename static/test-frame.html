@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <div>Mezolit character example</div>
+    <table>
+        <tbody>
+
+        </tbody>
+    </table>
+    <style>
+        div {
+            width: 100%;
+            text-align: center;
+
+        }
+
+        table {
+            width: 100%;
+        }
+    </style>
+    <script>
+        const attributes = {
+            Hunting: 5,
+            Making: 2,
+            Life: 4,
+            Cunning: 3,
+            Song: 4,
+            Anima: 5
+        };
+
+        const elem = (parent, name, value, setup) => {
+            console.group(parent, name);
+            console.log('creating', name, value);
+            const ret = document.createElement(name);
+            parent.appendChild(ret);
+            if (typeof value === 'string') {
+                ret.innerText = value;
+            }
+            setup?.(ret);
+            console.log('parent', parent);
+            console.groupEnd();
+        }
+
+        const tbody = document.querySelector('tbody');
+        Object.entries(attributes).forEach(([name, value]) => {
+            elem(tbody, 'tr', null, tr => {
+                elem(tr, 'td', name);
+                elem(tr, 'td', String(value));
+                elem(tr, 'td', null, td => {
+                    elem(td, 'button', 'Roll', button => {
+                        button.addEventListener('click', () => {
+                            window.parent?.postMessage(`${name} check: ${value}D`, '*');
+                        });
+                    })
+                })
+            });
+        });
+
+
+    </script>
+</body>
+
+</html>
