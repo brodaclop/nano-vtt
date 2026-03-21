@@ -57,6 +57,12 @@ div#help {
     border-style: ridge;
 }
 
+div#help p {
+    font-family: "Finlandica", sans-serif;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 .join::backdrop,
 #help::backdrop {
     backdrop-filter: sepia(1);

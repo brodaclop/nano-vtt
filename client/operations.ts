@@ -5,9 +5,9 @@ import { Viewport } from "./viewport";
 import { World } from "./world";
 
 export const Operations = {
-    zoom: (zoom: number) => {
-        const originalZoom = World.selected?.zoom;
-        if (originalZoom !== undefined) {
+    zoom: (zoom: number, forceViewport = false) => {
+        if (World.selected && !forceViewport) {
+            const originalZoom = World.selected.zoom;
             update({ zoom: originalZoom * zoom })
         } else {
             Viewport.adjustZoom(zoom);

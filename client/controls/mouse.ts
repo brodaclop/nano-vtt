@@ -1,3 +1,4 @@
+import { UI } from "../dom";
 import { Operations } from "../operations";
 import { Point } from "../utils/point";
 import { Viewport } from "../viewport";
@@ -10,8 +11,9 @@ let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;
 
 document.addEventListener('wheel', (e: WheelEvent) => {
+    console.log('wheel', e);
     if (!e.altKey && !e.shiftKey && !e.ctrlKey && e.deltaY !== 0) {
-        Operations.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1);
+        Operations.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1, Boolean(e.buttons & 4));
         e.preventDefault();
     }
 });
@@ -70,5 +72,7 @@ document.addEventListener('drop', e => {
     }
     e.preventDefault();
 });
+
+UI.sidebar.addEventListener('mousemove', e => e.stopPropagation());
 
 export const isDragging = () => dragActive;

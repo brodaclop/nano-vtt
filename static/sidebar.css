@@ -97,6 +97,11 @@
 
 #chat ul li span.text {
     display: block;
+    font-family: "Finlandica", sans-serif;
+}
+
+#chat ul li span.text em {
+    font-style: oblique 25deg;
 }
 
 #chat ul li.own {

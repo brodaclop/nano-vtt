@@ -37,7 +37,7 @@ const setCanvasSize = () => {
             e.preventDefault();
             e.stopPropagation();
             return false;
-        } else if (!isDragging() && e.button === 0 && !Fog.isScreenPointInFog(screenPoint)) {
+        } else if (!isDragging() && e.buttons & 1 && !Fog.isScreenPointInFog(screenPoint)) {
             const objects = sortObjects(World.objects).toReversed().filter(ob => !ob.locked);
             const clicked = objects.find(ob => {
                 const { imageOrigin, imageSize } = transformObjectSpace(ob, images[ob.id]);
@@ -48,6 +48,8 @@ const setCanvasSize = () => {
                 return imageOrigin.x <= transformedClickPoint.x && endX > transformedClickPoint.x && imageOrigin.y <= transformedClickPoint.y && endY > transformedClickPoint.y;
             });
             World.change.select(clicked);
+        } else if (!isDragging() && e.buttons & 2) {
+            World.change.unselect();
         }
     });
     canvas.addEventListener('contextmenu', e => e.preventDefault());

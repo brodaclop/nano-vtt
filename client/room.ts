@@ -25,7 +25,7 @@ Events.register('join-received', (message: JoinMessage) => {
     users.set(message.sender, message.name);
     hello();
     Events.emit({ type: 'room-changed', payload: [...users.keys()] })
-    Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '<joined>' } })
+    Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '[i]<joined>[/i]' } })
 });
 
 Events.register('hello-received', ({ sender, name }: HelloMessage) => {
