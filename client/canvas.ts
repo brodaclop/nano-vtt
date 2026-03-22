@@ -72,6 +72,7 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
 
 const draw = async () => {
     clearCanvas();
+    ctx.resetTransform();
     const { selected, objects, grid } = World;
     drawGrid(grid);
     for (const ob of sortObjects(objects)) {
@@ -86,7 +87,24 @@ const draw = async () => {
             ctx.fillRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
         }
     }
-    ctx.resetTransform();
+    const ruler = World.ruler();
+    if (ruler) {
+        ctx.beginPath();
+        ctx.resetTransform();
+        const start = Viewport.world2Screen(ruler.start);
+        const end = Viewport.world2Screen(ruler.end);
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'darkgoldenrod';
+        ctx.lineCap = 'round';
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+        const length = Math.floor(Math.sqrt((ruler.start.x - ruler.end.x) * (ruler.start.x - ruler.end.x) + (ruler.start.y - ruler.end.y) * (ruler.start.y - ruler.end.y)));
+        ctx.font = "32px Finlandica";
+        ctx.fillStyle = 'darkseagreen';
+        ctx.fillText(String(length), end.x, end.y);
+    }
     // const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
     // ctx.globalAlpha = 1;
     // ctx.drawImage(fogImg, 0, 0);
@@ -126,6 +144,7 @@ const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
 
 const drawGrid = (grid: Grid) => {
     if (grid.strength > 0) {
+        ctx.lineWidth = 1;
         const worldTopLeft = Viewport.screen2World({ x: 0, y: 0 });
         const worldBottomRight = Viewport.screen2World({ x: canvas.width, y: canvas.height });
         let x = Math.ceil(worldTopLeft.x / grid.size) * grid.size;
@@ -147,6 +166,7 @@ const drawGrid = (grid: Grid) => {
         ctx.strokeStyle = 'white';
         ctx.globalAlpha = grid.strength / 10;
         ctx.stroke();
+        ctx.closePath();
     }
     UI.menu.gridSize.value = String(grid.size);
     UI.menu.gridStrength.value = String(grid.strength);

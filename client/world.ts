@@ -1,5 +1,6 @@
 import { Events } from "./events";
 import { FogCircle, Grid, MapObject, WorldObject } from "./types/map-objects";
+import { Point } from "./utils/point";
 
 let objects: Array<MapObject> = [];
 let selected: number | undefined = undefined;
@@ -15,6 +16,11 @@ let fog: Array<FogCircle> = [
     // { origin: { x: 150, y: 50 }, radius: 100, reverted: true },
     // { origin: { x: 200, y: 0 }, radius: 100, reverted: false },
 ];
+
+let ruler: {
+    start: Point,
+    end: Point
+} | undefined;
 
 const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<F>) => Promise<ReturnType<F>> => {
     return async (...args: Parameters<F>) => {
@@ -103,12 +109,25 @@ export const World = {
             grid = { ...grid, ...newGrid };
             return grid;
         }),
+        startRuler: changeFn((p: Point) => {
+            ruler = {
+                start: p,
+                end: p
+            };
+        }),
+        endRuler: changeFn((p: Point) => {
+            if (ruler) {
+                ruler.end = p
+            }
+        }),
+        cancelRuler: changeFn(() => { ruler = undefined })
     },
     addFogCircle: changeFn((circle: FogCircle) => {
         fog.push(circle);
     }),
     getEditMode: () => editMode,
-    flipEditMode: () => editMode = editMode === 'normal' ? 'fog' : 'normal'
+    flipEditMode: () => editMode = editMode === 'normal' ? 'fog' : 'normal',
+    ruler: () => ruler
 }
 
 Events.register('grid-received', World.change.setGrid);

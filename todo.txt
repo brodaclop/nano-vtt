@@ -23,6 +23,7 @@ Other:
   - update wrangler
   - make binding make sense
   - iframe scrolling
+  - cleanup ruler code
 
 Bugs:
   

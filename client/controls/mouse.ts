@@ -18,7 +18,14 @@ document.addEventListener('wheel', (e: WheelEvent) => {
 });
 
 document.addEventListener('mousemove', (e) => {
-    if (e.buttons & 5 && World.getEditMode() === 'normal') {
+    if (e.buttons & 2) {
+        const point = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
+        if (World.ruler()) {
+            World.change.endRuler(point);
+        } else {
+            World.change.startRuler(point);
+        }
+    } else if (e.buttons & 5 && World.getEditMode() === 'normal') {
         const oldDrag = drag;
         drag = Point.fromCoords(e.clientX, e.clientY);
         if (oldDrag) {
@@ -36,6 +43,10 @@ document.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('mouseup', (e) => {
+    if (World.ruler()) {
+        World.change.cancelRuler();
+        return false;
+    }
     if (dragActive) {
         drag = undefined;
         dragActive = false;
