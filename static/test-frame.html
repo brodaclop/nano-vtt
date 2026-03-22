@@ -31,14 +31,12 @@
 
         const elem = (parent, name, value, setup) => {
             console.group(parent, name);
-            console.log('creating', name, value);
             const ret = document.createElement(name);
             parent.appendChild(ret);
             if (typeof value === 'string') {
                 ret.innerText = value;
             }
             setup?.(ret);
-            console.log('parent', parent);
             console.groupEnd();
         }
 

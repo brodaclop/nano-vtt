@@ -9,11 +9,11 @@ Map:
     - fog transfer
     - fog size limits
     - fog draw cursor
-  - scroll selected object into view
+  - scroll selected object into view x
  
 Chat:
   - change name?
-  - open chat box in multiple places?
+  - open chat box in multiple places? probably not
   - rich text support x
 
 Menu:

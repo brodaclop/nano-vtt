@@ -76,7 +76,7 @@ const draw = async () => {
     drawGrid(grid);
     for (const ob of sortObjects(objects)) {
         const image = await ensureImage(ob);
-        const { imageOrigin, imageSize } = await transformObjectSpace(ob, image);
+        const { imageOrigin, imageSize } = transformObjectSpace(ob, image);
         ctx.globalAlpha = (selected !== undefined && (selected?.id !== ob.id)) ? 0.7 : 0.8;
         ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
         if (selected?.id === ob.id) {
@@ -154,8 +154,38 @@ const drawGrid = (grid: Grid) => {
 
 Events.register('world-changed', draw);
 Events.register('viewport-changed', draw);
-Events.register('object-selected', (ob: MapObject) => {
-    console.log('TODO: scroll into view');
-    //TODO: scroll object into view on selection
+Events.register('object-selected', async (ob: MapObject) => {
+
+    enum Position { BEFORE, IN, AFTER };
+
+    const viewPos = (pos: number, min: number, max: number): Position => {
+        if (pos < min) {
+            return Position.BEFORE;
+        }
+        if (pos >= max) {
+            return Position.AFTER;
+        }
+        return Position.IN;
+    }
+
+    const screenScale = Viewport.zoom() * ob.zoom / 2000;
+    const imageMiddle = Viewport.world2Screen(ob);
+
+    const image = await ensureImage(ob);
+    const halfImageSize = Point.fromCoords(image.width * screenScale, image.height * screenScale);
+    const topLeft = Point.add(imageMiddle, Point.scale(halfImageSize, -1));
+    const bottomRight = Point.add(imageMiddle, Point.scale(halfImageSize, 1));
+
+    const leftEdge = viewPos(topLeft.x, 0, canvas.width);
+    const rightEdge = viewPos(bottomRight.x, 0, canvas.width);
+    const topEdge = viewPos(topLeft.y, 0, canvas.height);
+    const bottomEdge = viewPos(bottomRight.y, 0, canvas.height);
+
+    const xIn = leftEdge === Position.IN || rightEdge === Position.IN || leftEdge !== rightEdge;
+    const yIn = topEdge === Position.IN || bottomEdge === Position.IN || topEdge !== bottomEdge;
+
+    if (!xIn || !yIn) {
+        await Viewport.moveOrigin(Point.scale(topLeft, -1));
+    }
 });
 

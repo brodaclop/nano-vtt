@@ -24,10 +24,10 @@ const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<
     }
 }
 
-const select = (ob?: MapObject) => {
+const select = async (ob?: MapObject) => {
     selected = ob?.id;
     if (ob) {
-        Events.emit({ type: 'object-selected', payload: ob });
+        await Events.emit({ type: 'object-selected', payload: ob });
     }
 }
 
@@ -60,7 +60,7 @@ export const World = {
                 select();
             }
         }),
-        update: changeFn((newOb: Partial<MapObject>, selectNewOb = false) => {
+        update: changeFn(async (newOb: Partial<MapObject>, selectNewOb = false) => {
             const uIdx = objects.findIndex(ob => ob.id === newOb.id);
             if (uIdx !== -1) {
                 if (!objects[uIdx].locked || 'locked' in newOb) {
@@ -72,7 +72,7 @@ export const World = {
                 const fullNewOb = newOb as MapObject;
                 objects.push(fullNewOb);
                 if (selectNewOb) {
-                    select(fullNewOb);
+                    await select(fullNewOb);
                 }
                 return fullNewOb;
             }
