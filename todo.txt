@@ -3,18 +3,16 @@ Networking:
   - debounce
 
 Map:
-  - distance measure?
+  - set minimum image size
   - fog of war: postponed cos it's not clear if we need it at all
     - fog ownership
     - fog transfer
     - fog size limits
     - fog draw cursor
-  - scroll selected object into view x
  
 Chat:
   - change name?
   - open chat box in multiple places? probably not
-  - rich text support x
 
 Menu:
 

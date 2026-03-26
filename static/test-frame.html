@@ -34,14 +34,12 @@
         };
 
         const elem = (parent, name, value, setup) => {
-            console.group(parent, name);
             const ret = document.createElement(name);
             parent.appendChild(ret);
             if (typeof value === 'string') {
                 ret.innerText = value;
             }
             setup?.(ret);
-            console.groupEnd();
         }
 
         const tbody = document.querySelector('tbody');
