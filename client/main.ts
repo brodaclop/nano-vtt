@@ -9,6 +9,7 @@ import "./messages";
 import "./canvas";
 import "./world";
 import { Operations } from "./operations";
+import { World } from "./world";
 
 console.log('App loaded');
 
@@ -21,11 +22,23 @@ export const appInit = async () => {
     const goblin = await (await fetch('/assets/goblin.png')).blob();
     const ballista = await (await fetch('/assets/ballista.png')).blob();
 
-    await Operations.add(map, 0, 0, 0);
-    await Operations.add(goblin, 200, 200, 1);
-    await Operations.add(goblin, 600, 200, 2);
-    await Operations.add(ballista, 420, 300, 3);
-    await Operations.rotate(180);
+    const localAdd = async (data: Blob, x: number, y: number, id: number, angle: number) => {
+        await World.change.update({
+            id,
+            angle,
+            x,
+            y,
+            layer: World.layers.max + 1,
+            locked: 0,
+            zoom: 1000,
+            data
+        })
+    }
+
+    await localAdd(map, 0, 0, 0, 0);
+    await localAdd(goblin, 200, 200, 1, 0);
+    await localAdd(goblin, 600, 200, 2, 0);
+    await localAdd(ballista, 420, 300, 3, 180);
 }
 
 

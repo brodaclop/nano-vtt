@@ -46,10 +46,10 @@ export const Operations = {
             update({ x: x + delta.x, y: y + delta.y });
         }
     },
-    add: async (sourceData: Blob, x: number, y: number, fixedId?: number) => {
+    add: async (sourceData: Blob, x: number, y: number) => {
         const data = new Blob([await sourceData.bytes()]);
         const ob: MapObject = {
-            id: fixedId ?? Math.round(Math.random() * 1_000_000_000),
+            id: Math.round(Math.random() * 1_000_000_000),
             angle: 0,
             x,
             y,
