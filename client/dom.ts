@@ -1,6 +1,7 @@
 
 export const UI = {
-    canvas: document.querySelector('.canvas')!,
+    canvasContainer: document.querySelector('.canvas')!,
+    canvas: document.querySelector('.canvas canvas')! as HTMLCanvasElement,
     sidebar: document.querySelector('#sidebar')! as HTMLElement,
     plugin: {
         main: document.querySelector('#plugin')! as HTMLElement,

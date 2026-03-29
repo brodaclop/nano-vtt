@@ -9,25 +9,24 @@ import { World } from "./world";
 import { Room } from "./room";
 import { Operations } from "./operations";
 
-const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
 
 const images: Record<number, HTMLImageElement> = {};
 const fogSize = UI.bindInputValue(UI.menu.fogSize, 100);
 
 const setCanvasSize = () => {
-    canvas.width = window.visualViewport?.width! - 10;
-    canvas.height = window.visualViewport?.height! - 10;
+    UI.canvas.width = window.visualViewport?.width! - 10;
+    UI.canvas.height = window.visualViewport?.height! - 10;
 }
 
 (() => {
     setCanvasSize();
-    ctx = canvas.getContext('2d')!;
+    ctx = UI.canvas.getContext('2d')!;
     window.onresize = () => {
         setCanvasSize();
         Events.emit({ type: 'viewport-changed' });
     };
-    canvas.addEventListener('mousedown', e => {
+    UI.canvas.addEventListener('mousedown', e => {
         const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
         if (World.getEditMode() === 'fog' && e.buttons & 3) {
             const worldPoint = Viewport.screen2World(screenPoint);
@@ -56,8 +55,7 @@ const setCanvasSize = () => {
             World.change.unselect();
         }
     });
-    canvas.addEventListener('contextmenu', e => e.preventDefault());
-    UI.canvas.appendChild(canvas);
+    UI.canvas.addEventListener('contextmenu', e => e.preventDefault());
 })();
 
 
@@ -136,7 +134,7 @@ const drawGrid = (grid: Grid) => {
     if (grid.strength > 0) {
         ctx.lineWidth = 1;
         const worldTopLeft = Viewport.screen2World({ x: 0, y: 0 });
-        const worldBottomRight = Viewport.screen2World({ x: canvas.width, y: canvas.height });
+        const worldBottomRight = Viewport.screen2World({ x: UI.canvas.width, y: UI.canvas.height });
         let x = Math.ceil(worldTopLeft.x / grid.size) * grid.size;
         while (x < worldBottomRight.x) {
             const start = Viewport.world2Screen({ x, y: worldTopLeft.y });
@@ -186,10 +184,10 @@ Events.register('object-selected', async (ob: MapObject) => {
     const topLeft = Point.add(imageMiddle, Point.scale(halfImageSize, -1));
     const bottomRight = Point.add(imageMiddle, Point.scale(halfImageSize, 1));
 
-    const leftEdge = viewPos(topLeft.x, 0, canvas.width);
-    const rightEdge = viewPos(bottomRight.x, 0, canvas.width);
-    const topEdge = viewPos(topLeft.y, 0, canvas.height);
-    const bottomEdge = viewPos(bottomRight.y, 0, canvas.height);
+    const leftEdge = viewPos(topLeft.x, 0, UI.canvas.width);
+    const rightEdge = viewPos(bottomRight.x, 0, UI.canvas.width);
+    const topEdge = viewPos(topLeft.y, 0, UI.canvas.height);
+    const bottomEdge = viewPos(bottomRight.y, 0, UI.canvas.height);
 
     const xIn = leftEdge === Position.IN || rightEdge === Position.IN || leftEdge !== rightEdge;
     const yIn = topEdge === Position.IN || bottomEdge === Position.IN || topEdge !== bottomEdge;

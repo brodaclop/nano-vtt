@@ -17,12 +17,15 @@ document.addEventListener('wheel', (e: WheelEvent) => {
     }
 });
 
+let mousePosition: Point;
+
 document.addEventListener('mousemove', (e) => {
+    mousePosition = Point.fromCoords(e.clientX, e.clientY);
     const ruler = World.getEditMode() === 'normal' && e.buttons & 2;
     const moveObject = World.getEditMode() === 'normal' && e.buttons & 1 && World.selected;
     const panScreen = e.buttons & 4 || (World.getEditMode() === 'normal' && e.buttons & 1 && !World.selected);
     if (ruler) {
-        const point = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
+        const point = Viewport.screen2World(mousePosition);
         if (World.ruler()) {
             World.change.endRuler(point);
         } else {
@@ -75,19 +78,36 @@ document.addEventListener('dragenter', e => {
 
 
 document.addEventListener('drop', e => {
-    const worldCoord = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
-    if (e.dataTransfer?.items.length === 1) {
-        const item = e.dataTransfer.items[0];
-        if (ACCEPTED_TYPES.includes(item.type)) {
-            const file = item.getAsFile();
-            if (file) {
-                Operations.add(file, worldCoord.x, worldCoord.y);
-            }
-        }
+    if (addDroppedObject(Point.fromCoords(e.clientX, e.clientY), e.dataTransfer)) {
+        e.preventDefault();
     }
     e.preventDefault();
 });
 
+document.addEventListener('paste', e => {
+    if (mousePosition && document.elementFromPoint(mousePosition.x, mousePosition.y) === UI.canvas) {
+        const mouseScreenCoords = Point.add(mousePosition, Point.scale(UI.canvasContainer.getBoundingClientRect(), -1));
+        if (addDroppedObject(mouseScreenCoords, e.clipboardData)) {
+            e.preventDefault();
+        }
+    }
+});
+
 UI.sidebar.addEventListener('mousemove', e => e.stopPropagation());
+
+
+const addDroppedObject = (mouseScreenCoords: Point, dataTransfer: DataTransfer | null) => {
+    const worldCoord = Viewport.screen2World(mouseScreenCoords);
+    [...dataTransfer?.items ?? []].forEach(item => {
+        if (ACCEPTED_TYPES.includes(item.type)) {
+            const file = item.getAsFile();
+            if (file) {
+                Operations.add(file, worldCoord.x, worldCoord.y);
+                return true;
+            }
+        }
+    });
+    return false;
+}
 
 export const isDragging = () => dragActive;

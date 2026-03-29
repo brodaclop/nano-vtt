@@ -80,10 +80,11 @@ export const World = {
                     if (selectNewOb) {
                         await select(newOb);
                     }
+                    return newOb;
                 } else {
                     console.trace('This object is incomplete', newOb);
+                    throw new Error('Object incomplete');
                 }
-                return newOb;
             }
         }),
         select: changeFn((ob?: MapObject) => select(ob)),
