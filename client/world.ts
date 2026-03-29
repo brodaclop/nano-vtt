@@ -1,4 +1,5 @@
 import { Events } from "./events";
+import { Room } from "./room";
 import { FogCircle, Grid, MapObject, WorldObject } from "./types/map-objects";
 import { Point } from "./utils/point";
 
@@ -10,12 +11,7 @@ let grid: Grid = {
     strength: 5
 };
 
-let fog: Array<FogCircle> = [
-    // { origin: { x: 0, y: 0 }, radius: 400, reverted: false },
-    // { origin: { x: 400, y: 0 }, radius: 100, reverted: false },
-    // { origin: { x: 150, y: 50 }, radius: 100, reverted: true },
-    // { origin: { x: 200, y: 0 }, radius: 100, reverted: false },
-];
+let fog: Array<FogCircle> = [];
 
 let ruler: {
     start: Point,
@@ -24,7 +20,7 @@ let ruler: {
 
 const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<F>) => Promise<ReturnType<F>> => {
     return async (...args: Parameters<F>) => {
-        const ret = fn(...args);
+        const ret = await fn(...args);
         await Events.emit({ type: 'world-changed' });
         return ret;
     }
@@ -59,6 +55,9 @@ export const World = {
         });
         return ret ?? { min: 0, max: 0 };
     },
+    get fog() {
+        return fog;
+    },
     change: {
         remove: changeFn((id: number) => {
             objects = objects.filter(ob => ob.id !== id);
@@ -69,12 +68,14 @@ export const World = {
         update: changeFn(async (newOb: Partial<MapObject>, selectNewOb = false) => {
             const uIdx = objects.findIndex(ob => ob.id === newOb.id);
             if (uIdx !== -1) {
+                // console.log('update object', newOb);
                 if (!objects[uIdx].locked || 'locked' in newOb) {
                     objects[uIdx] = { ...objects[uIdx], ...newOb };
                 }
                 return objects[uIdx];
             } else {
                 // TODO: check that every attribute is present
+                // console.log('add object', newOb);
                 const fullNewOb = newOb as MapObject;
                 objects.push(fullNewOb);
                 if (selectNewOb) {
@@ -120,13 +121,18 @@ export const World = {
                 ruler.end = p
             }
         }),
-        cancelRuler: changeFn(() => { ruler = undefined })
+        cancelRuler: changeFn(() => { ruler = undefined }),
+        addFogCircle: changeFn((circle: FogCircle) => {
+            fog.push(circle);
+        }),
     },
-    addFogCircle: changeFn((circle: FogCircle) => {
-        fog.push(circle);
-    }),
     getEditMode: () => editMode,
-    flipEditMode: () => editMode = editMode === 'normal' ? 'fog' : 'normal',
+    flipEditMode: changeFn(async () => {
+        editMode = editMode === 'normal' ? 'fog' : 'normal';
+        console.log('Flipping edit mode to ', editMode);
+        await Events.emit({ type: 'edit-mode-changed', payload: editMode });
+        selected = undefined;
+    }),
     ruler: () => ruler
 }
 
@@ -137,6 +143,9 @@ Events.register('sync-received', changeFn((newWorld: WorldObject) => {
     objects = newWorld.objects;
     grid = newWorld.grid;
 }));
+Events.register('fog-circle-received', async (fogCircle: FogCircle) => {
+    await World.change.addFogCircle(fogCircle);
+});
 
 
 

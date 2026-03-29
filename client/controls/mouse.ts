@@ -18,19 +18,22 @@ document.addEventListener('wheel', (e: WheelEvent) => {
 });
 
 document.addEventListener('mousemove', (e) => {
-    if (e.buttons & 2) {
+    const ruler = World.getEditMode() === 'normal' && e.buttons & 2;
+    const moveObject = World.getEditMode() === 'normal' && e.buttons & 1 && World.selected;
+    const panScreen = e.buttons & 4 || (World.getEditMode() === 'normal' && e.buttons & 1 && !World.selected);
+    if (ruler) {
         const point = Viewport.screen2World(Point.fromCoords(e.clientX, e.clientY));
         if (World.ruler()) {
             World.change.endRuler(point);
         } else {
             World.change.startRuler(point);
         }
-    } else if (e.buttons & 5 && World.getEditMode() === 'normal') {
+    } else if (moveObject || panScreen) {
         const oldDrag = drag;
         drag = Point.fromCoords(e.clientX, e.clientY);
         if (oldDrag) {
             const delta = Point.fromCoords(drag.x - oldDrag.x, drag.y - oldDrag.y);
-            if (World.selected && e.buttons & 1) {
+            if (moveObject) {
                 Operations.move(Point.scale(delta, 1 / Viewport.zoom()));
             } else {
                 Viewport.moveOrigin(delta);
@@ -38,8 +41,10 @@ document.addEventListener('mousemove', (e) => {
         } else {
             dragActive = true;
         }
-        e.preventDefault();
+
     }
+
+    e.preventDefault();
 });
 
 document.addEventListener('mouseup', (e) => {

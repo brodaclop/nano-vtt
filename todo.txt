@@ -4,11 +4,10 @@ Networking:
 
 Map:
   - set minimum image size
-  - fog of war: postponed cos it's not clear if we need it at all
-    - fog ownership
-    - fog transfer
+  - fog of war
     - fog size limits
     - fog draw cursor
+    - fog sync
  
 Chat:
   - change name?
@@ -22,6 +21,7 @@ Other:
   - make binding make sense
   - iframe scrolling
   - fix scrollIntoView() algorithm to cater for rotation
+  - separate internal state data from world data
 
 Bugs:
   

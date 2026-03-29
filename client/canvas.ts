@@ -6,6 +6,8 @@ import { Point } from "./utils/point";
 import { FogCircle, Grid, MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
+import { Room } from "./room";
+import { Operations } from "./operations";
 
 const canvas = document.createElement('canvas');
 let ctx: CanvasRenderingContext2D;
@@ -29,11 +31,13 @@ const setCanvasSize = () => {
         const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
         if (World.getEditMode() === 'fog' && e.buttons & 3) {
             const worldPoint = Viewport.screen2World(screenPoint);
-            World.addFogCircle({
-                origin: worldPoint,
+            Operations.addFogCircle({
+                originX: worldPoint.x,
+                originY: worldPoint.y,
                 radius: fogSize.value,
-                reverted: Boolean(e.buttons & 2)
-            })
+                reverted: Number(Boolean(e.buttons & 2)),
+                owner: Room.me
+            });
             e.preventDefault();
             e.stopPropagation();
             return false;
@@ -73,7 +77,7 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
 const draw = async () => {
     clearCanvas();
     ctx.resetTransform();
-    const { selected, objects, grid, ruler } = World;
+    const { selected, objects, grid, ruler, fog } = World;
     drawGrid(grid);
     for (const ob of sortObjects(objects)) {
         const image = await ensureImage(ob);
@@ -87,10 +91,13 @@ const draw = async () => {
             ctx.fillRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
         }
     }
-    drawRuler();
-    // const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
-    // ctx.globalAlpha = 1;
-    // ctx.drawImage(fogImg, 0, 0);
+    drawRuler(ruler());
+    const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
+    ctx.resetTransform();
+    ctx.globalAlpha = 1;
+    ctx.drawImage(fogImg.other, 0, 0);
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(fogImg.own, 0, 0);
 
 }
 

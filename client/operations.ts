@@ -1,6 +1,6 @@
 import { Send } from "./messages";
 import { Point } from "./utils/point";
-import { MapObject } from "./types/map-objects";
+import { FogCircle, MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
 
@@ -46,10 +46,10 @@ export const Operations = {
             update({ x: x + delta.x, y: y + delta.y });
         }
     },
-    add: async (sourceData: Blob, x: number, y: number) => {
+    add: async (sourceData: Blob, x: number, y: number, fixedId?: number) => {
         const data = new Blob([await sourceData.bytes()]);
         const ob: MapObject = {
-            id: Math.round(Math.random() * 1_000_000_000),
+            id: fixedId ?? Math.round(Math.random() * 1_000_000_000),
             angle: 0,
             x,
             y,
@@ -60,6 +60,10 @@ export const Operations = {
         };
         await World.change.update(ob, true);
         Send.object(ob);
+    },
+    addFogCircle: async (fogCircle: FogCircle) => {
+        await World.change.addFogCircle(fogCircle);
+        Send.addFogCircle(fogCircle);
     },
     selectNext: () => {
         World.change.selectNext();

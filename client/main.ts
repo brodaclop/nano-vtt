@@ -21,10 +21,10 @@ export const appInit = async () => {
     const goblin = await (await fetch('/assets/goblin.png')).blob();
     const ballista = await (await fetch('/assets/ballista.png')).blob();
 
-    await Operations.add(map, 0, 0);
-    await Operations.add(goblin, 200, 200);
-    await Operations.add(goblin, 600, 200);
-    await Operations.add(ballista, 420, 300);
+    await Operations.add(map, 0, 0, 0);
+    await Operations.add(goblin, 200, 200, 1);
+    await Operations.add(goblin, 600, 200, 2);
+    await Operations.add(ballista, 420, 300, 3);
     await Operations.rotate(180);
 }
 

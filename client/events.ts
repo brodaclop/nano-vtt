@@ -1,4 +1,4 @@
-import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
+import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
 import { SocketStatus } from "./websocket";
 
 interface WorldChanged {
@@ -65,7 +65,7 @@ interface HelloReceived {
     payload: HelloMessage
 }
 
-interface IncomingMessage {
+interface MessageReceived {
     type: 'incoming-message',
     payload: Blob;
 }
@@ -75,6 +75,15 @@ interface SocketStatusChanged {
     payload: SocketStatus;
 }
 
+interface FogCircleReceived {
+    type: 'fog-circle-received',
+    payload: FogCircle;
+}
+
+interface EditModeChanged {
+    type: 'edit-mode-changed',
+    payload: 'normal' | 'fog'
+}
 
 export type Event =
     | WorldChanged
@@ -89,7 +98,9 @@ export type Event =
     | SyncReceived
     | JoinReceived
     | HelloReceived
-    | IncomingMessage
+    | MessageReceived
+    | FogCircleReceived
+    | EditModeChanged
     | SocketStatusChanged;
 
 const listeners: Record<Event['type'], Array<(arg: Event['payload']) => unknown>> = {
@@ -106,7 +117,9 @@ const listeners: Record<Event['type'], Array<(arg: Event['payload']) => unknown>
     'hello-received': [],
     'incoming-message': [],
     'socket-status-changed': [],
-    'room-changed': []
+    'room-changed': [],
+    'fog-circle-received': [],
+    'edit-mode-changed': [],
 };
 
 function register(type: ViewportChanged['type'], listener: (event: ViewportChanged['payload']) => unknown): void;
@@ -121,8 +134,10 @@ function register(type: ObjectReceived['type'], listener: (event: ObjectReceived
 function register(type: SyncReceived['type'], listener: (event: SyncReceived['payload']) => unknown): void;
 function register(type: JoinReceived['type'], listener: (event: JoinReceived['payload']) => unknown): void;
 function register(type: HelloReceived['type'], listener: (event: HelloReceived['payload']) => unknown): void;
-function register(type: IncomingMessage['type'], listener: (event: IncomingMessage['payload']) => unknown): void;
+function register(type: MessageReceived['type'], listener: (event: MessageReceived['payload']) => unknown): void;
 function register(type: SocketStatusChanged['type'], listener: (event: SocketStatusChanged['payload']) => unknown): void;
+function register(type: FogCircleReceived['type'], listener: (event: FogCircleReceived['payload']) => unknown): void;
+function register(type: EditModeChanged['type'], listener: (event: EditModeChanged['payload']) => unknown): void;
 function register(type: Event['type'], listener: (event: any) => unknown): void {
     listeners[type].push(listener);
 }
@@ -139,8 +154,10 @@ function unregister(type: ObjectReceived['type'], listener: (event: ObjectReceiv
 function unregister(type: SyncReceived['type'], listener: (event: SyncReceived['payload']) => unknown): void;
 function unregister(type: JoinReceived['type'], listener: (event: JoinReceived['payload']) => unknown): void;
 function unregister(type: HelloReceived['type'], listener: (event: HelloReceived['payload']) => unknown): void;
-function unregister(type: IncomingMessage['type'], listener: (event: IncomingMessage['payload']) => unknown): void;
+function unregister(type: MessageReceived['type'], listener: (event: MessageReceived['payload']) => unknown): void;
 function unregister(type: SocketStatusChanged['type'], listener: (event: SocketStatusChanged['payload']) => unknown): void;
+function unregister(type: FogCircleReceived['type'], listener: (event: FogCircleReceived['payload']) => unknown): void;
+function unregister(type: EditModeChanged['type'], listener: (event: EditModeChanged['payload']) => unknown): void;
 function unregister(type: Event['type'], listener: (event: any) => unknown): void {
     listeners[type] = listeners[type].filter(l => l !== listener);
 }

@@ -62,14 +62,17 @@ UI.menu.container.addEventListener('mousemove', UI.stopEvent);
 
 UI.menu.editFog.addEventListener('click', () => {
     World.flipEditMode();
-    UI.menu.editFog.innerText = World.getEditMode() === 'normal' ? 'Edit fog' : 'Finish fog editing';
-    const showControls = World.getEditMode() === 'fog';
+    UI.menu.editFog.blur();
+});
+
+Events.register('edit-mode-changed', editMode => {
+    UI.menu.editFog.innerText = editMode === 'normal' ? 'Edit fog' : 'Finish fog editing';
+    const showControls = editMode === 'fog';
     if (showControls) {
         UI.menu.fogControls.classList.remove('hidden');
     } else {
         UI.menu.fogControls.classList.add('hidden');
     }
-    Operations.unselect();
 });
 
 Events.register('socket-status-changed', status => {

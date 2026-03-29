@@ -17,9 +17,11 @@ export interface Grid {
 }
 
 export interface FogCircle {
-    origin: Point;
+    originX: number;
+    originY: number;
     radius: number;
-    reverted: boolean;
+    reverted: number;
+    owner: number;
 }
 
 export interface WorldObject { objects: Array<MapObject>, grid: Grid }

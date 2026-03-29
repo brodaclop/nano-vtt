@@ -1,4 +1,4 @@
-import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
+import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
 import { Socket } from "./websocket";
 import { Events } from "./events";
 import { ALL_FIELDS, Converter } from "./utils/converters";
@@ -13,6 +13,7 @@ enum MessageType {
     GRID = 6,
     TYPING_START = 7,
     TYPING_END = 8,
+    ADD_FOG_CIRCLE = 9
 }
 
 const toMessage = (type: MessageType, contents: Blob): Blob => {
@@ -51,6 +52,10 @@ Events.register('incoming-message', async (data: Blob) => {
         }
         case MessageType.HELLO: {
             await Events.emit({ type: 'hello-received', payload: await Converter.hello.from(payload) })
+            return;
+        }
+        case MessageType.ADD_FOG_CIRCLE: {
+            await Events.emit({ type: 'fog-circle-received', payload: await Converter.fogCircle.from(payload) })
             return;
         }
         case MessageType.SYNC: {
@@ -102,6 +107,9 @@ export const Send = {
     },
     hello: (message: HelloMessage) => {
         send(MessageType.HELLO, Converter.hello.to(message));
+    },
+    addFogCircle: (message: FogCircle) => {
+        send(MessageType.ADD_FOG_CIRCLE, Converter.fogCircle.to(message));
     }
 
 }

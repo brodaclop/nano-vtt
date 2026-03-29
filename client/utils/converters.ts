@@ -1,4 +1,4 @@
-import { ChatMessage, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "../types/map-objects";
+import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "../types/map-objects";
 
 const NUMBER_FIELDS: Array<keyof MapObject> = ['id', 'x', 'y', 'zoom', 'layer', 'locked', 'angle'];
 
@@ -12,6 +12,7 @@ const GRID_FIELDS = ['size', 'strength'] as const satisfies Array<string>;
 const TYPING_FIELDS = ['sender'] as const satisfies Array<string>;
 const JOIN_FIELDS = ['sender'] as const satisfies Array<string>;
 const HELLO_FIELDS = ['sender'] as const satisfies Array<string>;
+const FOG_CIRCLE_FIELDS = ['owner', 'originX', 'originY', 'radius', 'reverted'] as const satisfies Array<string>;
 
 const unpackSimpleBlob = async <T extends string>(blob: Blob, descriptor: Array<T>): Promise<Record<T, number> & { text: string }> => {
     const buffer = await blob.slice(0, descriptor.length * 4).arrayBuffer();
@@ -108,6 +109,15 @@ export const Converter = {
         },
         to: (message: ChatMessage) => {
             return packSimpleBlob(message, CHAT_FIELDS, message.text);
+        }
+    },
+    fogCircle: {
+        from: async (blob: Blob): Promise<FogCircle> => {
+            return await unpackSimpleBlob(blob, FOG_CIRCLE_FIELDS);
+
+        },
+        to: (message: FogCircle) => {
+            return packSimpleBlob(message, FOG_CIRCLE_FIELDS);
         }
     },
     grid: {
