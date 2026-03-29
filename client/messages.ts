@@ -35,22 +35,22 @@ Events.register('incoming-message', async (data: Blob) => {
         case MessageType.OBJECT: {
             const decoded = await Converter.object.from(payload);
             if ('deletedId' in decoded) {
-                Events.emit({ type: 'object-delete-received', payload: decoded.deletedId });
+                await Events.emit({ type: 'object-delete-received', payload: decoded.deletedId });
             } else {
-                Events.emit({ type: 'object-received', payload: decoded });
+                await Events.emit({ type: 'object-received', payload: decoded });
             }
             return;
         }
         case MessageType.CHAT: {
-            Events.emit({ type: 'chat-received', payload: await Converter.chat.from(payload) });
+            await Events.emit({ type: 'chat-received', payload: await Converter.chat.from(payload) });
             return;
         }
         case MessageType.JOIN_ROOM: {
-            Events.emit({ type: 'join-received', payload: await Converter.join.from(payload) })
+            await Events.emit({ type: 'join-received', payload: await Converter.join.from(payload) })
             return;
         }
         case MessageType.HELLO: {
-            Events.emit({ type: 'hello-received', payload: await Converter.hello.from(payload) })
+            await Events.emit({ type: 'hello-received', payload: await Converter.hello.from(payload) })
             return;
         }
         case MessageType.SYNC: {
@@ -58,15 +58,15 @@ Events.register('incoming-message', async (data: Blob) => {
             return;
         }
         case MessageType.GRID: {
-            Events.emit({ type: 'grid-received', payload: await Converter.grid.from(payload) });
+            await Events.emit({ type: 'grid-received', payload: await Converter.grid.from(payload) });
             return;
         }
         case MessageType.TYPING_START: {
-            Events.emit({ type: 'typing-received', payload: { action: 'start', user: await Converter.typing.from(payload) } })
+            await Events.emit({ type: 'typing-received', payload: { action: 'start', user: await Converter.typing.from(payload) } })
             return;
         }
         case MessageType.TYPING_END: {
-            Events.emit({ type: 'typing-received', payload: { action: 'end', user: await Converter.typing.from(payload) } })
+            await Events.emit({ type: 'typing-received', payload: { action: 'end', user: await Converter.typing.from(payload) } })
             return;
         }
         default: throw new Error(`Unknown message type: ${type}`)

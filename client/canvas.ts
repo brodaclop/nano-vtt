@@ -73,7 +73,7 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
 const draw = async () => {
     clearCanvas();
     ctx.resetTransform();
-    const { selected, objects, grid } = World;
+    const { selected, objects, grid, ruler } = World;
     drawGrid(grid);
     for (const ob of sortObjects(objects)) {
         const image = await ensureImage(ob);
@@ -87,24 +87,7 @@ const draw = async () => {
             ctx.fillRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
         }
     }
-    const ruler = World.ruler();
-    if (ruler) {
-        ctx.beginPath();
-        ctx.resetTransform();
-        const start = Viewport.world2Screen(ruler.start);
-        const end = Viewport.world2Screen(ruler.end);
-        ctx.globalAlpha = 1;
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = 'darkgoldenrod';
-        ctx.lineCap = 'round';
-        ctx.moveTo(start.x, start.y);
-        ctx.lineTo(end.x, end.y);
-        ctx.stroke();
-        const length = Math.floor(Math.sqrt((ruler.start.x - ruler.end.x) * (ruler.start.x - ruler.end.x) + (ruler.start.y - ruler.end.y) * (ruler.start.y - ruler.end.y)));
-        ctx.font = "32px Finlandica";
-        ctx.fillStyle = 'darkseagreen';
-        ctx.fillText(String(length), end.x, end.y);
-    }
+    drawRuler();
     // const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
     // ctx.globalAlpha = 1;
     // ctx.drawImage(fogImg, 0, 0);
@@ -209,3 +192,23 @@ Events.register('object-selected', async (ob: MapObject) => {
     }
 });
 
+
+const drawRuler = (ruler?: { start: Point, end: Point }) => {
+    if (ruler) {
+        ctx.beginPath();
+        ctx.resetTransform();
+        const start = Viewport.world2Screen(ruler.start);
+        const end = Viewport.world2Screen(ruler.end);
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'darkgoldenrod';
+        ctx.lineCap = 'round';
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+        const length = Math.floor(Math.sqrt((ruler.start.x - ruler.end.x) * (ruler.start.x - ruler.end.x) + (ruler.start.y - ruler.end.y) * (ruler.start.y - ruler.end.y)));
+        ctx.font = "32px Finlandica";
+        ctx.fillStyle = 'darkseagreen';
+        ctx.fillText(String(length), end.x, end.y);
+    }
+}

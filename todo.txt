@@ -21,7 +21,7 @@ Other:
   - update wrangler
   - make binding make sense
   - iframe scrolling
-  - cleanup ruler code
+  - fix scrollIntoView() algorithm to cater for rotation
 
 Bugs:
   
