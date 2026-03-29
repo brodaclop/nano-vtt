@@ -131,7 +131,6 @@ export const World = {
     getEditMode: () => editMode,
     flipEditMode: changeFn(async () => {
         editMode = editMode === 'normal' ? 'fog' : 'normal';
-        console.log('Flipping edit mode to ', editMode);
         await Events.emit({ type: 'edit-mode-changed', payload: editMode });
         selected = undefined;
     }),
