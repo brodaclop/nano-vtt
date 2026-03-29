@@ -74,14 +74,16 @@ export const World = {
                 }
                 return objects[uIdx];
             } else {
-                // TODO: check that every attribute is present
-                // console.log('add object', newOb);
-                const fullNewOb = newOb as MapObject;
-                objects.push(fullNewOb);
-                if (selectNewOb) {
-                    await select(fullNewOb);
+                if (isObjectComplete(newOb)) {
+                    // console.log('add object', newOb);
+                    objects.push(newOb);
+                    if (selectNewOb) {
+                        await select(newOb);
+                    }
+                } else {
+                    console.trace('This object is incomplete', newOb);
                 }
-                return fullNewOb;
+                return newOb;
             }
         }),
         select: changeFn((ob?: MapObject) => select(ob)),
@@ -147,6 +149,18 @@ Events.register('fog-circle-received', async (fogCircle: FogCircle) => {
     await World.change.addFogCircle(fogCircle);
 });
 
-
+const isObjectComplete = (ob: Partial<MapObject>): ob is MapObject => {
+    const fields: Array<keyof MapObject> = [
+        'angle',
+        'data',
+        'id',
+        'layer',
+        'locked',
+        'x',
+        'y',
+        'zoom'
+    ];
+    return fields.every(field => ob[field] !== undefined);
+}
 
 

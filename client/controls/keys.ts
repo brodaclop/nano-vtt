@@ -2,7 +2,6 @@ import { Operations } from "../operations";
 import { World } from "../world";
 
 document.onkeydown = e => {
-    console.log('e', e, document.activeElement);
     if (document.activeElement !== document.body) {
         return;
     }
