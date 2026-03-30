@@ -1,8 +1,8 @@
 import { UI } from "../dom";
+import { Editor } from "../editor";
 import { Operations } from "../operations";
 import { Point } from "../utils/point";
 import { Viewport } from "../viewport";
-import { World } from "../world";
 
 const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 
@@ -21,15 +21,15 @@ let mousePosition: Point;
 
 document.addEventListener('mousemove', (e) => {
     mousePosition = Point.fromCoords(e.clientX, e.clientY);
-    const ruler = World.getEditMode() === 'normal' && e.buttons & 2;
-    const moveObject = World.getEditMode() === 'normal' && e.buttons & 1 && World.selected;
-    const panScreen = e.buttons & 4 || (World.getEditMode() === 'normal' && e.buttons & 1 && !World.selected);
+    const ruler = Editor.editMode === 'normal' && e.buttons & 2;
+    const moveObject = Editor.editMode === 'normal' && e.buttons & 1 && !Editor.isSelected();
+    const panScreen = e.buttons & 4 || (Editor.editMode === 'normal' && e.buttons & 1 && Editor.isSelected());
     if (ruler) {
         const point = Viewport.screen2World(mousePosition);
-        if (World.ruler()) {
-            World.change.endRuler(point);
+        if (Editor.ruler) {
+            Editor.endRuler(point);
         } else {
-            World.change.startRuler(point);
+            Editor.startRuler(point);
         }
     } else if (moveObject || panScreen) {
         const oldDrag = drag;
@@ -51,8 +51,8 @@ document.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('mouseup', (e) => {
-    if (World.ruler()) {
-        World.change.cancelRuler();
+    if (Editor.ruler) {
+        Editor.cancelRuler();
         return false;
     }
     if (dragActive) {

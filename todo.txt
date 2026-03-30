@@ -21,7 +21,6 @@ Other:
   - make binding make sense
   - iframe scrolling
   - fix scrollIntoView() algorithm to cater for rotation
-  - separate internal state data from world data
   - document paste functionality
   - document fog of war
 

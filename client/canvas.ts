@@ -8,6 +8,7 @@ import { Viewport } from "./viewport";
 import { World } from "./world";
 import { Room } from "./room";
 import { Operations } from "./operations";
+import { Editor } from "./editor";
 
 let ctx: CanvasRenderingContext2D;
 
@@ -28,7 +29,7 @@ const setCanvasSize = () => {
     };
     UI.canvas.addEventListener('mousedown', e => {
         const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
-        if (World.getEditMode() === 'fog' && e.buttons & 3) {
+        if (Editor.editMode === 'fog' && e.buttons & 3) {
             const worldPoint = Viewport.screen2World(screenPoint);
             Operations.addFogCircle({
                 originX: worldPoint.x,
@@ -50,9 +51,9 @@ const setCanvasSize = () => {
                 const endY = imageOrigin.y + imageSize.y;
                 return imageOrigin.x <= transformedClickPoint.x && endX > transformedClickPoint.x && imageOrigin.y <= transformedClickPoint.y && endY > transformedClickPoint.y;
             });
-            World.change.select(clicked);
+            Editor.select(clicked);
         } else if (!isDragging() && e.buttons & 2) {
-            World.change.unselect();
+            Editor.select();
         }
     });
     UI.canvas.addEventListener('contextmenu', e => e.preventDefault());
@@ -75,21 +76,21 @@ const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
 const draw = async () => {
     clearCanvas();
     ctx.resetTransform();
-    const { selected, objects, grid, ruler, fog } = World;
+    const { objects, grid, fog } = World;
     drawGrid(grid);
     for (const ob of sortObjects(objects)) {
         const image = await ensureImage(ob);
         const { imageOrigin, imageSize } = transformObjectSpace(ob, image);
-        ctx.globalAlpha = (selected !== undefined && (selected?.id !== ob.id)) ? 0.7 : 0.8;
+        ctx.globalAlpha = (!Editor.isSelected() && !Editor.isSelected(ob)) ? 0.7 : 0.8;
         ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
-        if (selected?.id === ob.id) {
+        if (Editor.isSelected(ob)) {
             drawBorder(ob, imageOrigin, imageSize);
             ctx.globalAlpha = 0.05;
             ctx.fillStyle = 'lightgreen';
             ctx.fillRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
         }
     }
-    drawRuler(ruler());
+    drawRuler(Editor.ruler);
     const fogImg = Fog.draw(fog, { x: ctx.canvas.width, y: ctx.canvas.height });
     ctx.resetTransform();
     ctx.globalAlpha = 1;

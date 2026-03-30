@@ -3,18 +3,20 @@ import { Point } from "./utils/point";
 import { FogCircle, MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
+import { Editor } from "./editor";
 
 export const Operations = {
     zoom: (zoom: number, forceViewport = false) => {
-        if (World.selected && !forceViewport) {
-            const originalZoom = World.selected.zoom;
+        const selected = Editor.selected;
+        if (selected && !forceViewport) {
+            const originalZoom = selected.zoom;
             update({ zoom: originalZoom * zoom })
         } else {
             Viewport.adjustZoom(zoom);
         }
     },
     rotate: (angle: number) => {
-        const originalAngle = World.selected?.angle;
+        const originalAngle = Editor.selected?.angle;
         if (originalAngle !== undefined) {
             update({ angle: originalAngle + angle })
         }
@@ -26,23 +28,23 @@ export const Operations = {
         update({ layer: World.layers.min - 1 });
     },
     lock: async () => {
-        const locked = World.selected?.locked;
+        const locked = Editor.selected?.locked;
         await update({ locked: Number(!locked) });
         if (!locked) {
-            World.change.select();
+            Editor.select();
         }
     },
     remove: () => {
-        const selected = World.selected;
+        const selected = Editor.selected;
         if (selected !== undefined) {
             World.change.remove(selected.id);
             Send.delete(selected.id);
         }
     },
     move: (delta: Point) => {
-        const selectedOb = World.selected;
-        if (selectedOb) {
-            const { x, y } = selectedOb;
+        const selected = Editor.selected;
+        if (selected) {
+            const { x, y } = selected;
             update({ x: x + delta.x, y: y + delta.y });
         }
     },
@@ -72,7 +74,7 @@ export const Operations = {
         World.change.selectPrevious();
     },
     unselect: () => {
-        World.change.unselect();
+        Editor.select();
     },
     sync: () => {
         Send.sync(World);
@@ -88,7 +90,7 @@ export const Operations = {
 }
 
 const update = async (change: Partial<Omit<MapObject, 'id'>>) => {
-    const selected = World.selected;
+    const selected = Editor.selected;
     if (selected) {
         const ob = await World.change.update({ ...change, id: selected.id });
         const fields = Object.keys(change) as Array<keyof MapObject>;

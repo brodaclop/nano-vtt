@@ -1,5 +1,5 @@
+import { Editor } from "../editor";
 import { Operations } from "../operations";
-import { World } from "../world";
 
 document.onkeydown = e => {
     if (document.activeElement !== document.body) {
@@ -26,8 +26,8 @@ document.onkeydown = e => {
             Operations.selectNext();
         }
     } else if (e.key === 'Escape') {
-        if (World.getEditMode() === 'fog') {
-            World.flipEditMode();
+        if (Editor.editMode === 'fog') {
+            Editor.flipEditMode();
         } else {
             Operations.unselect();
         }

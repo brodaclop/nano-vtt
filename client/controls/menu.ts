@@ -1,4 +1,5 @@
 import { UI } from "../dom";
+import { Editor } from "../editor";
 import { Events } from "../events";
 import { Operations } from "../operations";
 import { Room } from "../room";
@@ -61,7 +62,7 @@ UI.menu.gridStrength.addEventListener('change', () => {
 UI.menu.container.addEventListener('mousemove', UI.stopEvent);
 
 UI.menu.editFog.addEventListener('click', () => {
-    World.flipEditMode();
+    Editor.flipEditMode();
     UI.menu.editFog.blur();
 });
 
