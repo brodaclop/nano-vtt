@@ -161,6 +161,7 @@ const drawGrid = (grid: Grid) => {
     UI.menu.gridStrength.value = String(grid.strength);
 }
 
+Events.register('object-selected', draw);
 Events.register('world-changed', draw);
 Events.register('viewport-changed', draw);
 Events.register('object-selected', async (ob: MapObject) => {

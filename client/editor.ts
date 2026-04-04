@@ -9,7 +9,7 @@ export interface Ruler {
     end: Point
 }
 
-let selected: MapObject | undefined = undefined;
+let selected: number | undefined = undefined;
 let editMode: EditMode = 'normal';
 let ruler: Ruler | undefined;
 
@@ -20,12 +20,12 @@ export const Editor = {
     get ruler(): Ruler | undefined {
         return ruler;
     },
-    get selected(): MapObject | undefined {
+    get selected(): number | undefined {
         return selected;
     },
-    isSelected: (ob?: MapObject | number) => typeof ob === 'number' ? selected?.id === ob : selected === ob,
+    isSelected: (ob?: MapObject | number) => selected === (typeof ob === 'number' ? ob : ob?.id),
     select: async (ob?: MapObject) => {
-        selected = ob;
+        selected = ob?.id;
         if (ob) {
             await Events.emit({ type: 'object-selected', payload: ob });
         }

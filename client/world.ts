@@ -40,6 +40,9 @@ export const World = {
     get fog() {
         return fog;
     },
+    get selectedObject() {
+        return objects.find(ob => ob.id === Editor.selected);
+    },
     change: {
         remove: changeFn(async (id: number) => {
             objects = objects.filter(ob => ob.id !== id);

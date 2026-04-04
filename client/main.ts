@@ -8,7 +8,7 @@ import "./chat";
 import "./messages";
 import "./canvas";
 import "./world";
-import { Operations } from "./operations";
+import "./editor";
 import { World } from "./world";
 
 console.log('App loaded');
@@ -35,10 +35,10 @@ export const appInit = async () => {
         })
     }
 
-    await localAdd(map, 0, 0, 0, 0);
-    await localAdd(goblin, 200, 200, 1, 0);
-    await localAdd(goblin, 600, 200, 2, 0);
-    await localAdd(ballista, 420, 300, 3, 180);
+    await localAdd(map, 0, 0, 1, 0);
+    await localAdd(goblin, 200, 200, 2, 0);
+    await localAdd(goblin, 600, 200, 3, 0);
+    await localAdd(ballista, 420, 300, 4, 180);
 }
 
 

@@ -7,7 +7,7 @@ import { Editor } from "./editor";
 
 export const Operations = {
     zoom: (zoom: number, forceViewport = false) => {
-        const selected = Editor.selected;
+        const selected = World.selectedObject;
         if (selected && !forceViewport) {
             const originalZoom = selected.zoom;
             update({ zoom: originalZoom * zoom })
@@ -16,7 +16,7 @@ export const Operations = {
         }
     },
     rotate: (angle: number) => {
-        const originalAngle = Editor.selected?.angle;
+        const originalAngle = World.selectedObject?.angle;
         if (originalAngle !== undefined) {
             update({ angle: originalAngle + angle })
         }
@@ -28,7 +28,7 @@ export const Operations = {
         update({ layer: World.layers.min - 1 });
     },
     lock: async () => {
-        const locked = Editor.selected?.locked;
+        const locked = World.selectedObject?.locked;
         await update({ locked: Number(!locked) });
         if (!locked) {
             Editor.select();
@@ -37,12 +37,12 @@ export const Operations = {
     remove: () => {
         const selected = Editor.selected;
         if (selected !== undefined) {
-            World.change.remove(selected.id);
-            Send.delete(selected.id);
+            World.change.remove(selected);
+            Send.delete(selected);
         }
     },
     move: (delta: Point) => {
-        const selected = Editor.selected;
+        const selected = World.selectedObject;
         if (selected) {
             const { x, y } = selected;
             update({ x: x + delta.x, y: y + delta.y });
@@ -92,7 +92,7 @@ export const Operations = {
 const update = async (change: Partial<Omit<MapObject, 'id'>>) => {
     const selected = Editor.selected;
     if (selected) {
-        const ob = await World.change.update({ ...change, id: selected.id });
+        const ob = await World.change.update({ ...change, id: selected });
         const fields = Object.keys(change) as Array<keyof MapObject>;
         Send.object(ob, fields);
     }
