@@ -6,9 +6,7 @@ Map:
   - set minimum image size
   - fog of war
     - fog size limits
-    - fog draw cursor
-    - fog sync
- 
+  
 Chat:
   - change name?
   - open chat box in multiple places? probably not
@@ -23,6 +21,7 @@ Other:
   - fix scrollIntoView() algorithm to cater for rotation
   - document paste functionality
   - document fog of war
+  - clean up sync processing
 
 Bugs:
   

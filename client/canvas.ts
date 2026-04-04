@@ -162,6 +162,32 @@ const drawGrid = (grid: Grid) => {
 }
 
 Events.register('object-selected', draw);
+const drawRuler = (ruler?: { start: Point, end: Point }) => {
+    if (ruler) {
+        ctx.beginPath();
+        ctx.resetTransform();
+        const start = Viewport.world2Screen(ruler.start);
+        const end = Viewport.world2Screen(ruler.end);
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'darkgoldenrod';
+        ctx.lineCap = 'round';
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+        const length = Math.floor(Math.sqrt((ruler.start.x - ruler.end.x) * (ruler.start.x - ruler.end.x) + (ruler.start.y - ruler.end.y) * (ruler.start.y - ruler.end.y)));
+        ctx.font = "32px Finlandica";
+        ctx.fillStyle = 'darkseagreen';
+        ctx.fillText(String(length), end.x, end.y);
+    }
+}
+
+Events.register('edit-mode-changed', mode => {
+    UI.canvas.classList.remove('fog');
+    UI.canvas.classList.remove('normal');
+    UI.canvas.classList.add(mode);
+});
+
 Events.register('world-changed', draw);
 Events.register('viewport-changed', draw);
 Events.register('object-selected', async (ob: MapObject) => {
@@ -186,6 +212,8 @@ Events.register('object-selected', async (ob: MapObject) => {
     const topLeft = Point.add(imageMiddle, Point.scale(halfImageSize, -1));
     const bottomRight = Point.add(imageMiddle, Point.scale(halfImageSize, 1));
 
+    // TODO: check if a point of one rectangle is in the other, or vice versa
+
     const leftEdge = viewPos(topLeft.x, 0, UI.canvas.width);
     const rightEdge = viewPos(bottomRight.x, 0, UI.canvas.width);
     const topEdge = viewPos(topLeft.y, 0, UI.canvas.height);
@@ -200,22 +228,4 @@ Events.register('object-selected', async (ob: MapObject) => {
 });
 
 
-const drawRuler = (ruler?: { start: Point, end: Point }) => {
-    if (ruler) {
-        ctx.beginPath();
-        ctx.resetTransform();
-        const start = Viewport.world2Screen(ruler.start);
-        const end = Viewport.world2Screen(ruler.end);
-        ctx.globalAlpha = 1;
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = 'darkgoldenrod';
-        ctx.lineCap = 'round';
-        ctx.moveTo(start.x, start.y);
-        ctx.lineTo(end.x, end.y);
-        ctx.stroke();
-        const length = Math.floor(Math.sqrt((ruler.start.x - ruler.end.x) * (ruler.start.x - ruler.end.x) + (ruler.start.y - ruler.end.y) * (ruler.start.y - ruler.end.y)));
-        ctx.font = "32px Finlandica";
-        ctx.fillStyle = 'darkseagreen';
-        ctx.fillText(String(length), end.x, end.y);
-    }
-}
+

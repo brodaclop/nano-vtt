@@ -132,18 +132,29 @@ export const Converter = {
         from: async (blob: Blob): Promise<WorldObject> => {
             let objects: Array<MapObject> = [];
             const grid = await Converter.grid.from(blob);
-            let objectBlob = blob.slice(8);
-            while (objectBlob.size > 0) {
+            const objectCountHeader = new DataView(await blob.slice(8).arrayBuffer());
+            const objectCount = objectCountHeader.getUint32(0);
+            let remainingBlob = blob.slice(12);
+            for (let i = 0; i < objectCount; i++) {
                 const ob: Partial<MapObject> = {};
-                const next = await unpackSyncMessage(objectBlob, ob);
+                const next = await unpackSyncMessage(remainingBlob, ob);
                 objects.push(ob as MapObject);
-                objectBlob = objectBlob.slice(next);
+                remainingBlob = remainingBlob.slice(next);
             }
-            return { objects, grid };
+            const fog: Array<FogCircle> = [];
+            while (remainingBlob.size > 0) {
+                fog.push(await Converter.fogCircle.from(remainingBlob));
+                remainingBlob = remainingBlob.slice(FOG_CIRCLE_FIELDS.length * 4);
+            }
+            return { objects, grid, fog };
         },
-        to: (obs: Array<MapObject>, grid: Grid): Blob => {
-            const blobs = obs.map(ob => Converter.object.to(ob, ALL_FIELDS));
-            return new Blob([Converter.grid.to(grid), ...blobs]);
+        to: ({ objects, grid, fog }: WorldObject): Blob => {
+            const objectBlobs = objects.map(ob => Converter.object.to(ob, ALL_FIELDS));
+            const objectCountHeader = new DataView(new ArrayBuffer(4));
+            objectCountHeader.setUint32(0, objectBlobs.length);
+            const fogBlobs = fog.map(f => Converter.fogCircle.to(f));
+
+            return new Blob([Converter.grid.to(grid), objectCountHeader, ...objectBlobs, ...fogBlobs]);
         }
     },
     typing: {

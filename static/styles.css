@@ -15,6 +15,10 @@ div.canvas {
     left: 0;
 }
 
+canvas.fog {
+    cursor: crosshair;
+}
+
 
 button,
 input {

@@ -106,6 +106,7 @@ Events.register('object-received', World.change.update);
 Events.register('sync-received', changeFn((newWorld: WorldObject) => {
     objects = newWorld.objects;
     grid = newWorld.grid;
+    fog = newWorld.fog;
 }));
 Events.register('fog-circle-received', async (fogCircle: FogCircle) => {
     await World.change.addFogCircle(fogCircle);

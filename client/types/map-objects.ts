@@ -24,7 +24,7 @@ export interface FogCircle {
     owner: number;
 }
 
-export interface WorldObject { objects: Array<MapObject>, grid: Grid }
+export interface WorldObject { objects: Array<MapObject>, grid: Grid, fog: Array<FogCircle> };
 
 export interface ChatMessage {
     id: number;

@@ -100,7 +100,7 @@ export const Send = {
         send(op === 'start' ? MessageType.TYPING_START : MessageType.TYPING_END, Converter.typing.to(me));
     },
     sync: (world: WorldObject) => {
-        send(MessageType.SYNC, Converter.sync.to(world.objects, world.grid));
+        send(MessageType.SYNC, Converter.sync.to(world));
     },
     join: (message: JoinMessage) => {
         send(MessageType.JOIN_ROOM, Converter.join.to(message));
