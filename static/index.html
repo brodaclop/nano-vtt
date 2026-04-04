@@ -49,6 +49,7 @@
     </script>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./sidebar.css" />
+    <link rel="stylesheet" href="./help.css" />
 </head>
 
 <body>
@@ -95,22 +96,104 @@
             <button class="help" popovertarget="help">?</button>
         </span>
 
-        <div id="help" popover>
+        <article id="help" popover>
             <h1>nano-vtt</h1>
-            <p><b>Add image:</b> drag image file from file explorer onto map</p>
-            <p><b>Select image:</b> left click image or cycle selection via <b>Tab</b> key</p>
-            <p><b>Deselect image:</b> right click on map or press <b>Esc</b> key</p>
-            <p><b>Move selected image:</b> left click &amp; drag image via mouse</p>
-            <p><b>Scale selected image:</b> rotate mouse wheel or <b>+</b>/<b>-</b> key </p>
-            <p><b>Rotate selected image:</b> press <b>left/right arrow</b> key</p>
-            <p><b>Bring selected image to top:</b> press <b>Up arrow</b> key</p>
-            <p><b>Send selected image to bottom:</b> press <b>Down arrow</b> key</p>
-            <p><b>Remove selected image:</b> press <b>Del</b> key</p>
-            <p><b>Lock/unlock selected image:</b> press <b>Enter</b> key</p>
-            <p><b>Pan map:</b> middle click &amp; drag</p>
-            <p><b>Zoom map:</b> middle click &amp; rotate mouse wheel</p>
-            <p><b>Ruler:</b> right click &amp; drag</p>
-        </div>
+            <p><strong>nano-vtt</strong> is a minimalist <em>virtual tabletop</em> for playing RPGs online.</p>
+            <div id="help-body">
+                <section>
+                    <h2>Managing images</h2>
+                    <dl>
+                        <div>
+                            <dt>Add image</dt>
+                            <dd>drag image file from file explorer <em>or</em> paste image by pressing
+                                <kbd><kbd>Ctrl</kbd>+<kbd>V</kbd></kbd>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Select image</dt>
+                            <dd>left click image or cycle selection via <kbd>Tab</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Unselect image</dt>
+                            <dd>right click or press <kbd>Esc</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Delete selected image</dt>
+                            <dd>press <kbd>Del</kbd> key</dd>
+                        </div>
+                    </dl>
+                </section>
+                <section>
+                    <h2>Editing images</h2>
+                    <dl>
+                        <div>
+                            <dt>Move selected image</dt>
+                            <dd>left click &amp; drag image via mouse or press keys
+                                <kbd>W</kbd>/<kbd>A</kbd>/<kbd>S</kbd>/<kbd>D</kbd>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Scale selected image</dt>
+                            <dd> rotate mouse wheel or <kbd>+</kbd>/<kbd>-</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Rotate selected image</dt>
+                            <dd>press <kbd>Left arrow</kbd>/<kbd>Right arrow</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Bring selected image to top</dt>
+                            <dd>press <kbd>Up arrow</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Send selected image to bottom</dt>
+                            <dd>press <kbd>Down arrow</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Lock/unlock selected image</dt>
+                            <dd>press <kbd>Enter</kbd> key</dd>
+                        </div>
+                    </dl>
+                </section>
+                <section>
+                    <h2>Map operations</h2>
+                    <dl>
+                        <div>
+                            <dt>Pan map</dt>
+                            <dd>middle click &amp; drag</dd>
+                        </div>
+                        <div>
+                            <dt>Zoom map</dt>
+                            <dd>middle click &amp; rotate mouse wheel</dd>
+                        </div>
+                        <div>
+                            <dt>Measure distance between two points</dt>
+                            <dd>right click &amp; drag</dd>
+                        </div>
+                    </dl>
+                </section>
+                <section>
+                    <h2>Fog-of-war editing</h2>
+                    <dl>
+                        <div>
+                            <dt>Enter fog editing mode</dt>
+                            <dd>click <strong>Edit fog</strong> button or press <kbd>F</kbd> key</dd>
+                        </div>
+                        <div>
+                            <dt>Add fog circle</dt>
+                            <dd>left click on map</dd>
+                        </div>
+                        <div>
+                            <dt>Clear circle from fog</dt>
+                            <dd>right click on map</dd>
+                        </div>
+                        <div>
+                            <dt>Exit fog editing mode</dt>
+                            <dd>click <strong>Finish fog editing</strong> button or press <kbd>Esc</kbd> key</dd>
+                        </div>
+                    </dl>
+                </section>
+            </div>
+    </div>
     </div>
     <div id="sidebar">
         <div id="plugin">

@@ -10,7 +10,9 @@ const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 let drag: { x: number, y: number } | undefined = undefined;
 let dragActive = false;
 
-document.addEventListener('wheel', (e: WheelEvent) => {
+
+UI.canvas.addEventListener('wheel', (e: WheelEvent) => {
+    console.log('wheel', e);
     if (!e.altKey && !e.shiftKey && !e.ctrlKey && e.deltaY !== 0) {
         Operations.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1, Boolean(e.buttons & 4));
         e.preventDefault();

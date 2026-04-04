@@ -19,7 +19,7 @@ interface ViewportChanged {
 
 interface ObjectSelected {
     type: 'object-selected',
-    payload: MapObject
+    payload: MapObject | undefined
 }
 
 interface ChatReceived {

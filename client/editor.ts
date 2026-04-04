@@ -26,9 +26,7 @@ export const Editor = {
     isSelected: (ob?: MapObject | number) => selected === (typeof ob === 'number' ? ob : ob?.id),
     select: async (ob?: MapObject) => {
         selected = ob?.id;
-        if (ob) {
-            await Events.emit({ type: 'object-selected', payload: ob });
-        }
+        await Events.emit({ type: 'object-selected', payload: ob });
     },
     flipEditMode: async () => {
         editMode = editMode === 'normal' ? 'fog' : 'normal';

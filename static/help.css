@@ -1,0 +1,44 @@
+article#help {
+    max-height: 80dvh;
+}
+
+article#help #help-body {
+    columns: 2 30dvw;
+}
+
+article#help h2 {
+    font-size: large;
+}
+
+article#help dl {
+    font-family: "Finlandica", sans-serif;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    break-after: column;
+    break-inside: avoid-column;
+}
+
+article#help dt {
+    font-weight: bold;
+}
+
+article#help dt,
+article#help dd {
+    display: inline-block;
+}
+
+article#help dd {
+    margin: 0;
+}
+
+article#help dt::after {
+    content: ': ';
+}
+
+article#help kbd>kbd,
+article#help kbd:not(:has(> kbd)) {
+    border-radius: 3px;
+    padding: 1px 2px 0;
+    background-color: #eee;
+    border: 1px solid black;
+}

@@ -190,7 +190,10 @@ Events.register('edit-mode-changed', mode => {
 
 Events.register('world-changed', draw);
 Events.register('viewport-changed', draw);
-Events.register('object-selected', async (ob: MapObject) => {
+Events.register('object-selected', async (ob?: MapObject) => {
+    if (!ob) {
+        return;
+    }
 
     enum Position { BEFORE, IN, AFTER };
 
