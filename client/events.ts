@@ -164,7 +164,7 @@ function unregister(type: Event['type'], listener: (event: any) => unknown): voi
 
 export const Events = {
     emit: async (event: Event): Promise<void> => {
-        console.trace('event', event);
+        //      console.trace('event', event);
         const ls = listeners[event.type];
         await Promise.all(ls.map(l => l(event.payload)));
     },

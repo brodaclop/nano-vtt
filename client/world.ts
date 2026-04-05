@@ -70,26 +70,26 @@ export const World = {
                 }
             }
         }),
-        selectNext: changeFn(() => {
+        selectNext: async () => {
             if (objects.length > 0) {
                 if (Editor.isSelected()) {
-                    Editor.select(objects[0]);
+                    await Editor.select(objects[0]);
                 } else {
                     const idx = objects.findIndex(Editor.isSelected);
-                    Editor.select(objects[(idx + 1) % objects.length]);
+                    await Editor.select(objects[(idx + 1) % objects.length]);
                 }
             }
-        }),
-        selectPrevious: changeFn(() => {
+        },
+        selectPrevious: async () => {
             if (objects.length > 0) {
                 if (Editor.isSelected()) {
-                    Editor.select(objects.at(-1));
+                    await Editor.select(objects.at(-1));
                 } else if (objects.length > 0) {
                     const idx = objects.findIndex(Editor.isSelected);
-                    Editor.select(objects[(idx - 1 + objects.length) % objects.length]);
+                    await Editor.select(objects[(idx - 1 + objects.length) % objects.length]);
                 }
             }
-        }),
+        },
         setGrid: changeFn((newGrid: Partial<Grid>) => {
             grid = { ...grid, ...newGrid };
             return grid;

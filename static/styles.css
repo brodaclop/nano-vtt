@@ -6,12 +6,12 @@ body {
     margin-right: 0;
     margin-top: 0;
     --menu-height: 2em;
-
+    overflow: hidden;
 }
 
 div.canvas {
     position: absolute;
-    top: 0;
+    top: var(--menu-height);
     left: 0;
 }
 

@@ -12,7 +12,6 @@ let dragActive = false;
 
 
 UI.canvas.addEventListener('wheel', (e: WheelEvent) => {
-    console.log('wheel', e);
     if (!e.altKey && !e.shiftKey && !e.ctrlKey && e.deltaY !== 0) {
         Operations.zoom(e.deltaY < 0 ? 1.1 : 1 / 1.1, Boolean(e.buttons & 4));
         e.preventDefault();

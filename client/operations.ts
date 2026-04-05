@@ -67,14 +67,14 @@ export const Operations = {
         await World.change.addFogCircle(fogCircle);
         Send.addFogCircle(fogCircle);
     },
-    selectNext: () => {
-        World.change.selectNext();
+    selectNext: async () => {
+        await World.change.selectNext();
     },
-    selectPrevious: () => {
-        World.change.selectPrevious();
+    selectPrevious: async () => {
+        await World.change.selectPrevious();
     },
-    unselect: () => {
-        Editor.select();
+    unselect: async () => {
+        await Editor.select();
     },
     sync: () => {
         Send.sync(World);

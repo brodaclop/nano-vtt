@@ -3,7 +3,7 @@ import { isDragging } from "./controls/mouse";
 import { Events } from "./events";
 import { Fog } from "./fog";
 import { Point } from "./utils/point";
-import { FogCircle, Grid, MapObject } from "./types/map-objects";
+import { Grid, MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
 import { Room } from "./room";
@@ -16,8 +16,9 @@ const images: Record<number, HTMLImageElement> = {};
 const fogSize = UI.bindInputValue(UI.menu.fogSize, 100);
 
 const setCanvasSize = () => {
-    UI.canvas.width = window.visualViewport?.width! - 10;
-    UI.canvas.height = window.visualViewport?.height! - 10;
+    const menu = UI.menu.container.getBoundingClientRect();
+    UI.canvas.width = window.visualViewport?.width!;
+    UI.canvas.height = window.visualViewport?.height! - menu.height;
 }
 
 (() => {
@@ -105,6 +106,7 @@ const sortObjects = (objects: MapObject[]): MapObject[] => objects.toSorted((a, 
 }).toReversed();
 
 
+
 const transformObjectSpace = (ob: MapObject, image: HTMLImageElement) => {
     const imageSize = Point.fromCoords(image.width, image.height);
     const worldCentre = Point.add(ob, Point.scale(imageSize, 0.5));
@@ -132,6 +134,7 @@ const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
 }
 
 const drawGrid = (grid: Grid) => {
+    ctx.beginPath();
     if (grid.strength > 0) {
         ctx.lineWidth = 1;
         const worldTopLeft = Viewport.screen2World({ x: 0, y: 0 });
@@ -195,40 +198,37 @@ Events.register('object-selected', async (ob?: MapObject) => {
         return;
     }
 
-    enum Position { BEFORE, IN, AFTER };
-
-    const viewPos = (pos: number, min: number, max: number): Position => {
-        if (pos < min) {
-            return Position.BEFORE;
-        }
-        if (pos >= max) {
-            return Position.AFTER;
-        }
-        return Position.IN;
-    }
-
-    const screenScale = Viewport.zoom() * ob.zoom / 2000;
-    const imageMiddle = Viewport.world2Screen(ob);
-
     const image = await ensureImage(ob);
-    const halfImageSize = Point.fromCoords(image.width * screenScale, image.height * screenScale);
-    const topLeft = Point.add(imageMiddle, Point.scale(halfImageSize, -1));
-    const bottomRight = Point.add(imageMiddle, Point.scale(halfImageSize, 1));
+    const halfImage = Point.scale(Point.fromCoords(image.width, image.height), Viewport.zoom() * ob.zoom / 2000)
+    const imageMiddle = Point.add(ob, Point.fromCoords(image.width / 2, image.height / 2));
+    const halfDiagonal = Point.rotate(halfImage, ob.angle);
+    const screenMiddle = Viewport.world2Screen(imageMiddle);
 
-    // TODO: check if a point of one rectangle is in the other, or vice versa
+    const topLeft = Point.fromCoords(screenMiddle.x - halfDiagonal.x, screenMiddle.y - halfDiagonal.y);
+    const bottomLeft = Point.fromCoords(screenMiddle.x - halfDiagonal.y, screenMiddle.y + halfDiagonal.x);
+    const bottomRight = Point.fromCoords(screenMiddle.x + halfDiagonal.x, screenMiddle.y + halfDiagonal.y);
+    const topRight = Point.fromCoords(screenMiddle.x + halfDiagonal.y, screenMiddle.y - halfDiagonal.x);
 
-    const leftEdge = viewPos(topLeft.x, 0, UI.canvas.width);
-    const rightEdge = viewPos(bottomRight.x, 0, UI.canvas.width);
-    const topEdge = viewPos(topLeft.y, 0, UI.canvas.height);
-    const bottomEdge = viewPos(bottomRight.y, 0, UI.canvas.height);
+    const objectRectangle = [topLeft, bottomLeft, bottomRight, topRight];
+    const screenRectangle = [Point.fromCoords(0, 0), Point.fromCoords(0, ctx.canvas.height), Point.fromCoords(ctx.canvas.width, ctx.canvas.height), Point.fromCoords(ctx.canvas.width, 0)];
 
-    const xIn = leftEdge === Position.IN || rightEdge === Position.IN || leftEdge !== rightEdge;
-    const yIn = topEdge === Position.IN || bottomEdge === Position.IN || topEdge !== bottomEdge;
+    const obOnScreen = objectRectangle.some(p => Point.isInside(p, screenRectangle));
+    const screenOnOb = screenRectangle.some(p => Point.isInside(p, objectRectangle));
 
-    if (!xIn || !yIn) {
-        await Viewport.moveOrigin(Point.scale(topLeft, -1));
+
+    if (!obOnScreen && !screenOnOb) {
+        await Viewport.setOrigin(Point.scale(ob, -1));
     }
 });
 
+const debugCircle = (p: Point, style: typeof CanvasRenderingContext2D['prototype']['fillStyle']) => {
+    ctx.resetTransform();
+    ctx.beginPath();
+    ctx.globalAlpha = 1;
+    ctx.ellipse(p.x, p.y, 10, 10, 0, 0, 2 * Math.PI);
+    ctx.fillStyle = style;
+    ctx.fill();
+    ctx.beginPath();
+}
 
 

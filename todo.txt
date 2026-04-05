@@ -3,10 +3,8 @@ Networking:
   - debounce
 
 Map:
-  - set minimum image size
-  - fog of war
-    - fog size limits
-  
+  - clean up object transformation order because it's awfully confusing
+ 
 Chat:
   - change name?
   - open chat box in multiple places? probably not
@@ -18,9 +16,6 @@ Other:
   - update wrangler
   - make binding make sense
   - iframe scrolling
-  - fix scrollIntoView() algorithm to cater for rotation
-  - document paste functionality
-  - document fog of war
   - clean up sync processing
 
 Bugs:

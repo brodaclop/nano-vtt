@@ -9,6 +9,10 @@ export const Viewport = {
     screen2World: (p: Point): Point => Point.scale(Point.subtract(p, origin), 1 / zoom),
     zoom: () => zoom,
     origin: () => origin,
+    setOrigin: async (point: Point) => {
+        origin = Point.scale(point, zoom);
+        await Events.emit({ type: 'viewport-changed' });
+    },
     moveOrigin: async (delta: Point) => {
         origin = Point.add(origin, delta);
         await Events.emit({ type: 'viewport-changed' });
