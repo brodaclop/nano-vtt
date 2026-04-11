@@ -1,7 +1,6 @@
 import { Editor } from "./editor";
 import { Events } from "./events";
-import { FogCircle, Grid, MapObject, WorldObject } from "./types/map-objects";
-import { Point } from "./utils/point";
+import { FogCircle, Grid, MapObject, RawMapObject, WorldObject } from "./types/map-objects";
 
 let objects: Array<MapObject> = [];
 let grid: Grid = {
@@ -10,7 +9,15 @@ let grid: Grid = {
 };
 let fog: Array<FogCircle> = [];
 
-export const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<F>) => Promise<ReturnType<F>> => {
+
+const extendWithImage = async (ob: RawMapObject) => {
+    const image = new Image();
+    image.src = URL.createObjectURL(ob.data);
+    await new Promise((resolve) => image.onload = resolve)
+    return { ...ob, image };
+}
+
+const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Parameters<F>) => Promise<ReturnType<F>> => {
     return async (...args: Parameters<F>) => {
         const ret = await fn(...args);
         await Events.emit({ type: 'world-changed' });
@@ -19,7 +26,7 @@ export const changeFn = <F extends (...args: any) => any>(fn: F): (...args: Para
 }
 
 export const World = {
-    get objects(): Array<MapObject> {
+    get objects() {
         return [...objects];
     },
     get grid(): Grid {
@@ -59,7 +66,8 @@ export const World = {
                 return objects[uIdx];
             } else {
                 if (isObjectComplete(newOb)) {
-                    objects.push(newOb);
+                    objects.push(await extendWithImage(newOb));
+
                     if (selectNewOb) {
                         await Editor.select(newOb);
                     }
@@ -100,11 +108,12 @@ export const World = {
     },
 }
 
+
 Events.register('grid-received', World.change.setGrid);
 Events.register('object-delete-received', World.change.remove);
 Events.register('object-received', World.change.update);
-Events.register('sync-received', changeFn((newWorld: WorldObject) => {
-    objects = newWorld.objects;
+Events.register('sync-received', changeFn(async (newWorld: WorldObject) => {
+    objects = await Promise.all(newWorld.objects.map(extendWithImage));
     grid = newWorld.grid;
     fog = newWorld.fog;
 }));

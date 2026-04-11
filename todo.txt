@@ -3,7 +3,6 @@ Networking:
   - debounce
 
 Map:
-  - clean up object transformation order because it's awfully confusing
  
 Chat:
   - change name?

@@ -1,4 +1,3 @@
-import { Point } from "../utils/point";
 
 export interface MapObject {
     id: number;
@@ -9,7 +8,10 @@ export interface MapObject {
     layer: number; //uint32
     locked: number;
     data: Blob;
+    image: HTMLImageElement;
 }
+
+export type RawMapObject = Omit<MapObject, 'image'>;
 
 export interface Grid {
     size: number;
@@ -24,7 +26,7 @@ export interface FogCircle {
     owner: number;
 }
 
-export interface WorldObject { objects: Array<MapObject>, grid: Grid, fog: Array<FogCircle> };
+export interface WorldObject { objects: Array<RawMapObject>, grid: Grid, fog: Array<FogCircle> };
 
 export interface ChatMessage {
     id: number;

@@ -1,8 +1,12 @@
+import { sortObjects, createObjectTransform } from "../canvas";
 import { UI } from "../dom";
 import { Editor } from "../editor";
+import { Fog } from "../fog";
 import { Operations } from "../operations";
+import { Room } from "../room";
 import { Point } from "../utils/point";
 import { Viewport } from "../viewport";
+import { World } from "../world";
 
 const ACCEPTED_TYPES: Array<string> = ['image/png', 'image/jpeg', 'image/webp'];
 
@@ -111,4 +115,34 @@ const addDroppedObject = (mouseScreenCoords: Point, dataTransfer: DataTransfer |
     return false;
 }
 
-export const isDragging = () => dragActive;
+const fogSize = UI.bindInputValue(UI.menu.fogSize, 100);
+
+UI.canvas.addEventListener('mousedown', e => {
+    const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
+    if (Editor.editMode === 'fog' && e.buttons & 3) {
+        const worldPoint = Viewport.screen2World(screenPoint);
+        Operations.addFogCircle({
+            originX: worldPoint.x,
+            originY: worldPoint.y,
+            radius: fogSize.value,
+            reverted: Number(Boolean(e.buttons & 2)),
+            owner: Room.me
+        });
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    } else if (!dragActive && e.buttons & 1 && !Fog.isScreenPointInFog(screenPoint)) {
+        const objects = sortObjects(World.objects).toReversed().filter(ob => !ob.locked);
+        const clicked = objects.find(ob => {
+            const { width, height } = ob.image;
+            const matrix = createObjectTransform(ob).inverse();
+            const transformedClickPoint = matrix.transformPoint(screenPoint);
+            return Math.abs(transformedClickPoint.x) <= width / 2 && Math.abs(transformedClickPoint.y) <= height / 2;
+        });
+        Editor.select(clicked);
+    } else if (!dragActive && e.buttons & 2) {
+        Editor.select();
+    }
+});
+UI.canvas.addEventListener('contextmenu', e => e.preventDefault());
+

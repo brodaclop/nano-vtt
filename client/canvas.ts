@@ -1,19 +1,14 @@
 import { UI } from "./dom";
-import { isDragging } from "./controls/mouse";
 import { Events } from "./events";
 import { Fog } from "./fog";
 import { Point } from "./utils/point";
 import { Grid, MapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
-import { Room } from "./room";
-import { Operations } from "./operations";
 import { Editor } from "./editor";
 
 let ctx: CanvasRenderingContext2D;
 
-const images: Record<number, HTMLImageElement> = {};
-const fogSize = UI.bindInputValue(UI.menu.fogSize, 100);
 
 const setCanvasSize = () => {
     const menu = UI.menu.container.getBoundingClientRect();
@@ -28,51 +23,9 @@ const setCanvasSize = () => {
         setCanvasSize();
         Events.emit({ type: 'viewport-changed' });
     };
-    UI.canvas.addEventListener('mousedown', e => {
-        const screenPoint = new DOMPoint(e.offsetX, e.offsetY);
-        if (Editor.editMode === 'fog' && e.buttons & 3) {
-            const worldPoint = Viewport.screen2World(screenPoint);
-            Operations.addFogCircle({
-                originX: worldPoint.x,
-                originY: worldPoint.y,
-                radius: fogSize.value,
-                reverted: Number(Boolean(e.buttons & 2)),
-                owner: Room.me
-            });
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        } else if (!isDragging() && e.buttons & 1 && !Fog.isScreenPointInFog(screenPoint)) {
-            const objects = sortObjects(World.objects).toReversed().filter(ob => !ob.locked);
-            const clicked = objects.find(ob => {
-                const { imageOrigin, imageSize } = transformObjectSpace(ob, images[ob.id]);
-                const matrix = ctx.getTransform().inverse();
-                const transformedClickPoint = matrix.transformPoint(screenPoint);
-                const endX = imageOrigin.x + imageSize.x;
-                const endY = imageOrigin.y + imageSize.y;
-                return imageOrigin.x <= transformedClickPoint.x && endX > transformedClickPoint.x && imageOrigin.y <= transformedClickPoint.y && endY > transformedClickPoint.y;
-            });
-            Editor.select(clicked);
-        } else if (!isDragging() && e.buttons & 2) {
-            Editor.select();
-        }
-    });
-    UI.canvas.addEventListener('contextmenu', e => e.preventDefault());
 })();
 
 
-
-
-
-const ensureImage = async (ob: MapObject): Promise<HTMLImageElement> => {
-    if (!images[ob.id]) {
-        const image = new Image();
-        image.src = URL.createObjectURL(ob.data);
-        images[ob.id] = image;
-        await new Promise((resolve) => image.onload = resolve)
-    }
-    return images[ob.id];
-}
 
 const draw = async () => {
     clearCanvas();
@@ -80,15 +33,12 @@ const draw = async () => {
     const { objects, grid, fog } = World;
     drawGrid(grid);
     for (const ob of sortObjects(objects)) {
-        const image = await ensureImage(ob);
-        const { imageOrigin, imageSize } = transformObjectSpace(ob, image);
+        const { width, height } = ob.image;
+        ctx.setTransform(createObjectTransform(ob));
         ctx.globalAlpha = (!Editor.isSelected() && !Editor.isSelected(ob)) ? 0.7 : 0.8;
-        ctx.drawImage(image, imageOrigin.x, imageOrigin.y);
+        ctx.drawImage(ob.image, - width / 2, - height / 2);
         if (Editor.isSelected(ob)) {
-            drawBorder(ob, imageOrigin, imageSize);
-            ctx.globalAlpha = 0.05;
-            ctx.fillStyle = 'lightgreen';
-            ctx.fillRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
+            drawHighlight(ob, width, height);
         }
     }
     drawRuler(Editor.ruler);
@@ -101,36 +51,23 @@ const draw = async () => {
 
 }
 
-const sortObjects = (objects: MapObject[]): MapObject[] => objects.toSorted((a, z) => {
+export const sortObjects = (objects: MapObject[]): typeof objects => objects.toSorted((a, z) => {
     return z.layer - a.layer;
 }).toReversed();
 
-
-
-const transformObjectSpace = (ob: MapObject, image: HTMLImageElement) => {
-    const imageSize = Point.fromCoords(image.width, image.height);
-    const worldCentre = Point.add(ob, Point.scale(imageSize, 0.5));
-    const screenCentre = Viewport.world2Screen(worldCentre);
-    const screenScale = Viewport.zoom() * ob.zoom / 1000;
-    ctx.resetTransform();
-    ctx.translate(screenCentre.x, screenCentre.y);
-    ctx.scale(screenScale, screenScale);
-    ctx.rotate(ob.angle * Math.PI / 180);
-    const imageOrigin = Point.scale(imageSize, -0.5);
-    return { image, imageOrigin, imageSize };
+export const createObjectTransform = (ob: MapObject) => {
+    const ret: DOMMatrix = new DOMMatrix();
+    const origin = Viewport.world2Screen(ob);
+    return ret
+        .translate(origin.x, origin.y)
+        .scale(ob.zoom * Viewport.zoom() / 1000)
+        .rotate(ob.angle);
 }
 
 const clearCanvas = () => {
     ctx.reset();
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
-}
-
-const drawBorder = (ob: MapObject, imageOrigin: Point, imageSize: Point) => {
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = ob.locked ? 'red' : '#E6F41D';
-    ctx.globalAlpha = 1;
-    ctx.strokeRect(imageOrigin.x, imageOrigin.y, imageSize.x, imageSize.y);
 }
 
 const drawGrid = (grid: Grid) => {
@@ -164,7 +101,6 @@ const drawGrid = (grid: Grid) => {
     UI.menu.gridStrength.value = String(grid.strength);
 }
 
-Events.register('object-selected', draw);
 const drawRuler = (ruler?: { start: Point, end: Point }) => {
     if (ruler) {
         ctx.beginPath();
@@ -185,6 +121,10 @@ const drawRuler = (ruler?: { start: Point, end: Point }) => {
     }
 }
 
+
+
+Events.register('object-selected', draw);
+
 Events.register('edit-mode-changed', mode => {
     UI.canvas.classList.remove('fog');
     UI.canvas.classList.remove('normal');
@@ -198,11 +138,9 @@ Events.register('object-selected', async (ob?: MapObject) => {
         return;
     }
 
-    const image = await ensureImage(ob);
-    const halfImage = Point.scale(Point.fromCoords(image.width, image.height), Viewport.zoom() * ob.zoom / 2000)
-    const imageMiddle = Point.add(ob, Point.fromCoords(image.width / 2, image.height / 2));
-    const halfDiagonal = Point.rotate(halfImage, ob.angle);
-    const screenMiddle = Viewport.world2Screen(imageMiddle);
+    const image = ob.image;
+    const halfDiagonal = Point.rotate(Point.scale(Point.fromCoords(image.width, image.height), Viewport.zoom() * ob.zoom / 2000), ob.angle);
+    const screenMiddle = Viewport.world2Screen(ob);
 
     const topLeft = Point.fromCoords(screenMiddle.x - halfDiagonal.x, screenMiddle.y - halfDiagonal.y);
     const bottomLeft = Point.fromCoords(screenMiddle.x - halfDiagonal.y, screenMiddle.y + halfDiagonal.x);
@@ -217,7 +155,7 @@ Events.register('object-selected', async (ob?: MapObject) => {
 
 
     if (!obOnScreen && !screenOnOb) {
-        await Viewport.setOrigin(Point.scale(ob, -1));
+        await Viewport.setOrigin(Point.scale(Point.add(ob, Point.scale(Point.fromCoords(image.width, image.height), -ob.zoom / 2000)), -1));
     }
 });
 
@@ -231,4 +169,14 @@ const debugCircle = (p: Point, style: typeof CanvasRenderingContext2D['prototype
     ctx.beginPath();
 }
 
+
+export function drawHighlight(ob: MapObject, width: number, height: number) {
+    ctx.lineWidth = 3000 / ob.zoom;
+    ctx.strokeStyle = ob.locked ? 'red' : '#E6F41D';
+    ctx.globalAlpha = 1;
+    ctx.strokeRect(-width / 2, -height / 2, width, height);
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = 'lightgreen';
+    ctx.fillRect(-width / 2, -height / 2, width, height);
+}
 

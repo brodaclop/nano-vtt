@@ -1,8 +1,8 @@
-import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "../types/map-objects";
+import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, RawMapObject, WorldObject } from "../types/map-objects";
 
-const NUMBER_FIELDS: Array<keyof MapObject> = ['id', 'x', 'y', 'zoom', 'layer', 'locked', 'angle'];
+const NUMBER_FIELDS: Array<keyof RawMapObject> = ['id', 'x', 'y', 'zoom', 'layer', 'locked', 'angle'];
 
-export const ALL_FIELDS: Array<keyof MapObject> = [...NUMBER_FIELDS, 'data'];
+export const ALL_FIELDS: Array<keyof RawMapObject> = [...NUMBER_FIELDS, 'data'];
 
 const DATA_IDX = NUMBER_FIELDS.length;
 const OBJECT_HEADER_LENGTH = NUMBER_FIELDS.length * 4 + 8;
@@ -38,7 +38,7 @@ const packSimpleBlob = <T extends string>(ob: Record<T, number>, descriptor: Arr
     }
 }
 
-const unpackSyncMessage = async (blob: Blob, ob: Partial<MapObject>): Promise<number> => {
+const unpackSyncMessage = async (blob: Blob, ob: Partial<RawMapObject>): Promise<number> => {
     const buffer = await blob.slice(0, OBJECT_HEADER_LENGTH).arrayBuffer();
     const header = new DataView(buffer);
     const dataLength = header.getInt32(4 + DATA_IDX * 4);
@@ -58,8 +58,8 @@ const unpackSyncMessage = async (blob: Blob, ob: Partial<MapObject>): Promise<nu
 
 export const Converter = {
     object: {
-        from: async (blob: Blob): Promise<Partial<MapObject> | { deletedId: number }> => {
-            const ob: Partial<MapObject> = {};
+        from: async (blob: Blob): Promise<Partial<RawMapObject> | { deletedId: number }> => {
+            const ob: Partial<RawMapObject> = {};
             const buffer = await blob.slice(0, OBJECT_HEADER_LENGTH).arrayBuffer();
             const header = new DataView(buffer);
             const dataLength = header.getInt32(4 + DATA_IDX * 4);
@@ -78,7 +78,7 @@ export const Converter = {
 
             return ob;
         },
-        to: (ob: MapObject, fields: Array<keyof MapObject>, deleteFlag = false): Blob => {
+        to: (ob: RawMapObject, fields: Array<keyof RawMapObject>, deleteFlag = false): Blob => {
             // ID must be present in every message
             if (!fields.includes('id')) {
                 fields.push('id')
@@ -130,15 +130,15 @@ export const Converter = {
     },
     sync: {
         from: async (blob: Blob): Promise<WorldObject> => {
-            let objects: Array<MapObject> = [];
+            let objects: Array<RawMapObject> = [];
             const grid = await Converter.grid.from(blob);
             const objectCountHeader = new DataView(await blob.slice(8).arrayBuffer());
             const objectCount = objectCountHeader.getUint32(0);
             let remainingBlob = blob.slice(12);
             for (let i = 0; i < objectCount; i++) {
-                const ob: Partial<MapObject> = {};
+                const ob: Partial<RawMapObject> = {};
                 const next = await unpackSyncMessage(remainingBlob, ob);
-                objects.push(ob as MapObject);
+                objects.push(ob as RawMapObject);
                 remainingBlob = remainingBlob.slice(next);
             }
             const fog: Array<FogCircle> = [];

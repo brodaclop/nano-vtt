@@ -1,4 +1,4 @@
-import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, WorldObject } from "./types/map-objects";
+import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, RawMapObject, WorldObject } from "./types/map-objects";
 import { Socket } from "./websocket";
 import { Events } from "./events";
 import { ALL_FIELDS, Converter } from "./utils/converters";
@@ -87,7 +87,7 @@ export const Send = {
     delete: (id: number) => {
         send(MessageType.OBJECT, Converter.object.to({ id } as MapObject, ['id'], true));
     },
-    object: (ob: MapObject, fields: Array<keyof MapObject> = ALL_FIELDS) => {
+    object: (ob: RawMapObject, fields: Array<keyof RawMapObject> = ALL_FIELDS) => {
         send(MessageType.OBJECT, Converter.object.to(ob, fields));
     },
     grid: (grid: Grid) => {

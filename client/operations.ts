@@ -1,6 +1,6 @@
 import { Send } from "./messages";
 import { Point } from "./utils/point";
-import { FogCircle, MapObject } from "./types/map-objects";
+import { FogCircle, RawMapObject } from "./types/map-objects";
 import { Viewport } from "./viewport";
 import { World } from "./world";
 import { Editor } from "./editor";
@@ -50,7 +50,7 @@ export const Operations = {
     },
     add: async (sourceData: Blob, x: number, y: number) => {
         const data = new Blob([await sourceData.bytes()]);
-        const ob: MapObject = {
+        const ob: RawMapObject = {
             id: Math.round(Math.random() * 1_000_000_000),
             angle: 0,
             x,
@@ -89,11 +89,11 @@ export const Operations = {
     }
 }
 
-const update = async (change: Partial<Omit<MapObject, 'id'>>) => {
+const update = async (change: Partial<Omit<RawMapObject, 'id'>>) => {
     const selected = Editor.selected;
     if (selected) {
         const ob = await World.change.update({ ...change, id: selected });
-        const fields = Object.keys(change) as Array<keyof MapObject>;
+        const fields = Object.keys(change) as Array<keyof RawMapObject>;
         Send.object(ob, fields);
     }
 }

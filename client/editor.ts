@@ -1,7 +1,6 @@
 import { Events } from "./events";
 import { MapObject } from "./types/map-objects";
 import { Point } from "./utils/point";
-import { changeFn } from "./world";
 
 export type EditMode = 'normal' | 'fog';
 export interface Ruler {
