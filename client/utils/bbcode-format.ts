@@ -3,11 +3,12 @@ type Token = {
     content: string;
 }
 
-const TAGS = ['b', 'i'];
+const TAGS = ['b', 'i', 'mark'];
 
 const ELEMENTS = {
     b: 'strong',
-    i: 'em'
+    i: 'em',
+    mark: 'mark'
 } as Record<string, string>;
 
 const tokenize = (text: string): Array<Token> => {
