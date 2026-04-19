@@ -20,9 +20,11 @@ Other:
 Mapgen:
   - add mapgen dialog
   - create different scenarios
+  - calculate road width properly
+  - don't place objects on path
 
 Bugs:
-  
+  - scrollIntoView() is too trigger-happy  
 
 
 

@@ -1,3 +1,4 @@
+import { ScenarioSettings } from "./mapgen";
 import { perlin } from "./perlin";
 
 export type Envelope = [number, number][];
@@ -13,7 +14,7 @@ export type Envelope = [number, number][];
  * @param   Number  l       The lightness
  * @return  Array           The RGB representation
  */
-export function hslToRgb(h: number, s: number, l: number) {
+export function hslToRgb(h: number, s: number, l: number): [number, number, number] {
     var r, g, b;
 
     if (s == 0) {
@@ -53,3 +54,12 @@ export const envelope = (value: number, envelope: Envelope): number => {
     }
     return value;
 };
+
+export const blend = (...colours: Array<{ colour: [number, number, number], weight: number }>): [number, number, number] => {
+    const ret: [number, number, number] = [0, 0, 0];
+    const weightSum = colours.reduce((acc, curr) => acc + curr.weight, 0);
+    for (let i = 0; i < 3; i++) {
+        ret[i] = Math.floor(colours.map(c => c.colour[i] * c.weight).reduce((acc, curr) => acc + curr, 0) / weightSum);
+    }
+    return ret;
+}
