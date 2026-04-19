@@ -17,6 +17,10 @@ Other:
   - iframe scrolling
   - clean up sync processing
 
+Mapgen:
+  - add mapgen dialog
+  - create different scenarios
+
 Bugs:
   
 

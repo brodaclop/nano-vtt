@@ -22,6 +22,7 @@ export const UI = {
         container: document.querySelector('.menu')! as HTMLElement,
         room: document.querySelector('.menu .room')! as HTMLElement,
         name: document.querySelector('.menu .name')! as HTMLElement,
+        generateMap: document.querySelector('.menu #generate-map')! as HTMLButtonElement,
         openchat: document.querySelector('.menu #openchat')! as HTMLElement,
         openplugin: document.querySelector('.menu #openplugin')! as HTMLButtonElement,
         connection: document.querySelector('.menu .connection')! as HTMLElement,

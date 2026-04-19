@@ -12,6 +12,10 @@
     <script type="importmap">
         {
             "imports": {
+                "/script/mapgen/mapgen": "/script/mapgen/mapgen.js",
+                "/script/mapgen/assets": "/script/mapgen/assets.js",
+                "/script/mapgen/colours": "/script/mapgen/colours.js",
+                "/script/mapgen/perlin": "/script/mapgen/perlin.js",
                 "/script/controls/mouse": "/script/controls/mouse.js",
                 "/script/controls/keys": "/script/controls/keys.js",
                 "/script/controls/menu": "/script/controls/menu.js",
@@ -81,6 +85,7 @@
             <span id="fog-controls" class="hidden">
                 <span>Fog size: <input type="number" id="fog-size" /></span>
             </span>
+            <button id="generate-map">Generate map</button>
         </span>
 
         <span class="mid logo">nano-vtt</span>

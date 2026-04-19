@@ -3,15 +3,16 @@ type Token = {
     content: string;
 }
 
-const TAGS = ['b', 'i', 'mark'];
+const TAGS = ['b', 'i', 'mark', 'roll'];
 
 const ELEMENTS = {
     b: 'strong',
     i: 'em',
-    mark: 'mark'
+    mark: 'mark',
+    roll: 'strong'
 } as Record<string, string>;
 
-const tokenize = (text: string): Array<Token> => {
+export const tokenize = (text: string): Array<Token> => {
     let currentToken: Token = { type: 'text', content: '' };
     const ret: Array<Token> = [];
     [...text].forEach(char => {
@@ -63,6 +64,5 @@ export const formatTokens = (tokens: Array<Token>, parent: HTMLElement): void =>
 }
 
 export const bbCodeFormat = (text: string, parent: HTMLElement): void => {
-    let tokens = tokenize(text);
     formatTokens(tokenize(text), parent);
 }

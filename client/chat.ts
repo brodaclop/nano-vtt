@@ -5,7 +5,7 @@ import { ChatMessage } from "./types/map-objects";
 import { Room } from "./room";
 import { Send } from "./messages";
 import { Events } from "./events";
-import { bbCodeFormat } from "./utils/bbcode-format";
+import { bbCodeFormat, tokenize } from "./utils/bbcode-format";
 
 const messages: Array<ChatMessage & { elem?: HTMLElement }> = [];
 const typing: Set<number> = new Set();
@@ -63,15 +63,23 @@ const addChatMessage = async (message: ChatMessage) => {
     if (messages.some(m => m.id === message.id)) {
         return;
     }
+    if (tokenize(message.text).some(t => t.type === 'markup' && t.content === 'roll')) {
+        dice.play();
+    } else if (message.sender !== Room.me) {
+        bell.play();
+    }
     messages.push(message);
-    draw();
+    await draw();
 }
 
 Events.register('room-changed', users => {
     UI.chat.userList.innerText = users.map(u => `${Room.userName(u)}${u === Room.me ? ' (you)' : ''}`).join(', ')
 });
 
-Events.register('chat-received', addChatMessage);
+Events.register('chat-received', async message => {
+    await addChatMessage(message);
+});
+
 Events.register('typing-received', ({ user, action }: { user: number, action: 'start' | 'end' }) => {
     if (action === 'start') {
         typing.add(user);
@@ -81,14 +89,14 @@ Events.register('typing-received', ({ user, action }: { user: number, action: 's
     draw();
 });
 
-console.log('Listening to messages');
-
 window.addEventListener("message", (event) => {
     console.log('CHAT FROM IFRAME', event);
     const text = Interpolation.perform(String(event.data));
     const message = { id: random(), sender: Room.me, text };
     addChatMessage(message);
-
 });
+
+const bell = new Audio('/sounds/bell.wav');
+const dice = new Audio('/sounds/dice.mp3');
 
 
