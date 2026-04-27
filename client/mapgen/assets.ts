@@ -3,23 +3,29 @@ interface MapAsset {
     url: string;
     rescaleX: number;
     rescaleY: number;
+    category?: MapAssetCategory;
 };
+
+export type MapAssetCategory = 'rock' | 'tree' | 'plant';
 
 const MapAsset = {
     ROCK: {
         url: '/assets/mapgen/rock.png',
         rescaleX: 32,
         rescaleY: 32,
+        category: 'rock',
     },
     PLANT: {
         url: '/assets/mapgen/plant.png',
         rescaleX: 16,
         rescaleY: 16,
+        category: 'plant'
     },
     TREE: {
         url: '/assets/mapgen/tree.png',
         rescaleX: 64,
         rescaleY: 64,
+        category: 'tree',
     },
     GRASS: {
         url: '/assets/mapgen/grass.webp',
@@ -36,18 +42,21 @@ const MapAsset = {
         rescaleX: 455,
         rescaleY: 364
     }
-} satisfies Record<string, MapAsset>;
+} as Record<string, MapAsset>;
 
 export type MapAssetKey = keyof typeof MapAsset;
 
-export const drawMapAsset = async (key: MapAssetKey, drawFn: (bitmap: ImageBitmap) => unknown) => {
-    const asset = MapAsset[key];
-    const bitmap = await createImageBitmap(await (await fetch(asset.url)).blob(), {
-        resizeWidth: asset.rescaleX,
-        resizeHeight: asset.rescaleY
-    });
-    await drawFn(bitmap);
-    bitmap.close();
+export const drawMapAsset = async (category: MapAssetCategory, drawFn: (bitmap: ImageBitmap) => unknown) => {
+    const assets = Object.values(MapAsset).filter(asset => asset.category === category);
+    const asset = assets[Math.floor(Math.random() * assets.length)];
+    if (asset) {
+        const bitmap = await createImageBitmap(await (await fetch(asset.url)).blob(), {
+            resizeWidth: asset.rescaleX,
+            resizeHeight: asset.rescaleY
+        });
+        await drawFn(bitmap);
+        bitmap.close();
+    }
 }
 export const drawTile = async (key: MapAssetKey, size: number) => {
     const asset = MapAsset[key];

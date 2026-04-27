@@ -75,9 +75,11 @@ UI.menu.generateMap.addEventListener('click', async () => {
         ctx: ctx as unknown as CanvasRenderingContext2D,
         size: 512,
         perlinNodes: 8,
-        plants: 300,
-        rocks: 50,
-        trees: 80
+        paintedObjects: {
+            plant: 300,
+            rock: 50,
+            tree: 80
+        }
     });
 
     const coords = Viewport.screen2World({ x: 0, y: 0 });

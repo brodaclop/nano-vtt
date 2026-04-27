@@ -1,4 +1,4 @@
-import { drawMapAsset, drawTile, MapAssetKey } from "./assets";
+import { drawMapAsset, drawTile, MapAssetCategory, MapAssetKey } from "./assets";
 import { blend, envelope, Envelope, hslToRgb } from "./colours";
 import { perlin } from "./perlin";
 
@@ -24,13 +24,13 @@ interface PaintedObject {
 export interface ScenarioSettings {
     size: number;
     perlinNodes: number;
-    rocks: number;
-    plants: number;
-    trees: number;
+    paintedObjects: Partial<Record<MapAssetCategory, number>>;
     ctx: CanvasRenderingContext2D;
 }
 
-const paintObjects = async (asset: MapAssetKey, count: number, putFn: (idx: number) => boolean, { ctx, size }: ScenarioSettings) => {
+const paintObjects = async (asset: MapAssetCategory, terrain: Array<number>, { ctx, size, paintedObjects }: ScenarioSettings) => {
+    const putFn = objectThresholdFn[asset].bind(undefined, terrain);
+    const count = paintedObjects[asset] ?? 0;
     let objects: Array<PaintedObject> = [];
     while (objects.length < count) {
         const idx = Math.floor(Math.random() * size ** 2);
@@ -70,7 +70,7 @@ const generatePath = (topX: number, bottomX: number, y: number, breaks: number):
     return ret;
 }
 
-const paintPath = async ({ size, ctx }: ScenarioSettings) => {
+const paintPath = async ({ size, ctx }: ScenarioSettings, terrain: Array<number>) => {
     const pathContext = new OffscreenCanvas(size, size).getContext('2d')!;
     const image = pathContext.createImageData(size, size, { colorSpace: 'srgb' });
     const path = generatePath(Math.random() * size, Math.random() * size, size, 15);
@@ -81,6 +81,7 @@ const paintPath = async ({ size, ctx }: ScenarioSettings) => {
         const y = Math.floor((i / 4) / size);
         const pathX = envelope(y, path);
         if (x >= pathX - WIDTH && x <= pathX + WIDTH) {
+            terrain[i / 4] = 256;
             image.data[i + 0] = dirtRoad.data[i + 0];
             image.data[i + 1] = dirtRoad.data[i + 1];
             image.data[i + 2] = dirtRoad.data[i + 2];
@@ -120,6 +121,11 @@ const paintTerrain = async (terrain: Array<number>, { ctx, size }: ScenarioSetti
 
 }
 
+const objectThresholdFn: Record<MapAssetCategory, (terrain: Array<number>, idx: number) => boolean> = {
+    plant: (terrain, idx) => terrain[idx] < 256 && Math.random() > terrain[idx] / 2,
+    rock: (terrain, idx) => terrain[idx] < 256 && Math.random() > terrain[idx],
+    tree: (terrain, idx) => terrain[idx] < 256 && Math.random() < terrain[idx]
+};
 
 export const generateMap = async (settings: ScenarioSettings) => {
 
@@ -127,9 +133,9 @@ export const generateMap = async (settings: ScenarioSettings) => {
 
     await paintTerrain(terrain, settings);
 
-    await paintPath(settings);
+    await paintPath(settings, terrain);
 
-    await paintObjects('PLANT', settings.plants, idx => Math.random() > terrain[idx] / 2, settings);
-    await paintObjects('ROCK', settings.rocks, idx => Math.random() > terrain[idx], settings);
-    await paintObjects('TREE', settings.trees, idx => Math.random() < terrain[idx], settings);
+    for (let asset in settings.paintedObjects) {
+        await paintObjects(asset as MapAssetCategory, terrain, settings);
+    }
 }
