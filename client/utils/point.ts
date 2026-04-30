@@ -7,6 +7,8 @@ export const Point = {
     fromCoords: (x: number, y: number): Point => ({ x, y }),
     add: (...points: Array<Point>): Point => points.reduce((acc, curr) => ({ x: acc.x + curr.x, y: acc.y + curr.y }), { x: 0, y: 0 }),
     scale: (p: Point, factor: number): Point => ({ x: p.x * factor, y: p.y * factor }),
+    length: (p: Point): number => Math.sqrt(p.x ** 2 + p.x ** 2),
+    normalize: (p: Point, targetLen = 1) => Point.scale(p, targetLen / Point.length(p)),
     invert: (p: Point): Point => Point.scale(p, -1),
     subtract: (from: Point, what: Point): Point => Point.add(from, Point.invert(what)),
     rotate: (p: Point, angle: number) => {

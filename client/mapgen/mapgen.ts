@@ -1,3 +1,4 @@
+import { Point } from "../utils/point";
 import { drawMapAsset, drawTile, MapAssetCategory, MapAssetKey } from "./assets";
 import { blend, envelope, Envelope, hslToRgb } from "./colours";
 import { perlin } from "./perlin";
@@ -46,19 +47,22 @@ const paintObjects = async (asset: MapAssetCategory, terrain: Array<number>, { c
 
     objects.sort((a, z) => a.scale - z.scale);
 
-    await drawMapAsset(asset, bitmap => {
+    await drawMapAsset(asset, bitmaps => {
         objects.forEach(ob => {
+            const assetIdx = Math.floor(Math.random() * bitmaps.length);
+            const bitmap = bitmaps[assetIdx];
+
             ctx.resetTransform();
             ctx.translate(ob.x, ob.y);
             ctx.rotate(ob.angle);
             ctx.scale(ob.scale, ob.scale);
-            ctx.drawImage(bitmap, 0, 0);
+            ctx.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2);
         });
     });
 }
 
 const generatePath = (topX: number, bottomX: number, y: number, breaks: number): Envelope => {
-    const ret: [number, number][] = [[0, topX], [y, bottomX]];
+    const ret: [number, number][] = [[-y / 5, topX], [y * 6 / 5, bottomX]];
     for (let i = 0; i < breaks; i++) {
         const breakY = Math.random() * y;
         const breakX = envelope(breakY, ret);
@@ -70,28 +74,40 @@ const generatePath = (topX: number, bottomX: number, y: number, breaks: number):
     return ret;
 }
 
+
+
 const paintPath = async ({ size, ctx }: ScenarioSettings, terrain: Array<number>) => {
     const pathContext = new OffscreenCanvas(size, size).getContext('2d')!;
-    const image = pathContext.createImageData(size, size, { colorSpace: 'srgb' });
-    const path = generatePath(Math.random() * size, Math.random() * size, size, 15);
-    const WIDTH = 30;
     const dirtRoad = await drawTile('DIRTROAD', size);
-    for (let i = 0; i < image.data.length; i += 4) {
-        const x = (i / 4) % size;
-        const y = Math.floor((i / 4) / size);
-        const pathX = envelope(y, path);
-        if (x >= pathX - WIDTH && x <= pathX + WIDTH) {
-            terrain[i / 4] = 256;
-            image.data[i + 0] = dirtRoad.data[i + 0];
-            image.data[i + 1] = dirtRoad.data[i + 1];
-            image.data[i + 2] = dirtRoad.data[i + 2];
-            image.data[i + 3] = 255 - Math.abs(x - pathX) * 255 / WIDTH;
-        } else {
-            image.data[i + 3] = 0;
+    const WIDTH = 30;
+    const line = async (points: Array<Point>, width: number) => {
+        pathContext.strokeStyle = pathContext.createPattern(await createImageBitmap(dirtRoad), 'repeat')!;
+        pathContext.lineWidth = width;
+        pathContext.beginPath();
+        pathContext.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i += 2) {
+            pathContext.quadraticCurveTo(points[i - 1].x, points[i - 1].y, points[i].x, points[i].y)
+        }
+        pathContext.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+        pathContext.stroke();
+    };
+    const path = generatePath(Math.random() * size, Math.random() * size, size, 15);
+
+    const ALPHA = [
+        [0.5, 1],
+        [0.7, 0.5],
+        [1, 0.2],
+    ];
+    for (let alpha of ALPHA) {
+        pathContext.globalAlpha = alpha[1];
+        await line(path.map(p => Point.fromCoords(p[1], p[0])), WIDTH * alpha[0]);
+    }
+    const image = pathContext.getImageData(0, 0, size, size);
+    for (let i = 0; i < size * size; i++) {
+        if (image.data[i * 4 + 3] > 0) {
+            terrain[i] = 256;
         }
     }
-
-    pathContext.putImageData(image, 0, 0);
     ctx.drawImage(pathContext.canvas, 0, 0);
 }
 
