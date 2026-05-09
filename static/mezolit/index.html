@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="./script.js" defer />
+    <script>
+        console.log('wut');
+    </script>
+</head>
+
+<body>
+    <nav></nav>
+    <div class="container">
+        <section id="section-Character">
+            <table>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+        <section id="section-Songs">
+            <table>
+                <caption>Songs</caption>
+                <thead>
+                    <tr>
+                        <th>Song</th>
+                        <th>Difficulty</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+        <section id="section-Items">
+            <table>
+                <caption>Items</caption>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Str.</th>
+                        <th>Diff.</th>
+                        <th>Can make</th>
+                        <th>Charges</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+        <section id="section-Tattoos">
+            <table>
+                <caption>Tattoos</caption>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Str.</th>
+                        <th>Diff.</th>
+                        <th>Can make</th>
+                        <th>Charges</th>
+                        <th />
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+        <section id="section-Notes">
+            <table>
+                <caption>Notes</caption>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+        <section id="section-Description">
+            <table>
+                <caption>Description</caption>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <ul id="rolls"></ul>
+
+    <style>
+        body {
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            justify-content: stretch;
+            margin: 0;
+        }
+
+        div.container {
+            overflow-y: auto;
+            height: calc(100% - 4.5em);
+        }
+
+        div {
+            width: 100%;
+            text-align: center;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            list-style: none;
+        }
+
+
+        table {
+            width: 100%;
+        }
+
+        input[type=number] {
+            width: 2em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 10em;
+            box-sizing: border-box;
+        }
+
+        td,
+        th {
+            text-align: left;
+        }
+
+        input[type=text] {
+            width: 90%;
+        }
+
+        caption {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    </style>
+</body>
+
+</html>

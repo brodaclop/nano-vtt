@@ -26,6 +26,8 @@ Mapgen:
 Bugs:
   - scrollIntoView() is too trigger-happy  
 
+Plugin:
+  - iframe resize messaging
 
 
 
