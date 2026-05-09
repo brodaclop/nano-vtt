@@ -10,8 +10,22 @@ import "./canvas";
 import "./world";
 import "./editor";
 import { World } from "./world";
+import { UI } from "./dom";
 
 console.log('App loaded');
+
+const observer = new ResizeObserver(() => {
+    console.log('size changed');
+    const iframe = UI.plugin.main.querySelector('iframe') as HTMLIFrameElement;
+    iframe.contentWindow?.postMessage({
+        type: 'resize',
+        width: iframe.clientWidth,
+        height: iframe.clientHeight
+    })
+});
+
+observer.observe(UI.plugin.main)
+
 
 export const appInit = async () => {
 

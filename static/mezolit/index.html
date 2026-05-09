@@ -90,11 +90,12 @@
 
     <style>
         body {
-            overflow: visible;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: stretch;
             margin: 0;
+            background-color: floralwhite;
         }
 
         div.container {
@@ -134,6 +135,19 @@
         td,
         th {
             text-align: left;
+        }
+
+        tr.buttonrow td {
+            text-align: center;
+        }
+
+        td.delete button {
+            background-color: silver;
+            padding: 0;
+        }
+
+        tr:not(.buttonrow):hover {
+            background-color: burlywood;
         }
 
         input[type=text] {

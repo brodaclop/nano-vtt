@@ -1,8 +1,9 @@
-const adjustHeight = () => document.querySelector('body').style.height = `${window.innerHeight}px`;
 
-document.addEventListener('resize', adjustHeight);
-
-adjustHeight();
+window.addEventListener('message', ({ data }) => {
+    const bodyStyle = document.querySelector('body').style;
+    bodyStyle.height = `${data.height}px`;
+    bodyStyle.width = `${data.width}px`;
+})
 
 const bind = (input, parent, property) => {
     const type = typeof parent[property];
@@ -126,7 +127,8 @@ const populateSongs = () => {
                 input(td, 'number', song, 'difficulty');
             })
             elem(tr, 'td', null, td => {
-                button(td, 'x', () => {
+                td.className = 'delete';
+                button(td, '❌', () => {
                     character.songs.splice(idx, 1);
                     save();
                     populateSongs();
@@ -135,6 +137,7 @@ const populateSongs = () => {
         })
     });
     elem(tbody, 'tr', null, tr => {
+        tr.className = 'buttonrow';
         elem(tr, 'td', null, td => {
             td.colSpan = 3;
             button(td, 'Add song', () => {
@@ -171,7 +174,8 @@ const populateItems = (section) => {
                 input(td, 'number', item, 'charges');
             });
             elem(tr, 'td', null, td => {
-                button(td, 'x', () => {
+                td.className = 'delete';
+                button(td, '❌', () => {
                     character[field].splice(idx, 1);
                     save();
                     populateItems(section);
@@ -180,8 +184,9 @@ const populateItems = (section) => {
         })
     });
     elem(tbody, 'tr', null, tr => {
+        tr.className = 'buttonrow';
         elem(tr, 'td', null, td => {
-            td.colSpan = 3;
+            td.colSpan = 6;
             button(td, 'Add item', () => {
                 character[field].push({
                     name: '',
