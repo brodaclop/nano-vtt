@@ -136,3 +136,17 @@ div.menu .logo {
 .hidden {
     display: none;
 }
+
+canvas#preview {
+    border: 1px solid black;
+    box-shadow: 2px 1px 1px #666;
+}
+
+.mapgen h1 {
+    font-size: large;
+}
+
+.mapgen form {
+    display: flex;
+    flex-direction: column;
+}

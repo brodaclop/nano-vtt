@@ -73,6 +73,35 @@
             <button>Join</button>
         </form>
     </dialog>
+    <dialog class="mapgen">
+        <form>
+            <label class="size">
+                Size:
+                <input type="range" min="0" max="3" step="1" />
+            </label>
+            <label class="tree">
+                Trees:
+                <input type="range" min="0" max="10" step="1" />
+            </label>
+            <label class="plant">
+                Bushes:
+                <input type="range" min="0" max="10" step="1" />
+            </label>
+            <label class="rock">
+                Other:
+                <input type="range" min="0" max="10" step="1" />
+            </label>
+            <div>
+                <button type="button" class="preview">Preview</button>
+                <button class="submit">Generate</button>
+            </div>
+        </form>
+        <div>
+            <h1>Preview</h1>
+            <canvas id="preview" width="256" height="256" />
+        </div>
+    </dialog>
+
     <div class="menu">
         <span class="left">
             <span class="connection entry"></span>

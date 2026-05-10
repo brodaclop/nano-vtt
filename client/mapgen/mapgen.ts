@@ -1,4 +1,7 @@
+import { UI } from "../dom";
+import { Operations } from "../operations";
 import { Point } from "../utils/point";
+import { Viewport } from "../viewport";
 import { drawMapAsset, drawTile, MapAssetCategory, MapAssetKey } from "./assets";
 import { blend, envelope, Envelope, hslToRgb } from "./colours";
 import { perlin } from "./perlin";
@@ -155,3 +158,68 @@ export const generateMap = async (settings: ScenarioSettings) => {
         await paintObjects(asset as MapAssetCategory, terrain, settings);
     }
 }
+
+UI.mapgen.dialog.addEventListener('mousemove', UI.stopEvent);
+
+let currentCanvas: OffscreenCanvas | undefined = undefined;
+UI.mapgen.submitButton.disabled = true;
+
+export const showMapGeneration = () => {
+    UI.mapgen.dialog.showModal();
+}
+
+const generate = async () => {
+    const sizeSelection = Number(UI.mapgen.size.value);
+    const size = 2 ** (sizeSelection + 8);
+    const tree = Number(UI.mapgen.tree.value) * 30 * (2 ** sizeSelection);
+    const plant = Number(UI.mapgen.plant.value) * 30 * (2 ** sizeSelection);
+    const rock = Number(UI.mapgen.rock.value) * 30 * (2 ** sizeSelection);
+
+    console.log('objects', tree, plant, rock);
+
+
+    const offscreenCanvas = new OffscreenCanvas(size, size);
+    const ctx = offscreenCanvas.getContext('2d')!;
+
+    await generateMap({
+        ctx: ctx as unknown as CanvasRenderingContext2D,
+        size,
+        perlinNodes: 8,
+        paintedObjects: {
+            rock,
+            plant,
+            tree
+        }
+    })
+    return offscreenCanvas;
+
+}
+
+UI.mapgen.previewButton.addEventListener('click', async () => {
+    currentCanvas = await generate();
+    const ctx = UI.mapgen.previewCanvas.getContext('2d')!;
+    const scale = ctx.canvas.width / currentCanvas.width;
+    ctx.resetTransform();
+    ctx.scale(scale, scale);
+    ctx.drawImage(currentCanvas, 0, 0);
+    UI.mapgen.submitButton.disabled = false;
+});
+
+
+UI.mapgen.form.onsubmit = (e) => {
+    if (currentCanvas) {
+        UI.mapgen.dialog.close();
+        (async () => {
+            const coords = Viewport.screen2World({ x: 0, y: 0 });
+
+            await Operations.add(await currentCanvas.convertToBlob(), coords.x, coords.y);
+
+            currentCanvas = undefined;
+            UI.mapgen.submitButton.disabled = true;
+        })();
+
+    }
+    e.preventDefault();
+    return false;
+};
+

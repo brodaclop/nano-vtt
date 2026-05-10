@@ -9,6 +9,7 @@ import "./messages";
 import "./canvas";
 import "./world";
 import "./editor";
+import "./mapgen/mapgen";
 import { World } from "./world";
 import { UI } from "./dom";
 

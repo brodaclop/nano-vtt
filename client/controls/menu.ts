@@ -1,7 +1,7 @@
 import { UI } from "../dom";
 import { Editor } from "../editor";
 import { Events } from "../events";
-import { generateMap } from "../mapgen/mapgen";
+import { generateMap, showMapGeneration } from "../mapgen/mapgen";
 import { Operations } from "../operations";
 import { Room } from "../room";
 import { Viewport } from "../viewport";
@@ -68,24 +68,7 @@ UI.menu.editFog.addEventListener('click', () => {
     UI.menu.editFog.blur();
 });
 
-UI.menu.generateMap.addEventListener('click', async () => {
-    const offscreenCanvas = new OffscreenCanvas(512, 512);
-    const ctx = offscreenCanvas.getContext('2d')!;
-    await generateMap({
-        ctx: ctx as unknown as CanvasRenderingContext2D,
-        size: 512,
-        perlinNodes: 8,
-        paintedObjects: {
-            rock: 50,
-            plant: 300,
-            tree: 80
-        }
-    });
-
-    const coords = Viewport.screen2World({ x: 0, y: 0 });
-
-    await Operations.add(await offscreenCanvas.convertToBlob(), coords.x, coords.y);
-})
+UI.menu.generateMap.addEventListener('click', showMapGeneration);
 
 Events.register('edit-mode-changed', editMode => {
     UI.menu.editFog.innerText = editMode === 'normal' ? 'Edit fog' : 'Finish fog editing';

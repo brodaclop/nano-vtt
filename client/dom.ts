@@ -8,7 +8,7 @@ export const UI = {
         close: document.querySelector('#plugin .close')! as HTMLButtonElement,
     },
     chat: {
-        main: document.querySelector('#chat')! as HTMLElement,
+        main: document.querySelector('#chat')!,
         close: document.querySelector('#chat .close')! as HTMLButtonElement,
         container: document.querySelector('#chat .container')! as HTMLElement,
         box: document.querySelector('#chat .messages')! as HTMLElement,
@@ -40,6 +40,18 @@ export const UI = {
         button: document.querySelector('.join button')! as HTMLButtonElement,
         room: document.querySelector('.join .room input') as HTMLInputElement,
         name: document.querySelector('.join .name input') as HTMLInputElement,
+    },
+    mapgen: {
+        dialog: document.querySelector('.mapgen')! as HTMLDialogElement,
+        form: document.querySelector('.mapgen form')! as HTMLFormElement,
+        size: document.querySelector('.mapgen form .size input')! as HTMLInputElement,
+        tree: document.querySelector('.mapgen form .tree input')! as HTMLInputElement,
+        plant: document.querySelector('.mapgen form .plant input')! as HTMLInputElement,
+        rock: document.querySelector('.mapgen form .rock input')! as HTMLInputElement,
+        submitButton: document.querySelector('.mapgen .submit')! as HTMLButtonElement,
+        previewButton: document.querySelector('.mapgen .preview')! as HTMLButtonElement,
+
+        previewCanvas: document.querySelector('.mapgen canvas')! as HTMLCanvasElement,
     },
     disableIfEmpty: (button: HTMLButtonElement, ...inputs: Array<HTMLInputElement>) => {
         const fn = () => button.disabled = inputs.some(input => !input.value)
