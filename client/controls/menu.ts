@@ -76,8 +76,8 @@ UI.menu.generateMap.addEventListener('click', async () => {
         size: 512,
         perlinNodes: 8,
         paintedObjects: {
-            plant: 300,
             rock: 50,
+            plant: 300,
             tree: 80
         }
     });

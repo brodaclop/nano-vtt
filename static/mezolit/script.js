@@ -3,7 +3,7 @@ window.addEventListener('message', ({ data }) => {
     const bodyStyle = document.querySelector('body').style;
     bodyStyle.height = `${data.height}px`;
     bodyStyle.width = `${data.width}px`;
-})
+});
 
 const bind = (input, parent, property) => {
     const type = typeof parent[property];
@@ -44,40 +44,53 @@ const button = (parent, label, action) => {
     })
 }
 
+const tr = (parent, tdContents) => {
+    elem(parent, 'tr', null, tr => {
+        tdContents.forEach(tdContent => {
+            if (typeof tdContent === 'string') {
+                elem(tr, 'th', tdContent);
+            } else {
+                elem(tr, 'td', null, td => tdContent(td))
+            }
+        });
+    });
+}
 
-
-
-
-const charString = localStorage.getItem('character');
-
-const character = charString ? JSON.parse(charString) : {
-    name: '',
-    age: '',
-    background: '',
-    attributes: {
-        Hunting: { max: 1, val: 1 },
-        Making: { max: 1, val: 1 },
-        Life: { max: 1, val: 1 },
-        Cunning: { max: 1, val: 1 },
-        Song: { max: 1, val: 1 },
-        Anima: { max: 1, val: 1 }
-    },
-    description: '',
-    notes: '',
-    items: [],
-    songs: [],
-    tattoos: [],
-};
+let character;
 
 const save = () => localStorage.setItem('character', JSON.stringify(character));
 
-save();
+const loadCharacter = () => {
+    const charString = localStorage.getItem('character');
+
+    character = charString ? JSON.parse(charString) : {
+        name: '',
+        age: '',
+        background: '',
+        attributes: {
+            Hunting: { max: 1, val: 1 },
+            Making: { max: 1, val: 1 },
+            Life: { max: 1, val: 1 },
+            Cunning: { max: 1, val: 1 },
+            Song: { max: 1, val: 1 },
+            Anima: { max: 1, val: 1 }
+        },
+        description: '',
+        notes: '',
+        items: [],
+        songs: [],
+        tattoos: [],
+    };
+
+    save();
+
+};
+
 
 const populateTextSection = (title) => {
     const field = title.toLowerCase();
 
     const tbody = document.querySelector(`#section-${title} tbody`);
-
     elem(tbody, 'tr', null, tr => {
         elem(tr, 'td', null, td => {
             elem(td, 'textarea', character[field], text => {
@@ -89,29 +102,31 @@ const populateTextSection = (title) => {
 
 const populateCharacter = () => {
     const tbody = document.querySelector('#section-Character tbody');
-    ['Name', 'Age', 'Background'].forEach(label => elem(tbody, 'tr', null, tr => {
-        elem(tr, 'th', label);
-        elem(tr, 'td', null, td => {
-            td.colSpan = 2;
-            input(td, 'text', character, label.toLowerCase());
-        })
-    }));
+    ['Name', 'Age', 'Background'].forEach(label => tr(tbody,
+        [
+            label,
+            td => {
+                td.colSpan = 2;
+                input(td, 'text', character, label.toLowerCase());
+            }
+        ]
+    ));
 
 
     Object.entries(character.attributes).forEach(([name, value]) => {
-        elem(tbody, 'tr', null, tr => {
-            elem(tr, 'th', name);
-            elem(tr, 'td', null, td => {
+        tr(tbody, [
+            name,
+            td => {
                 input(td, 'number', value, 'val');
                 td.appendChild(document.createTextNode('/'));
                 input(td, 'number', value, 'max');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 button(td, 'Roll', () => {
                     window.parent?.postMessage(`${name} check: ${value.val}D`, '*');
                 });
-            })
-        });
+            }
+        ])
     });
 }
 
@@ -119,22 +134,22 @@ const populateSongs = () => {
     const tbody = document.querySelector('#section-Songs tbody');
     tbody.replaceChildren();
     character.songs.forEach((song, idx) => {
-        elem(tbody, 'tr', null, tr => {
-            elem(tr, 'td', null, td => {
+        tr(tbody, [
+            td => {
                 input(td, 'text', song, 'name');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 input(td, 'number', song, 'difficulty');
-            })
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 td.className = 'delete';
                 button(td, '❌', () => {
                     character.songs.splice(idx, 1);
                     save();
                     populateSongs();
                 });
-            })
-        })
+            }
+        ])
     });
     elem(tbody, 'tr', null, tr => {
         tr.className = 'buttonrow';
@@ -157,31 +172,31 @@ const populateItems = (section) => {
     tbody.replaceChildren();
     const field = section.toLowerCase();
     character[field].forEach((item, idx) => {
-        elem(tbody, 'tr', null, tr => {
-            elem(tr, 'td', null, td => {
+        tr(tbody, [
+            td => {
                 input(td, 'text', item, 'name');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 input(td, 'number', item, 'strength');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 input(td, 'number', item, 'difficulty');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 input(td, 'checkbox', item, 'canMake');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 input(td, 'number', item, 'charges');
-            });
-            elem(tr, 'td', null, td => {
+            },
+            td => {
                 td.className = 'delete';
                 button(td, '❌', () => {
                     character[field].splice(idx, 1);
                     save();
                     populateItems(section);
                 });
-            })
-        })
+            }
+        ]);
     });
     elem(tbody, 'tr', null, tr => {
         tr.className = 'buttonrow';
@@ -231,6 +246,7 @@ const populateNav = () => {
     });
 };
 
+loadCharacter();
 selectSection('Character');
 populateCharacter();
 populateRolls();
@@ -241,9 +257,3 @@ populateTextSection('Notes');
 populateTextSection('Description');
 populateNav();
 
-
-
-// textSection('Equipment', 'equipment');
-// textSection('Songs', 'songs');
-// textSection('Notes', 'notes');
-// textSection('Backstory', 'backstory');

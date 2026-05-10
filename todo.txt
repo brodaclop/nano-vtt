@@ -6,7 +6,6 @@ Map:
  
 Chat:
   - change name?
-  - open chat box in multiple places? probably not
 
 Menu:
 
@@ -14,20 +13,18 @@ Other:
   - enforce max lengths for strings/blobs
   - update wrangler
   - make binding make sense
-  - iframe scrolling
   - clean up sync processing
 
 Mapgen:
   - add mapgen dialog
   - create different scenarios
-  - calculate road width properly
-  - don't place objects on path
+
+
+Plugin:
 
 Bugs:
   - scrollIntoView() is too trigger-happy  
 
-Plugin:
-  - iframe resize messaging
 
 
 

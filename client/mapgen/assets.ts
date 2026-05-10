@@ -11,12 +11,42 @@ export type MapAssetCategory = 'rock' | 'tree' | 'plant';
 const MapAsset = {
     ROCK: {
         url: '/assets/mapgen/rock.png',
+        rescaleX: 16,
+        rescaleY: 16,
+        category: 'rock',
+    },
+    ROCK2: {
+        url: '/assets/mapgen/rock2.png',
         rescaleX: 32,
-        rescaleY: 32,
+        rescaleY: 8,
+        category: 'rock',
+    },
+    ROCK3: {
+        url: '/assets/mapgen/rock3.png',
+        rescaleX: 32,
+        rescaleY: 8,
         category: 'rock',
     },
     PLANT: {
         url: '/assets/mapgen/plant.png',
+        rescaleX: 16,
+        rescaleY: 16,
+        category: 'plant'
+    },
+    PLANT2: {
+        url: '/assets/mapgen/plant2.png',
+        rescaleX: 16,
+        rescaleY: 16,
+        category: 'plant'
+    },
+    PLANT3: {
+        url: '/assets/mapgen/plant3.png',
+        rescaleX: 16,
+        rescaleY: 16,
+        category: 'plant'
+    },
+    PLANT4: {
+        url: '/assets/mapgen/plant4.png',
         rescaleX: 16,
         rescaleY: 16,
         category: 'plant'
@@ -29,6 +59,24 @@ const MapAsset = {
     },
     TREE2: {
         url: '/assets/mapgen/tree2.png',
+        rescaleX: 48,
+        rescaleY: 48,
+        category: 'tree',
+    },
+    TREE3: {
+        url: '/assets/mapgen/tree3.png',
+        rescaleX: 48,
+        rescaleY: 48,
+        category: 'tree',
+    },
+    TREE4: {
+        url: '/assets/mapgen/tree4.png',
+        rescaleX: 48,
+        rescaleY: 48,
+        category: 'tree',
+    },
+    TREE5: {
+        url: '/assets/mapgen/tree5.png',
         rescaleX: 48,
         rescaleY: 48,
         category: 'tree',
