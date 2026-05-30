@@ -94,6 +94,7 @@ window.addEventListener("message", (event) => {
     const text = Interpolation.perform(String(event.data));
     const message = { id: random(), sender: Room.me, text };
     addChatMessage(message);
+    Send.chat(message);
 });
 
 const bell = new Audio('/sounds/bell.wav');

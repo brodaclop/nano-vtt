@@ -39,9 +39,10 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Str.</th>
-                        <th>Diff.</th>
+                        <th>Owns</th>
                         <th>Can make</th>
+                        <th>Diff.</th>
+                        <th>Str.</th>
                         <th>Charges</th>
                         <th />
                     </tr>
@@ -57,9 +58,10 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Str.</th>
-                        <th>Diff.</th>
+                        <th>Owns</th>
                         <th>Can make</th>
+                        <th>Diff.</th>
+                        <th>Str.</th>
                         <th>Charges</th>
                         <th />
                     </tr>
@@ -157,6 +159,14 @@
         caption {
             font-weight: bold;
             text-decoration: underline;
+        }
+
+        .enchantment::before {
+            content: '✨';
+        }
+
+        .enchantment input {
+            width: calc(90% - 1.6em);
         }
     </style>
 </body>

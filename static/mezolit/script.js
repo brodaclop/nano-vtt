@@ -29,6 +29,7 @@ const elem = (parent, name, value, setup) => {
         ret.innerText = value;
     }
     setup?.(ret);
+    return ret;
 };
 
 const input = (parent, type, ob, prop) => {
@@ -44,17 +45,16 @@ const button = (parent, label, action) => {
     })
 }
 
-const tr = (parent, tdContents) => {
-    elem(parent, 'tr', null, tr => {
-        tdContents.forEach(tdContent => {
-            if (typeof tdContent === 'string') {
-                elem(tr, 'th', tdContent);
-            } else {
-                elem(tr, 'td', null, td => tdContent(td))
-            }
-        });
+const tr = (parent, tdContents) => elem(parent, 'tr', null, tr => {
+    tdContents.forEach(tdContent => {
+        if (typeof tdContent === 'string') {
+            elem(tr, 'th', tdContent);
+        } else {
+            elem(tr, 'td', null, td => tdContent(td))
+        }
     });
-}
+});
+
 
 let character;
 
@@ -81,6 +81,19 @@ const loadCharacter = () => {
         songs: [],
         tattoos: [],
     };
+
+    character.items.forEach(item => {
+        if (item.maxCharges === undefined) {
+            item.maxCharges = item.charges;
+        }
+    });
+
+    character.tattoos.forEach(item => {
+        if (item.maxCharges === undefined) {
+            item.maxCharges = item.charges;
+        }
+    });
+
 
     save();
 
@@ -167,7 +180,7 @@ const populateSongs = () => {
     });
 }
 
-const populateItems = (section) => {
+const populateItems = (section, canEnchant) => {
     const tbody = document.querySelector(`#section-${section} tbody`);
     tbody.replaceChildren();
     const field = section.toLowerCase();
@@ -177,26 +190,77 @@ const populateItems = (section) => {
                 input(td, 'text', item, 'name');
             },
             td => {
-                input(td, 'number', item, 'strength');
-            },
-            td => {
-                input(td, 'number', item, 'difficulty');
+                input(td, 'checkbox', item, 'owns');
             },
             td => {
                 input(td, 'checkbox', item, 'canMake');
             },
             td => {
+                input(td, 'number', item, 'difficulty');
+            },
+            td => {
+                input(td, 'number', item, 'strength');
+            },
+            td => {
                 input(td, 'number', item, 'charges');
+                elem(td, 'span', '/');
+                input(td, 'number', item, 'maxCharges');
             },
             td => {
                 td.className = 'delete';
+                if (canEnchant && !item.enchantment) {
+                    button(td, '✨', () => {
+                        item.enchantment = {
+                            name: '',
+                            strength: 0,
+                            charges: 0,
+                            maxCharges: 0
+                        };
+                        save();
+                        populateItems(section, canEnchant);
+                    });
+
+                }
                 button(td, '❌', () => {
                     character[field].splice(idx, 1);
                     save();
-                    populateItems(section);
+                    populateItems(section, canEnchant);
                 });
             }
         ]);
+        if (item.enchantment) {
+            tr(tbody, [
+                td => {
+                    td.className = 'enchantment';
+                    input(td, 'text', item.enchantment, 'name');
+                },
+                td => {
+
+                },
+                td => {
+
+                },
+                td => {
+
+                },
+                td => {
+                    input(td, 'number', item.enchantment, 'strength');
+                },
+                td => {
+                    input(td, 'number', item.enchantment, 'charges');
+                    elem(td, 'span', '/');
+                    input(td, 'number', item.enchantment, 'maxCharges');
+                },
+                td => {
+                    td.className = 'delete';
+                    button(td, '❌', () => {
+                        delete item.enchantment;
+                        save();
+                        populateItems(section, canEnchant);
+                    });
+                }
+            ])
+        }
     });
     elem(tbody, 'tr', null, tr => {
         tr.className = 'buttonrow';
@@ -251,7 +315,7 @@ selectSection('Character');
 populateCharacter();
 populateRolls();
 populateSongs();
-populateItems('Items');
+populateItems('Items', true);
 populateItems('Tattoos');
 populateTextSection('Notes');
 populateTextSection('Description');

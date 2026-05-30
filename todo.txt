@@ -25,6 +25,8 @@ Mapgen:
 
 
 Plugin:
+  - link book to Plugin
+  - highlight items together with their enchantments
 
 Bugs:
   - scrollIntoView() is too trigger-happy  

@@ -3,7 +3,10 @@
     top: var(--menu-height);
     right: 0;
     height: calc(100dvh - var(--menu-height));
-    width: 20dvw;
+    width: 40dvw;
+    max-width: 40dvw;
+    resize: horizontal;
+    overflow-x: hidden;
     background-color: darkseagreen;
     z-index: 1;
     font-size: var(--font-size);
