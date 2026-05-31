@@ -93,7 +93,9 @@ const update = async (change: Partial<Omit<RawMapObject, 'id'>>) => {
     const selected = Editor.selected;
     if (selected) {
         const ob = await World.change.update({ ...change, id: selected });
-        const fields = Object.keys(change) as Array<keyof RawMapObject>;
-        Send.object(ob, fields);
+        if (ob) {
+            const fields = Object.keys(change) as Array<keyof RawMapObject>;
+            Send.object(ob, fields);
+        }
     }
 }

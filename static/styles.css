@@ -15,6 +15,42 @@ div.canvas {
     left: 0;
 }
 
+ul#toaster-container {
+    list-style: none;
+    position: fixed;
+    background-color: transparent;
+    top: 2.5em;
+    left: 0.5em;
+    padding: 0;
+}
+
+ul#toaster-container li {
+    width: 10dvw;
+    margin-bottom: 1em;
+    border: 1px solid white;
+    padding: 0.25em;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+ul#toaster-container li.warning.fadeOut,
+li.error.fadeOut {
+    opacity: 0;
+}
+
+ul#toaster-container li.warning {
+    background-color: bisque;
+    color: black;
+    opacity: 1;
+}
+
+
+ul#toaster-container li.error {
+    background-color: crimson;
+    color: black;
+    opacity: 1;
+}
+
 canvas.fog {
     cursor: crosshair;
 }

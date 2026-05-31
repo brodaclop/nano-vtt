@@ -2,6 +2,7 @@ import { ChatMessage, FogCircle, Grid, HelloMessage, JoinMessage, MapObject, Raw
 import { Socket } from "./websocket";
 import { Events } from "./events";
 import { ALL_FIELDS, Converter } from "./utils/converters";
+import { Toaster } from "./utils/toaster";
 
 enum MessageType {
     PING = 0,
@@ -74,7 +75,7 @@ Events.register('incoming-message', async (data: Blob) => {
             await Events.emit({ type: 'typing-received', payload: { action: 'end', user: await Converter.typing.from(payload) } })
             return;
         }
-        default: throw new Error(`Unknown message type: ${type}`)
+        default: Toaster.error(`Unknown message type: ${type}`); return;
     }
 });
 

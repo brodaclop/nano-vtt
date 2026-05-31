@@ -2,6 +2,7 @@ import { random } from "./utils/random";
 import { Events } from "./events";
 import { HelloMessage, JoinMessage } from "./types/map-objects";
 import { Send } from "./messages";
+import { Toaster } from "./utils/toaster";
 
 let MY_USER_ID = random();
 const users: Map<number, string> = new Map();
@@ -19,6 +20,7 @@ Events.register('socket-status-changed', status => {
     if (status === 'connected' && currentRoom) {
         joinRoom(currentRoom, users.get(MY_USER_ID)!);
     }
+    Toaster.warn(`Network: ${status}`)
 });
 
 Events.register('join-received', (message: JoinMessage) => {

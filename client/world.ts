@@ -1,6 +1,7 @@
 import { Editor } from "./editor";
 import { Events } from "./events";
 import { FogCircle, Grid, MapObject, RawMapObject, WorldObject } from "./types/map-objects";
+import { Toaster } from "./utils/toaster";
 
 let objects: Array<MapObject> = [];
 let grid: Grid = {
@@ -74,7 +75,8 @@ export const World = {
                     return newOb;
                 } else {
                     console.trace('This object is incomplete', newOb);
-                    throw new Error('Object incomplete');
+                    Toaster.error('Incomplete object received');
+                    return null;
                 }
             }
         }),
@@ -113,6 +115,7 @@ Events.register('grid-received', World.change.setGrid);
 Events.register('object-delete-received', World.change.remove);
 Events.register('object-received', World.change.update);
 Events.register('sync-received', changeFn(async (newWorld: WorldObject) => {
+    Toaster.warn(`Sync received`);
     objects = await Promise.all(newWorld.objects.map(extendWithImage));
     grid = newWorld.grid;
     fog = newWorld.fog;

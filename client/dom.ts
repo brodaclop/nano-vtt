@@ -3,6 +3,7 @@ export const UI = {
     canvasContainer: document.querySelector('.canvas')!,
     canvas: document.querySelector('.canvas canvas')! as HTMLCanvasElement,
     sidebar: document.querySelector('#sidebar')! as HTMLElement,
+    toasterContainer: document.querySelector('#toaster-container')! as HTMLElement,
     plugin: {
         main: document.querySelector('#plugin')! as HTMLElement,
         close: document.querySelector('#plugin .close')! as HTMLButtonElement,

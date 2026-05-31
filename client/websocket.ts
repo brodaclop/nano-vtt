@@ -1,6 +1,7 @@
 import { Events } from "./events";
 import { fromBinary, Header, toBinary } from "./utils/headers";
 import { random } from "./utils/random";
+import { Toaster } from "./utils/toaster";
 
 export type SocketStatus = 'disconnected' | 'connecting...' | 'waiting...' | 'connected';
 
@@ -61,6 +62,7 @@ const splitToFragments = (blob: Blob): Array<Blob> => {
     const fragmentCount = Math.ceil(blob.size / MAX_FRAGMENT_SIZE);
     const ret: Array<Blob> = [];
     if (fragmentCount > 255) {
+        Toaster.error('Failed to send message');
         throw new Error('too many fragments');
     }
     for (let i = 0; i < fragmentCount; i++) {
