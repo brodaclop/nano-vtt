@@ -44,7 +44,7 @@ export default {
 // Durable Object
 export class VttSessions extends DurableObject {
 	// Keeps track of all WebSocket connections
-	sessions: Map<WebSocket, string> = new Map();
+	sessions: Map<WebSocket, string | { room: string, user: number }> = new Map();
 	rooms: Map<string, Array<WebSocket>> = new Map();
 
 	constructor(ctx: DurableObjectState, env: Env) {
@@ -84,25 +84,51 @@ export class VttSessions extends DurableObject {
 
 	async handleWebSocketMessage(ws: WebSocket, message: string | ArrayBuffer) {
 		await this.processRoomJoinMessage(message as ArrayBuffer, ws);
-		const room = this.sessions.get(ws)!;
 
-		if (room) {
-			this.getOthersInSameRoom(ws).forEach(target => {
-				target.send(message);
-			});
-		}
+		this.getOthersInSameRoom(ws).forEach(target => {
+			target.send(message);
+		});
+	}
+
+	random = () => {
+		const a = new Uint32Array(1);
+		self.crypto.getRandomValues(a);
+		return a[0];
+	}
+
+	constructLeaveMessage = (ws: WebSocket): ArrayBuffer => {
+		const user = this.getSession(ws)?.user ?? 0;
+		const ret = new ArrayBuffer(11);
+		const dv = new DataView(ret);
+		dv.setUint32(0, this.random());
+		dv.setUint8(4, 0);
+		dv.setUint8(5, 1);
+		dv.setUint8(6, 0); // LEAVE message type
+		dv.setInt32(7, user);
+		return ret;
 	}
 
 	async handleConnectionClose(ws: WebSocket) {
-		console.trace('leaving room', ws);
-		this.leaveRoom(ws);
+		console.info('leaving room', ws);
+		await this.leaveRoom(ws);
 		ws.close(1000, 'Closing WebSocket');
 	}
 
+	getSession = (ws: WebSocket): { room: string, user: number } | undefined => {
+		const entry = this.sessions.get(ws);
+		if (entry === undefined) {
+			return undefined;
+		}
+		if (typeof entry === 'string') {
+			return { room: entry, user: 0 }; // this shouldn't happen;
+		}
+		return entry;
+	}
+
 	getOthersInSameRoom = (ws: WebSocket): Array<WebSocket> => {
-		const room = this.sessions.get(ws);
-		if (room) {
-			return this.rooms.get(room)!.filter(item => item !== ws);
+		const session = this.getSession(ws);
+		if (session) {
+			return this.rooms.get(session.room)!.filter(item => item !== ws);
 		}
 		return [];
 	}
@@ -114,19 +140,21 @@ export class VttSessions extends DurableObject {
 		const mType = buffer.readUInt8(6);
 		// TODO: there must be a better way to share constants, this is MessageType.JOIN_ROOM
 		if (mType === 3 && fragNo === 0 && fragCount === 1) {
-			const blob = new Blob([buffer]);
-			const [room, name] = (await blob.slice(11).text()).split(' | ');
+			const user = new DataView(message).getInt32(7);
+			const [room, name] = (await new Blob([buffer]).slice(11).text()).split(' | ');
 
-			console.trace('joining room', room, name);
-			this.sessions.set(ws, room);
+			console.info('joining room', user, room, name);
+			this.sessions.set(ws, { room, user });
 			this.rooms.set(room, [...(this.rooms.get(room) ?? []), ws]);
 		}
 	}
 
-	leaveRoom = (ws: WebSocket) => {
-		const room = this.sessions.get(ws);
-		if (room) {
-			this.rooms.set(room, this.getOthersInSameRoom(ws))
+	leaveRoom = async (ws: WebSocket) => {
+		const session = this.getSession(ws);
+		if (session) {
+			await this.handleWebSocketMessage(ws, this.constructLeaveMessage(ws))
+
+			this.rooms.set(session.room, this.getOthersInSameRoom(ws))
 			this.sessions.delete(ws);
 		}
 

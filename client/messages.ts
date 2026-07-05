@@ -5,7 +5,7 @@ import { ALL_FIELDS, Converter } from "./utils/converters";
 import { Toaster } from "./utils/toaster";
 
 enum MessageType {
-    PING = 0,
+    LEAVE = 0,
     OBJECT = 1,
     CHAT = 2,
     JOIN_ROOM = 3,
@@ -73,6 +73,10 @@ Events.register('incoming-message', async (data: Blob) => {
         }
         case MessageType.TYPING_END: {
             await Events.emit({ type: 'typing-received', payload: { action: 'end', user: await Converter.typing.from(payload) } })
+            return;
+        }
+        case MessageType.LEAVE: {
+            await Events.emit({ type: 'leave-received', payload: { sender: await Converter.leave.from(payload) } })
             return;
         }
         default: Toaster.error(`Unknown message type: ${type}`); return;

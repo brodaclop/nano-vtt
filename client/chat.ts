@@ -90,7 +90,6 @@ Events.register('typing-received', ({ user, action }: { user: number, action: 's
 });
 
 window.addEventListener("message", (event) => {
-    console.log('CHAT FROM IFRAME', event);
     const text = Interpolation.perform(String(event.data));
     const message = { id: random(), sender: Room.me, text };
     addChatMessage(message);

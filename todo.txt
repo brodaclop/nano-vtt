@@ -1,7 +1,7 @@
 Networking:
   - auth
   - debounce
-
+  
 Map:
  
 Chat:
@@ -20,8 +20,9 @@ Mapgen:
   - add labels to assets
   - add selectable labels
   - add road width
-  - add perlin noise parameters
   - tidy up l&f, make dialog 80% of the screen
+  - recalculate densities to new assets
+  - move flipping to PaintedObject definition
 
 
 Plugin:

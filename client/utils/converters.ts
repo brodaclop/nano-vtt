@@ -10,6 +10,7 @@ const OBJECT_HEADER_LENGTH = NUMBER_FIELDS.length * 4 + 8;
 const CHAT_FIELDS = ['id', 'sender'] as const satisfies Array<string>;
 const GRID_FIELDS = ['size', 'strength'] as const satisfies Array<string>;
 const TYPING_FIELDS = ['sender'] as const satisfies Array<string>;
+const LEAVE_FIELDS = ['sender'] as const satisfies Array<string>;
 const JOIN_FIELDS = ['sender'] as const satisfies Array<string>;
 const HELLO_FIELDS = ['sender'] as const satisfies Array<string>;
 const FOG_CIRCLE_FIELDS = ['owner', 'originX', 'originY', 'radius', 'reverted'] as const satisfies Array<string>;
@@ -163,6 +164,14 @@ export const Converter = {
         },
         to: (me: number) => {
             return packSimpleBlob({ sender: me }, TYPING_FIELDS);
+        }
+    },
+    leave: {
+        from: async (blob: Blob): Promise<number> => {
+            return (await unpackSimpleBlob(blob, LEAVE_FIELDS)).sender;
+        },
+        to: (me: number) => {
+            return packSimpleBlob({ sender: me }, LEAVE_FIELDS);
         }
     },
     join: {

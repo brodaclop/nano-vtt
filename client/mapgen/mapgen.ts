@@ -13,8 +13,8 @@ export const HUE_ENVELOPE = [
 ] satisfies Envelope;
 
 export const SAT_ENVELOPE = [
-    [0, 0.7],
-    [1, 0.2]
+    [0, 0.4],
+    [1, 0.1]
 ] satisfies Envelope;
 
 
@@ -42,13 +42,14 @@ const paintObjects = async (asset: MapAssetCategory, terrain: Array<number>, { c
             objects.push({
                 x: idx % size,
                 y: Math.floor(idx / size),
-                angle: 2 * Math.PI * Math.random(),
+                //angle: 2 * Math.PI * Math.random(),
+                angle: 0,
                 scale: 0.5 + Math.random()
             });
         }
     }
 
-    objects.sort((a, z) => a.scale - z.scale);
+    objects.sort((a, z) => a.y - z.y);
 
     await drawMapAsset(asset, bitmaps => {
         objects.forEach(ob => {
@@ -58,7 +59,7 @@ const paintObjects = async (asset: MapAssetCategory, terrain: Array<number>, { c
             ctx.resetTransform();
             ctx.translate(ob.x, ob.y);
             ctx.rotate(ob.angle);
-            ctx.scale(ob.scale, ob.scale);
+            ctx.scale((Math.random() > 0.5 ? 1 : -1) * ob.scale, ob.scale);
             ctx.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2);
         });
     });
@@ -82,7 +83,7 @@ const generatePath = (topX: number, bottomX: number, y: number, breaks: number):
 const paintPath = async ({ size, ctx }: ScenarioSettings, terrain: Array<number>) => {
     const pathContext = new OffscreenCanvas(size, size).getContext('2d')!;
     const dirtRoad = await drawTile('DIRTROAD', size);
-    const WIDTH = 30;
+    const WIDTH = 80;
     const line = async (points: Array<Point>, width: number) => {
         pathContext.strokeStyle = pathContext.createPattern(await createImageBitmap(dirtRoad), 'repeat')!;
         pathContext.lineWidth = width;
@@ -102,9 +103,11 @@ const paintPath = async ({ size, ctx }: ScenarioSettings, terrain: Array<number>
         [1, 0.2],
     ];
     for (let alpha of ALPHA) {
-        pathContext.globalAlpha = alpha[1];
+        pathContext.globalAlpha = alpha[1] / 4;
         await line(path.map(p => Point.fromCoords(p[1], p[0])), WIDTH * alpha[0]);
     }
+    pathContext.globalAlpha = 0.01
+    await line(path.map(p => Point.fromCoords(p[1], p[0])), WIDTH * 1.5);
     const image = pathContext.getImageData(0, 0, size, size);
     for (let i = 0; i < size * size; i++) {
         if (image.data[i * 4 + 3] > 0) {
@@ -141,9 +144,9 @@ const paintTerrain = async (terrain: Array<number>, { ctx, size }: ScenarioSetti
 }
 
 const objectThresholdFn: Record<MapAssetCategory, (terrain: Array<number>, idx: number) => boolean> = {
-    plant: (terrain, idx) => terrain[idx] < 256 && Math.random() > terrain[idx] / 2,
-    rock: (terrain, idx) => terrain[idx] < 256 && Math.random() > terrain[idx],
-    tree: (terrain, idx) => terrain[idx] < 256 && Math.random() < terrain[idx]
+    plant: (terrain, idx) => terrain[idx] < 256 && terrain[idx] < 0.4,
+    rock: (terrain, idx) => terrain[idx] < 256 && terrain[idx] > 0.6,
+    tree: (terrain, idx) => terrain[idx] < 256 && 0.3 < terrain[idx] && 0.7 > terrain[idx]
 };
 
 export const generateMap = async (settings: ScenarioSettings) => {
@@ -170,12 +173,11 @@ export const showMapGeneration = () => {
 
 const generate = async () => {
     const sizeSelection = Number(UI.mapgen.size.value);
+    const busyness = 2 ** (Number(UI.mapgen.busyness.value) + 1);
     const size = 2 ** (sizeSelection + 8);
     const tree = Number(UI.mapgen.tree.value) * 30 * (2 ** sizeSelection);
     const plant = Number(UI.mapgen.plant.value) * 30 * (2 ** sizeSelection);
     const rock = Number(UI.mapgen.rock.value) * 30 * (2 ** sizeSelection);
-
-    console.log('objects', tree, plant, rock);
 
 
     const offscreenCanvas = new OffscreenCanvas(size, size);
@@ -184,7 +186,7 @@ const generate = async () => {
     await generateMap({
         ctx: ctx as unknown as CanvasRenderingContext2D,
         size,
-        perlinNodes: 8,
+        perlinNodes: busyness,
         paintedObjects: {
             rock,
             plant,

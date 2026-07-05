@@ -1,6 +1,6 @@
 import { random } from "./utils/random";
 import { Events } from "./events";
-import { HelloMessage, JoinMessage } from "./types/map-objects";
+import { HelloMessage, JoinMessage, LeaveMessage } from "./types/map-objects";
 import { Send } from "./messages";
 import { Toaster } from "./utils/toaster";
 
@@ -29,6 +29,12 @@ Events.register('join-received', (message: JoinMessage) => {
     Events.emit({ type: 'room-changed', payload: [...users.keys()] })
     Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '[i]<joined>[/i]' } })
 });
+
+Events.register('leave-received', async (message: LeaveMessage) => {
+    await Events.emit({ type: 'chat-received', payload: { id: random(), sender: message.sender, text: '[i]<left>[/i]' } })
+    users.delete(message.sender);
+    await Events.emit({ type: 'room-changed', payload: [...users.keys()] })
+})
 
 Events.register('hello-received', ({ sender, name }: HelloMessage) => {
     if (users.get(sender) !== name) {

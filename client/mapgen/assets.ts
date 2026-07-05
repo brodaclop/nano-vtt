@@ -9,85 +9,62 @@ interface MapAsset {
 export type MapAssetCategory = 'rock' | 'tree' | 'plant';
 
 const MapAsset = {
-    ROCK: {
-        url: '/assets/mapgen/rock.png',
+    KO1: {
+        url: '/assets/mapgen/ko1.png',
         rescaleX: 16,
         rescaleY: 16,
         category: 'rock',
     },
-    ROCK2: {
-        url: '/assets/mapgen/rock2.png',
+    KO2: {
+        url: '/assets/mapgen/ko2.png',
+        rescaleX: 12,
+        rescaleY: 16,
+        category: 'rock',
+    },
+    KO3: {
+        url: '/assets/mapgen/ko3.png',
+        rescaleX: 16,
+        rescaleY: 13,
+        category: 'rock',
+    },
+
+    BOKOR1: {
+        url: '/assets/mapgen/bokor1.png',
+        rescaleX: 30,
+        rescaleY: 32,
+        category: 'plant'
+    },
+    BOKOR2: {
+        url: '/assets/mapgen/bokor2.png',
         rescaleX: 32,
-        rescaleY: 8,
-        category: 'rock',
-    },
-    ROCK3: {
-        url: '/assets/mapgen/rock3.png',
-        rescaleX: 32,
-        rescaleY: 8,
-        category: 'rock',
-    },
-    PLANT: {
-        url: '/assets/mapgen/plant.png',
-        rescaleX: 16,
-        rescaleY: 16,
+        rescaleY: 31,
         category: 'plant'
     },
-    PLANT2: {
-        url: '/assets/mapgen/plant2.png',
-        rescaleX: 16,
-        rescaleY: 16,
-        category: 'plant'
-    },
-    PLANT3: {
-        url: '/assets/mapgen/plant3.png',
-        rescaleX: 16,
-        rescaleY: 16,
-        category: 'plant'
-    },
-    PLANT4: {
-        url: '/assets/mapgen/plant4.png',
-        rescaleX: 16,
-        rescaleY: 16,
-        category: 'plant'
-    },
-    TREE: {
-        url: '/assets/mapgen/tree.png',
-        rescaleX: 48,
-        rescaleY: 48,
+    FA2: {
+        url: '/assets/mapgen/fa2.png',
+        rescaleX: 128,
+        rescaleY: 119,
         category: 'tree',
     },
-    TREE2: {
-        url: '/assets/mapgen/tree2.png',
-        rescaleX: 48,
-        rescaleY: 48,
+    FA3: {
+        url: '/assets/mapgen/fa3.png',
+        rescaleX: 124,
+        rescaleY: 128,
         category: 'tree',
     },
-    TREE3: {
-        url: '/assets/mapgen/tree3.png',
-        rescaleX: 48,
-        rescaleY: 48,
-        category: 'tree',
-    },
-    TREE4: {
-        url: '/assets/mapgen/tree4.png',
-        rescaleX: 48,
-        rescaleY: 48,
-        category: 'tree',
-    },
-    TREE5: {
-        url: '/assets/mapgen/tree5.png',
-        rescaleX: 48,
-        rescaleY: 48,
+    FA4: {
+        url: '/assets/mapgen/fa4.png',
+        rescaleX: 74,
+        rescaleY: 128,
         category: 'tree',
     },
     GRASS: {
-        url: '/assets/mapgen/grass.webp',
+        url: '/assets/mapgen/grass.png',
         rescaleX: 250,
         rescaleY: 175
     },
     DIRT: {
-        url: '/assets/mapgen/dirt.jpg',
+        url: '/assets/mapgen/dirt.png',
         rescaleX: 75,
         rescaleY: 75
     },

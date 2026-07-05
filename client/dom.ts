@@ -46,6 +46,7 @@ export const UI = {
         dialog: document.querySelector('.mapgen')! as HTMLDialogElement,
         form: document.querySelector('.mapgen form')! as HTMLFormElement,
         size: document.querySelector('.mapgen form .size input')! as HTMLInputElement,
+        busyness: document.querySelector('.mapgen form .busyness input')! as HTMLInputElement,
         tree: document.querySelector('.mapgen form .tree input')! as HTMLInputElement,
         plant: document.querySelector('.mapgen form .plant input')! as HTMLInputElement,
         rock: document.querySelector('.mapgen form .rock input')! as HTMLInputElement,

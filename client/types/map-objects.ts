@@ -44,3 +44,7 @@ export interface HelloMessage {
     sender: number;
     name: string;
 }
+
+export interface LeaveMessage {
+    sender: number;
+}
